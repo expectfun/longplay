@@ -81,8 +81,17 @@
     font-weight: 600; font-size: .9rem; padding: 6px 14px; border-radius: 999px;
   }
   .preview .pv-read:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .preview .pv-title { padding-right: 26px; }
+  .pv-close {
+    position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: none; color: var(--muted); cursor: pointer; font: 22px/1 system-ui, sans-serif;
+  }
+  .pv-close:hover { color: var(--ink); }
+  .pv-close:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
   @media (max-width: 720px) {
     .preview { position: fixed; left: 12px; right: 12px; bottom: 12px; width: auto; }
+    /* room to scroll the last tracks out from under the open card */
+    body:has(.preview.on) { padding-bottom: 240px; }
   }
 
   /* fade through dark between pages */
@@ -170,6 +179,7 @@
         <p id="pvTeaser"></p>
         <a class="pv-read" id="pvRead">Read →</a>
       </div>
+      <button class="pv-close" id="pvClose" type="button" aria-label="Close">×</button>
     </div>
     <div class="deck" id="deck">
       <!-- static deck: plinth, platter, strobe dots, pivot base -->
@@ -718,6 +728,10 @@ function showPreview(i) {
   $('preview').classList.add('on');
 }
 function hidePreview() { $('preview').classList.remove('on'); }
+
+// closing the card only clears the view: the record keeps playing, and clicking the track brings the card back
+$('pvClose').addEventListener('click', ev => { ev.stopPropagation(); hidePreview(); });
+addEventListener('keydown', ev => { if (ev.key === 'Escape') hidePreview(); });
 
 $('pvRead').addEventListener('click', ev => {
   if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
