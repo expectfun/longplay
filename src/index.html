@@ -214,7 +214,10 @@
           <div class="spin" id="spin">
           <svg viewBox="-360 -360 720 720" id="recordSvg" aria-hidden="true">
             <defs>
-              <clipPath id="labelClip"><circle r="112"/></clipPath>
+              <!-- the cover is the circle's fill, so it can never be painted as a bare square -->
+              <pattern id="labelPat" width="1" height="1" patternContentUnits="objectBoundingBox">
+                <image id="labelCoverImg" width="1" height="1" preserveAspectRatio="xMidYMid slice"/>
+              </pattern>
             </defs>
             <circle r="360" fill="#0b0b0b"/>
             <g id="grooves"></g>
@@ -222,8 +225,7 @@
             <g id="label">
               <circle r="118" id="labelBg" style="fill: var(--accent)"/>
               <g id="labelCover" class="label-cover">
-                <image id="labelCoverImg" x="-112" y="-112" width="224" height="224"
-                       preserveAspectRatio="xMidYMid slice" clip-path="url(#labelClip)"/>
+                <circle r="112" fill="url(#labelPat)"/>
                 <circle r="112" fill="rgba(0,0,0,.42)"/>
               </g>
               <path id="labelPath" d="M 0,-96 a 96,96 0 1,1 0,192 a 96,96 0 1,1 0,-192" fill="none"/>
@@ -418,14 +420,32 @@ function setHover(i) {
     b.classList.toggle('playing', k === state.playing);
   });
   const show = i >= 0 ? i : state.playing;
-  const cover = $('labelCover');
-  if (show >= 0) {
-    $('labelCoverImg').setAttribute('href', IMG + SIDES[state.side].tracks[show].cover);
-    cover.classList.add('on');
-  } else {
-    cover.classList.remove('on');
-  }
+  showLabelCover(show >= 0 ? IMG + SIDES[state.side].tracks[show].cover : null);
 }
+
+// The label shows a cover only once it's fully decoded: a half-loaded image never reaches the record.
+const decoded = {};
+function loadCover(src) {
+  if (!decoded[src]) {
+    const im = new Image();
+    im.src = src;
+    decoded[src] = im.decode().catch(() => {});
+  }
+  return decoded[src];
+}
+let labelWant = null;
+function showLabelCover(src) {
+  labelWant = src;
+  if (!src) { $('labelCover').classList.remove('on'); return; }
+  loadCover(src).then(() => {
+    if (labelWant !== src) return;   // the listener has moved on to another track
+    $('labelCoverImg').setAttribute('href', src);
+    $('labelCover').classList.add('on');
+  });
+}
+// warm up every cover once the page is idle, so hovering is instant
+addEventListener('load', () => (window.requestIdleCallback || setTimeout)(() =>
+  Object.values(SIDES).forEach(s => s.tracks.forEach(t => loadCover(IMG + t.cover)))));
 
 // ---------- tonearm ----------
 function renderArm() {
