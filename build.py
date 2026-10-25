@@ -71,18 +71,27 @@ def youtube_block(vid):
             f'<button type="button" aria-label="Play video"></button></div>')
 
 
-def preprocess(md, cover):
-    # the first image duplicates the cover shown in the header (unless it has a caption)
-    md = re.sub(r'^\s*!\[[^\]]*\]\(' + re.escape(cover) + r'\)[ \t]*\n(?!\*)', '', md, count=1)
+def split_cover(md, cover):
+    """The cover is shown above the text: take it out of the body, keeping its caption for the header."""
+    m = re.match(r'\s*!\[[^\]]*\]\(' + re.escape(cover) + r'\)[ \t]*\n(?:\*(.+)\*[ \t]*\n)?', md)
+    if not m:
+        return md, ''
+    return md[m.end():], m.group(1) or ''
+
+
+def caption_html(cap):
+    cap_html = subprocess.run(['pandoc', '-f', 'gfm', '-t', 'html'], input=cap,
+                              capture_output=True, text=True, check=True).stdout.strip()
+    return re.sub(r'^<p>|</p>$', '', cap_html)
+
+
+def preprocess(md):
     # image + italic caption line -> figure
     def fig(m):
         alt, src, cap = m.group(1), m.group(2), m.group(3)
         out = f'<figure><img src="{src}" alt="{html.escape(alt)}" loading="lazy">'
         if cap:
-            cap_html = subprocess.run(['pandoc', '-f', 'gfm', '-t', 'html'], input=cap,
-                                      capture_output=True, text=True, check=True).stdout.strip()
-            cap_html = re.sub(r'^<p>|</p>$', '', cap_html)
-            out += f'<figcaption>{cap_html}</figcaption>'
+            out += f'<figcaption>{caption_html(cap)}</figcaption>'
         return out + '</figure>'
     md = re.sub(r'^!\[([^\]]*)\]\(([^)]+)\)[ \t]*(?:\n\*(.+)\*[ \t]*)?$', fig, md, flags=re.M)
     # bare YouTube URL on its own line -> click-to-load embed
@@ -105,8 +114,9 @@ def build_post(meta, body, sides, pairs):
                      ('A' if meta['series'] == 'music' else 'B', None))
     tracks = sides[side]
 
+    body, cover_caption = split_cover(body, meta['cover'])
     body_html = subprocess.run(['pandoc', '-f', 'gfm', '-t', 'html', '--wrap=none'],
-                               input=preprocess(body, meta['cover']),
+                               input=preprocess(body),
                                capture_output=True, text=True, check=True).stdout
     # in-page links were written for Obsidian (#Heading%20text); point them at pandoc's heading ids
     body_html = re.sub(r'href="#([^"]+)"', lambda m: f'href="#{anchor_id(m.group(1))}"', body_html)
@@ -132,6 +142,7 @@ def build_post(meta, body, sides, pairs):
         'robots': '\n<meta name="robots" content="noindex">' if meta['draft'] else '',
         'title': html.escape(meta['title']),
         'cover': meta['cover'],
+        'cover_caption': f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '',
         'year': 'draft' if meta['draft'] else meta.get('date', '')[:4],
         'position': 'Draft · not on the record yet' if idx is None else f'Side {side} · Track {idx + 1} of {len(tracks)}',
         'alt_link': alt_link,

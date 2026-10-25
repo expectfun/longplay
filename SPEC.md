@@ -118,9 +118,8 @@ Rendering (open):
 Initial assessment: start with 2D SVG and CSS 3D for the flip. Move to three.js only if a prototype feels too flat.
 
 From index to post (current prototype behaviour):
-- **Two roles, by where you click.**
-  - **Tracklist title:** go straight to the post with a quick fade through dark (0.3 s).
-  - **The record itself:** browse and listen. The needle drops with a thump, the crackle starts and keeps going, and a **preview card** fades in over the lower part of the turntable. It shows the cover, "A6 · 2024", the title, the opening lines (the "Привет, Саша" greeting is skipped) and a **Read →** button. There's no automatic navigation and no timer. From there:
+- **Tracklist title and record do the same thing:** browse and listen. (Earlier, a title went straight to the post; it felt too abrupt next to the record.) Cmd/Ctrl-click on a title still opens the post in a new tab.
+  - The needle drops with a thump, the crackle starts and keeps going, and a **preview card** fades in over the lower part of the turntable. It shows the cover, "A6 · 2024", the title, the opening lines (the "Привет, Саша" greeting is skipped) and a **Read →** button. There's no automatic navigation and no timer. From there:
     - Stay and listen.
     - Drop the needle elsewhere to preview another track.
     - Press STOP to hide the card and park the arm.

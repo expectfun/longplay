@@ -282,7 +282,7 @@
       <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
     </div>
     <ol id="tracks"></ol>
-    <p class="note">Pick a title to go straight to the post. Or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
+    <p class="note">Pick a title or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
   </aside>
 </main>
 
@@ -674,13 +674,13 @@ const sound = (() => {
 })();
 
 // ---------- opening a post ----------
-// The tracklist is for going straight to a post. The record is for browsing and listening:
-// dropping the needle shows a preview card (cover, title, the opening lines) and the crackle
-// keeps going until the listener presses "Read", picks another track, or presses STOP.
+// A title in the tracklist and a band on the record do the same: drop the needle and show a
+// preview card (cover, title, the opening lines). The crackle keeps going until the listener
+// presses "Read", picks another track, or presses STOP.
 function onTrackClick(i, ev) {
   if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0)) return;  // new tab: let the browser handle it
   if (ev) ev.preventDefault();
-  leave(SIDES[state.side].tracks[i].page, 300);
+  playOnRecord(i);
 }
 
 function playOnRecord(i) {
