@@ -1,0 +1,11 @@
+# original exports the posts were converted from
+/*.json
+/*.rtf
+/*.pdf
+/*.zip
+/adhd.html
+/adhd_files/
+/cybermus.md
+
+.obsidian/
+.DS_Store

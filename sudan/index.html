@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Судан: песни незамеченных событий — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through dark between pages */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: #0b0a09; pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: #0b0a09; pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+            --accent: #e0643f; --code: rgba(236, 229, 218, .06); }
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  @media (prefers-color-scheme: dark) { body[data-side="B"] { --accent: #3fb8a8; } }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  figure img, article > p > img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A6">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><a href="../sudan-en/" lang="en">Read in English</a></span>
+  </div>
+
+  <header class="post-head">
+    <h1>Судан: песни незамеченных событий</h1>
+    <p class="year">2024</p>
+  </header>
+
+  <figure class="hero"><img src="../images/sudan/01.jpg" alt=""></figure>
+
+  <article>
+<p>Привет, Саша. Традиционный «деньрожденный музыкальный текст» опять получился, помимо музыки, ещё и о мрачных событиях. Но часть песен жизнеутверждающая, так что надеюсь, что после него не захочется повеситься!</p>
+<p>Год назад на новогодних праздниках я впервые побывал в Каире, увидел египетские пирамиды и площадь Тахрир. А позже обнаружил, что в том же январе каирский ютуб-канал «Уличный рэп» собрал вместе выходцев из разодранного войной Судана и выпустил <a href="https://www.youtube.com/watch?v=zZq1L8lw5nM">видео</a> с их песнями. И по названию одной из них, «Аза и Газа», хорошо заметно, насколько неравномерно в мире обращают внимание на разные события: одно из этих слов в последний год звучало почти везде, а другое почти нигде.</p>
+<div class="yt" data-id="Jyxj1mgVttU"><img src="https://i.ytimg.com/vi/Jyxj1mgVttU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>«Аза» — это сленговое название Судана. В арабском написании оно всего лишь одной точкой отличается от названия сектора Газа: عزة и غزة. Оба этих места граничат с Египтом, в обоих с 2023-го воюют (хотя и при очень разных обстоятельствах), из обоих люди при возможности бегут в Каир. Неудивительно, что на каирском мероприятии прозвучала песня, где эти названия оказались срифмованы.</p>
+<p>Но вот мир на эти две ситуации реагировал противоположным образом: одной уделил максимум внимания, а другой минимум. Хотя вторая, возможно, является самым масштабным гуманитарным кризисом из всего происходящего сейчас на планете.</p>
+<figure><img src="../images/sudan/02.png" alt="" loading="lazy"></figure>
+
+<p>При этом сами суданцы просят всех обратить внимание и ставят хэштег #KeepEyesOnSudan. Ну, я и обратил. Заодно вслушался в суданскую музыку, а она оказалась интересной. И раз почти никто не пишет про всё это — напишу тогда я.</p>
+<p>Пойдём с самого начала. Дисклеймер: я не эксперт, никогда не был в Судане, почти не знаю арабского, наверняка что-то понимаю неправильно.</p>
+<hr />
+<h2 id="часть-1-предыстория">Часть 1: Предыстория</h2>
+<p>Что стоит понять о Судане для начала? Они с Египтом «соседи по Нилу»: река протекает через обе этих страны.</p>
+<figure><img src="../images/sudan/03.png" alt="" loading="lazy"></figure>
+
+<p>Хорошо известно, насколько важен был Нил для Древнего Египта, когда его разливы с плодородным илом позволили людям жить посреди пустыни и создать масштабную цивилизацию. Спустя тысячи лет он остаётся важен: жизнь в современном Египте по-прежнему сосредоточена вдоль его русла (за отдельными исключениями вроде курортов на Красном море), а вокруг по-прежнему почти безжизненная пустыня.</p>
+<p>И для Судана река тоже важна. Даже две реки: суданская столица Хартум расположена в месте, где в основной «Белый Нил» впадает приток Голубой Нил. Поэтому, например, хороший сборник суданской музыки называется «<a href="https://rateyourmusic.com/release/comp/various-artists/two-niles-to-sing-a-melody-the-violins-and-synths-of-sudan/">Two Niles to Sing a Melody</a>».</p>
+<p>В этих местах соседство с Египтом давало о себе знать ещё тысячи лет назад, когда никакого государства Судан ещё не было. В регионе Нубия, где сегодня две страны граничат, тогда возникали различные царства (сначала Керма, затем Куш), для которых Древний Египет оказывался и соперником, и партнёром, и культурным влиянием. В Нубии даже появились свои пирамиды:</p>
+<figure><img src="../images/sudan/04.jpg" alt="" loading="lazy"></figure>
+
+<p>Гораздо позже, когда происходили мусульманские завоевания Северной Африки, арабизация через Египет добралась и до территории нынешнего Судана.</p>
+<p>В 1899 году, когда Египет был британской колонией, в Судане установилось совместное британско-египетское правление. Сейчас его уже нет, но государственными языками остались арабский и английский.</p>
+<p>А в 1956-м Судан получил независимость — и для его жителей это очень важно. Среди суданских песен много патриотических. Вот одна из самых известных, «Моя родина» («Йа уотани», "يا وطني"):</p>
+<div class="yt" data-id="2egwHLRKDsQ"><img src="https://i.ytimg.com/vi/2egwHLRKDsQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Видео с YouTube-канала «<a href="https://www.youtube.com/@TheSoundsofSudan">The Sounds of Sudan</a>» — настоящей сокровищницы, где кто-то заботливо проставил важным суданским песням перевод на английский и пояснения в описаниях. Не знаю, как у тебя сейчас работает YouTube, но вряд ли кто-то выложит всё это на VK Видео, так что альтернатив тут особо нет.</p>
+<p>По-моему, интересно вот что. Если спросить случайного человека «как звучит музыка Судана», стереотипы могут подсказывать «ну это небогатая африканская страна — наверное, там народные песни под тамтам». А тут всё наоборот: большой ансамбль, привычные нам инструменты, студийная запись, костюмы с галстуками, солист-звезда.</p>
+<p>Народные песни, конечно, тоже есть. Но, как я сам узнал только теперь, в XX веке в Хартуме возникла масштабная музыкальная сцена, которая впитала и суданские мотивы, и мировую классику, и джаз, образовав сплав разных традиций. Власть порой благоволила музыкантам, особенно во времена Дафара Нимейри (с 1971 по 1985), которые теперь вспоминают с ностальгией. Это был период максимального творческого расцвета, когда музыка стала главным экспортом страны, а на местный фестиваль мог приехать Луи Армстронг.</p>
+<p>Помимо влияний со стороны, внутри самого Судана смешивается много собственных. Это очень разношёрстная страна, где есть разные региональные культуры — вот, например, <a href="https://www.youtube.com/playlist?list=PLHZJjjmHEDrLz9sv7ATwjJDPs8vtLlzH-">песни народа загава</a>.</p>
+<p>Во всём этом многообразии встречается множество интересных местных деталей. Я прошёлся по верхам и успел понять довольно мало, но вот просто для примера. В Судане распространены массивные серьги под названием «гамар боба» («القمر بوبا») , что значит «светящаяся луна», и одна из популярных песен связана с ними.</p>
+<figure><img src="../images/sudan/05.jpg" alt="" loading="lazy"></figure>
+
+<p>Её исполнитель Мохаммед Варди — вероятно, главный певец в истории Судана. История, которую не могу проверить, но которая иллюстрирует его статус в Африке: «Однажды в Хартум пришёл человек из деревни в Мали. Он сказал, что прошёл пешком тысячи километров, потому что хочет жениться, но отец невесты готов дать благословение только в случае, если он принесёт автограф Варди».</p>
+<p>Песня называется как раз «Гамар боба». В тексте герой восхваляет возлюбленную на разные лады. И главный комплимент звучит так: она такая утончённая, что даже серьги «гамар боба» для неё слишком массивные.</p>
+<div class="yt" data-id="9UGJfDszLdw"><img src="https://i.ytimg.com/vi/9UGJfDszLdw/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Чаще всего в Судане поют на арабском языке, но песни заметно отличаются от того, что мы привыкли ассоциировать с «арабской музыкой».</p>
+<p>Неудивительно, если учесть, что страна находится между центральной Африкой и арабизированной Северной Африкой. Когда очерчивают границы арабо-мусульманского региона MENA, Судан то включают, то нет. То есть с одной стороны тут влияет арабо-мусульманский мир, а с другой Африка, не имеющая отношения к этому миру.</p>
+<figure><img src="../images/sudan/06.png" alt="" loading="lazy"></figure>
+
+<p>Разные влияния менялись со временем. И после музыкального расцвета 70-х был период жёсткого исламизма с нападками на музыку.</p>
+<p>«Женщина на сцене» тогда было особенно спорной ситуацией, певицы сталкивались с большими трудностями. Однако вдали от телекамер женская музыка, конечно, существовала. В Судане давно есть целая музыкальная традиция aghani albanat с «женскими песнями», исполнявшимися на свадьбах и других мероприятиях.</p>
+<p>И теперь суданско-американская певица Alsarah («Аль-Сара») в описании клипа пишет, что эта традиция была редкой для женщин возможностью публично высказывать свои романтические желания. В результате возникли «флиртующие» танцевальные песни. По её словам, в те времена мужчины-музыканты смотрели свысока на эту «простецкую музыку». А она считает важным сохранить этот культурный пласт, поэтому записывает эти песни в современных студиях. Вот одна из них в её исполнении — «Любимый, приходи» («Хабиби таал», حبيبي تعال):</p>
+<div class="yt" data-id="LkVe0cyqHjo"><img src="https://i.ytimg.com/vi/LkVe0cyqHjo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Ещё несколько песен aghani albanat есть в <a href="https://www.youtube.com/playlist?list=PLHZJjjmHEDrIVkPrdCsaBxZWvduKOtZHD">плейлисте</a> на том же YouTube-канале The Sounds of Sudan.</p>
+<hr />
+<h2 id="часть-2-судан-и-южный-судан">Часть 2: Судан и Южный Судан</h2>
+<p>Отдельная история — то, как страна разделилась на две.</p>
+<p>Исторически Судан был самой большой по площади страной в Африке, представляя собой громадное «лоскутное одеяло» из различных регионов, этносов и языков. Но в этом многообразии было и ощутимое разделение «пополам». Его хорошо видно даже по карте: одна часть «пустынная», другая (ставшая отдельной страной) — «зелёная».</p>
+<figure><img src="../images/sudan/07.png" alt="" loading="lazy"></figure>
+
+<p>Эта климатическая разница давно превратилась в социальную. Когда-то люди, продвигавшиеся со стороны Египта, доходили до более топких мест, увязали и не заходили дальше. А в итоге и общество в двух частях оказалось очень разным.</p>
+<p>Северная «пустынная» часть — как и Египет, преимущественно мусульманская и арабизированная. Южная «зелёная» — преимущественно христианская и более темнокожая. Эта расколотость общества приводила к гражданским войнам между севером и югом, а впоследствии — к отделению юга. Так в 2011-м возникло самое молодое государство в мире Южный Судан.</p>
+<p>Музыка Судана и Южного Судана тоже ощутимо различается. Вот песня суданского музыканта Абдель Гадира Салима «Лимон Баары» ("ليمون بارا"):</p>
+<div class="yt" data-id="oZ4PIpGiDow"><img src="https://i.ytimg.com/vi/oZ4PIpGiDow/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Он родился в суданской провинции Кордофан, где есть город Баара, известный большими красивыми лимонами. И герой песни сравнивает возлюбленную с таким лимоном. Инструменты и аранжировка в ту же степь, что и у приведённых выше других певцов.</p>
+<p>Совсем иначе звучит южносуданский музыкант Эммануэль Джал. Отчасти его клипы — это такая Африка, какой её представляют по диснеевской песне «Акуна матата»: разноцветная, оптимистичная, экзотичная, танцевальная. В его песнях английский (с сильным акцентом) встречается с африканскими языками вроде суахили.</p>
+<div class="yt" data-id="wvlmPNL2Kq4"><img src="https://i.ytimg.com/vi/wvlmPNL2Kq4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Но тут важны не только экзотика и танцевальность. Эммануэль — человек сложной судьбы. Его детство происходило на фоне гражданской войны, и он сам ещё ребёнком оказался в армии, сражавшейся на стороне южных суданцев против северных. Тогда он вместе с окружающими слепо ненавидел сразу «всех этих ужасных северян».</p>
+<p>Но позже благодаря гуманитарной работнице он обнаружил, что можно смотреть на мир иначе. И в итоге из солдата превратился в мирного активиста, выступающего за жизнь без кровопролития. Теперь этому посвящены и многие из его песен. Свою историю он озвучивал <a href="https://www.ted.com/talks/emmanuel_jal_the_music_of_a_war_child">в формате TED Talk</a>.</p>
+<p>А в 2005 году вышел очень необычный альбом. Абдель Гадир Салим и Эммануэль Джал, которых я привёл выше, объединили усилия для выпуска совместной записи «Ceasefire» с песнями обоих. То есть два музыканта из враждующих миров сошлись вместе, чтобы совместным творчеством призвать к миру.</p>
+<p>Альбом интересно звучит: там сошлись не просто два человека с очень разными бэкграундами, а ещё и две разных музыкальных традиции. На него публиковали хвалебную <a href="https://pitchfork.com/reviews/albums/4364-ceasefire/">рецензию</a> в Pitchfork, а песня «Baai» попала в фильм «Кровавый алмаз» с Ди Каприо.</p>
+<p>А вот как выглядело живое исполнение этой песни:</p>
+<div class="yt" data-id="ZOlmRlez6tY"><img src="https://i.ytimg.com/vi/ZOlmRlez6tY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Эти миротворческие усилия не удержали две части Судана от разделения в 2011-м — но разделение хотя бы предполагалось без дальнейшего кровопролития.</p>
+<hr />
+<h2 id="часть-3-времена-аль-башира">Часть 3: времена Аль-Башира</h2>
+<p>В 1989-м произошёл военный переворот, и власть на 30 лет занял Омар аль-Башир. Степень жёсткости его правления: реакция на повстанцев в регионе Дарфур в 2003-м была такой, что зачастую её классифицируют как «первый геноцид XXI века».</p>
+<p>В 2010-х на волне «Арабской весны» протесты возникли и в Судане, поначалу безуспешные, и при их подавлении некоторые протестующие погибали. Этому посвящена песня 2019 года «Мадания, хоррея, салам» («مدنية حرية وسلام»):</p>
+<div class="yt" data-id="HHIP-SLs-SQ"><img src="https://i.ytimg.com/vi/HHIP-SLs-SQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Слова «хоррея» («свобода») и «салам» («мир») переводятся легко, а вот с «мадания» хитрее: насколько понимаю, у этого понятия нет строгого соответствия в русском, но оно означает что-то вроде «цивилизованность». Вместе эти три слова образуют популярный протестный слоган тех времён, с которым выходили на улицы.</p>
+<figure><img src="../images/sudan/08.jpg" alt="Фотография, ставшая символом тех протестов" loading="lazy"><figcaption>Фотография, ставшая символом тех протестов</figcaption></figure>
+
+<p>У Судана большая диаспора по всему миру, так что суданской музыкой можно назвать не только ту, которая появляется непосредственно в стране. Пример зарубежной — совместный трек нескольких рэперов суданского происхождения, также посвящённый ситуации с Аль-Баширом:</p>
+<div class="yt" data-id="cY0LtpIch-A"><img src="https://i.ytimg.com/vi/cY0LtpIch-A/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Поскольку песня сделана диаспорой, снова получается сплав разных культур: в этот раз суданской и западного хип-хопа. Припев певучий на арабском, а вот в куплетах на английском есть и грязные панчи («you'll never see me coming, like lesbian porn»), и обыгрывание американских реалий («hashtags matter, black lives don't»: мол, все охотно ставят хэштег #BlackLivesMatter, но жизни чернокожих людей в Судане никого не волнуют).</p>
+<p>Многие рэперы бахвалятся «я с жёстких улиц», когда на самом деле выросли в благополучных условиях. А вот здесь текст о по-настоящему жестоких улицах, и хип-хоп как форма хорошо этому соответствует. Из-за жёсткости песни может показаться «какие эти исполнители агрессивные». Но если послушать другие песни одного из участников, Aidyproof, они чуть ли не противоположны по настрою: его творчество очень чилльное, он поклонник Боба Марли. Вот песня с посылом «сколько же боли у всех, но я желаю тебе самого лучшего»:</p>
+<div class="yt" data-id="09kCQSbtsZ8"><img src="https://i.ytimg.com/vi/09kCQSbtsZ8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Aidyproof не только записывает собственные песни, но и помогает всей суданской диаспоре, выпуская сборники «<a href="https://soundcloud.com/smallaxeinc/sets/a-249-experience-vol1">A 249 Experience</a>». Число из названия — телефонный код страны, ставший для суданцев символом. Если у кого-то в интернете юзернейм заканчивается на «239», обычно это петербуржец, учившийся в физико-математическом лицее 239, а если на «249» — обычно это суданец.</p>
+<hr />
+<h2 id="часть-4-текущее-положение-дел">Часть 4: текущее положение дел</h2>
+<p>В итоге протестующим всё же удалось добиться ухода Аль-Башира. Однако гражданское общество вскоре оказалось сметено другими силами.</p>
+<p>Поскольку диктатора всегда может предать армия, у Аль-Башира их было сразу две. После его ухода два генерала, возглавляющие эти армии, начали конкурировать за власть. И весной 2023-го они развязали полномасштабную войну друг с другом, которая идёт до сих пор.</p>
+<figure><img src="../images/sudan/09.png" alt="" loading="lazy"></figure>
+
+<p>Если правильно всё понимаю, то для мирных жителей возникла худшая ситуация на планете:</p>
+<ul>
+<li>25 миллионов голодают</li>
+<li>9 миллионов вынужденно покинули дома</li>
+<li>работы и денег почти нет</li>
+<li>гуманитарной помощи мало и ей сложно попасть внутрь страны</li>
+<li>а людям сложно выбраться из страны наружу</li>
+<li>если и выберешься, быть беженцем в Африке — отдельное испытание</li>
+<li>солдаты обеих армий порой чудовищно поступают с гражданскими</li>
+<li>по мнению большинства суданцев, обе армии «плохие» (разве что одна «ещё хуже»), так что нет даже надежды на «хороший исход» (только на «менее плохой»)</li>
+<li>а миру наплевать на происходящее, помощи ждать неоткуда</li>
+</ul>
+<p>Рэпер суданского происхождения Bas, живущий в США, обычно исполняет беззаботную музыку и пришёл с ней к успеху: у его песни с Джей Коулом «<a href="https://www.youtube.com/watch?v=OA8aw07dpg0">Tribe</a>» больше 80 миллионов просмотров. Но его родственники оставались в Судане, и в 2023-м он записал песню «Khartoum», где куплеты куда мрачнее.</p>
+<div class="yt" data-id="IBtB4pn3XZQ"><img src="https://i.ytimg.com/vi/IBtB4pn3XZQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>В них не только описывается происходящее в стране, но и звучат упрёки миру: «Почему другие конфликты в медиа показывают, а нас нет?»</p>
+<p>Это его ощущение разделяют многие суданцы. Они подробно описывают в интернете происходящее на хорошем английском, но их почти никто не читает, пока в соседнем треде в сто раз активнее обсуждают мелочи из других стран. Это ощущается криком в пустоту.</p>
+<figure><img src="../images/sudan/10.png" alt="" loading="lazy"></figure>
+
+<p>При этом, если бы мировое сообщество обратило внимание, гипотетически оно могло бы изменить ситуацию. Из-за добычи суданского золота обе армии получают помощь от государств, стремящихся извлечь выгоду из происходящего. По мнению многих суданцев (и автора <a href="https://foreignpolicy.com/2024/08/29/sudan-war-rsf-saf-uae-arms-hemeti-burhan/">статьи</a> в издании Foreign Policy), наибольшую роль играют ОАЭ, и без их участия война бы уже могла закончиться.</p>
+<p>Поэтому часть суданцев призывает давить на ОАЭ: угрожать санкциями, бойкотировать страну, стыдить всех летающих в Дубай. Впрочем, есть и другие взгляды: суданская певица Нэнси Агаг, напротив, сама полетела в Дубай и <a href="https://www.youtube.com/watch?v=TdbECL9oYa0">провела</a> там концерт «Споём для Судана».</p>
+<p>Я недостаточно эксперт, чтобы уверенно сказать, какими действиями мир мог бы изменить ситуацию. Но скажу так: хотел бы видеть в мире хотя бы заметную общественную дискуссию, где об этом громко высказывались бы эксперты лучше меня. И проблему вижу в том, что отсутствуют не только действия, а даже дискуссия о них.</p>
+<p>Вот ещё одна песня этой войны, исполнительница сейчас вроде бы тоже в Дубае:</p>
+<div class="yt" data-id="Lx3RM6UtxKM"><img src="https://i.ytimg.com/vi/Lx3RM6UtxKM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>В начале текста я приводил старую песню «Моя родина». И здесь снова использован её припев: «Ох, были дни, страна моя / Они как сны, страна моя».</p>
+<p>Спустя десятилетия и поколения суданцы снова воспевают страну, в которой претерпевают какое-то запредельное количество боли и из которой зачастую вынужденно уезжают. Вспоминается, как на Reddit в сообществе региона MENA спросили «что вы чувствуете к своей стране». Больше всего плюсов набрал такой комментарий: «Я одновременно готов отдать за неё свою жизнь и хочу поскорее из неё свалить».</p>
+<p>У песни «Моя родина» есть ещё одно современное переосмысление. На той видеозаписи с суданскими рэперами, которую сделали в Каире, молодой рэпер Hyper249 исполнил свою хип-хоп-версию. В куплетах он напрямую посылает элиты, а затем доходит до «классического» припева и все радостно подпевают «Ох, были дни, страна моя». В конце достаёт из широких штанин суданский паспорт.</p>
+<div class="yt" data-id="yAbMYLPdyKI"><img src="https://i.ytimg.com/vi/yAbMYLPdyKI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<hr />
+<p>Какие выводы можно сделать?</p>
+<p>Конечно, глобально ничего тут текстом разрулить не могу. Понятия не имею, как человечеству научиться жить иначе и остановить войны. Но возникла другая мысль, не только про Судан.</p>
+<p>Наше внимание по умолчанию следует за инфополем. Когда происходит резонансная трагедия вроде «произошло ужасное землетрясение» и о ней говорит весь мир, мы сочувствуем жертвам, иногда пишем о произошедшем, иногда даже донатим.</p>
+<p>То есть мы тратим свои ограниченные моральные и материальные ресурсы на самые «хайповые» ситуации.</p>
+<p>А сейчас ощущаю для себя лично, что в некоторых случаях логично делать наоборот: тратить его на «антихайповые». На те, где кому-то плохо, а никто этого не замечает.</p>
+<figure><img src="../images/sudan/11.png" alt="" loading="lazy"></figure>
+
+<p>Потому что в резонансных случаях, где жертвы получают сочувствие и донаты от многих людей сразу, конкретно от моего внимания для них уже мало что изменится. А вот когда у людей ощущение, что они кричат в пустоту, для них начинают играть большую роль даже мелочи. В числе прочего им важно попросту быть замеченными.</p>
+<p>Поэтому последняя песня в этом посте — не суданская, а посвящённая как раз таким ситуациям: когда видишь кого-то в адских условиях, не можешь их исправить, не видишь даже поводов обнадёжить, но можешь хотя бы сказать «я вижу». Раньше в отдельных случаях уже вспоминал эту песню и отправлял кому-то.</p>
+<div class="yt" data-id="_6NWGkRvMck"><img src="https://i.ytimg.com/vi/_6NWGkRvMck/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<blockquote>
+<p>And the dark, the dark is calling<br />
+And the well, the well is deep<br />
+And the walls, the walls are jagged<br />
+And the angle is too steep</p>
+</blockquote>
+<blockquote>
+<p>And I have no ladder<br />
+And I have no rope<br />
+I can’t see where the sun is rising<br />
+I can offer no hope</p>
+</blockquote>
+<blockquote>
+<p>But I see you<br />
+Yeah I see you<br />
+Yes I see you<br />
+And you’re not alone</p>
+</blockquote>
+<p>Отчасти из таких соображений и выбрал в этом году для поста антихайповую тему. Мало что в жизни умею, кроме складывания слов в предложения, но тут людям бывают важны даже слова. Попробовал перевести их <a href="https://telegra.ph/sudan-01-25">на английский</a>, чтобы могли прочесть и сами суданцы — вдруг кому-то немного поможет.</p>
+<figure><img src="../images/sudan/12.jpg" alt="" loading="lazy"></figure>
+
+<p><em>Напоследок ссылки на треды от суданцев:</em></p>
+<ul>
+<li><em>«<a href="https://x.com/missinchident/status/1735888234167537845?s=20">Объясняю суданскую войну</a>»</em></li>
+<li><em>«<a href="https://x.com/Kandakat_alhqq/status/1761816806866506193">Чем можно помочь Судану</a>»</em></li>
+<li>И тред, который считаю важным, причём применимым далеко не только к Судану:</li>
+</ul>
+<figure><img src="../images/sudan/13.jpg" alt="" loading="lazy"></figure>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../dugri/">← A5 · Палестина/Израиль: музыка и боль</a>
+    <span class="pos">Side A · Track 6 of 7</span>
+    <a class="next" href="../adhd/">A7 · Хип-хоп и СДВГ →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лин-Мануэль Миранда — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through dark between pages */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: #0b0a09; pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: #0b0a09; pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+            --accent: #e0643f; --code: rgba(236, 229, 218, .06); }
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  @media (prefers-color-scheme: dark) { body[data-side="B"] { --accent: #3fb8a8; } }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  figure img, article > p > img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A3">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"></span>
+  </div>
+
+  <header class="post-head">
+    <h1>Лин-Мануэль Миранда</h1>
+    <p class="year">2021</p>
+  </header>
+
+  <figure class="hero"><img src="../images/lmm/01.jpg" alt=""></figure>
+
+  <article>
+<p>Привет, Саша! По сути, мои подарочные тексты к твоим дням рождения превратились в ежегодную рубрику «музыкант, которым я впечатлился в уходящем году» :)</p>
+<p>Ещё давно в диснеевском мультфильме «Моана» мне так понравились песни (особенно одна, «How Far I'll Go»), что после просмотра полез в стриминг переслушать их. При этом не мог даже объяснить, чем именно понравилось. Чаще всего от диснеевских песен мне скучно: возникает ощущение работы по трафарету, когда можно заменить одного автора на другого, и никто не заметит. А тут всё вроде бы тоже укладывается в формулу — но цепляли и исполнение, и материал.</p>
+<div class="yt" data-id="cPAbx5kgCJo"><img src="https://i.ytimg.com/vi/cPAbx5kgCJo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Тогда я даже не знал, что «How Far I'll Go» была номинирована на «Оскар», а на ютубе у неё под миллиард просмотров (то есть зацепила она вообще-то далеко не только меня). В стриминге тогда обнаружил, что российским пользователям песни «Моаны» доступны в блёклых версиях из русскоязычного дубляжа (порадовал там только Илья Лагутенко в роли гигантского краба). В итоге я про всё это просто забыл.</p>
+<p>А в этом году послушал мюзикл «Гамильтон», безумно впечатлился, захотел узнать «что ещё сделал Лин-Мануэль Миранда», открыл Википедию и обнаружил, что песни из «Моаны» сочинил он. В этот момент всё встало на свои места. Действительно, этого автора нельзя просто взять и заменить другим — другого такого в мире нет.</p>
+<hr />
+<p>Почему? Миранда поражает меня не только талантом, но и разностороннестью: он хорош одновременно в очень разном.</p>
+<p>Для начала просто скопипащу с его страницы в Википедии: «американский актёр, певец, автор песен, рэпер, постановщик, драматург, продюсер и кинорежиссёр».</p>
+<p>В случае с «Гамильтоном» он сам придумал и продумал идею, сам сочинил все песни, а затем в бродвейской постановке сам же исполнял главную роль. И получился один из главных мюзиклов XXI века, причём благодаря всем этим составляющим: и идее, и истории, и текстам, и мелодиям, и исполнительской харизме. Ещё на стадии черновика он практически в одиночку (с минимальным аккомпанементом) исполнял первую песню в Белом доме перед Обамой — и даже без мощи бродвейской постановки это уже производило впечатление.</p>
+<div class="yt" data-id="WNFf7nMIGnE"><img src="https://i.ytimg.com/vi/WNFf7nMIGnE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Конечно, было бы неправильно приписывать все заслуги «Гамильтона» исключительно Миранде. Другие исполнители в бродвейской постановке тоже яркие, и у кого-то вокальные данные куда мощнее Миранды, а кто-то справляется с быстрым речитативом проворнее. Но даже там, где сияют другие артисты, ощущается его рука. Скажем, зная, что в постановке поучаствует техничный рэпер Дэвид Диггз, Миранда намеренно добавил в его роль пулемётные строчки, которые сам бы не осилил зачитать. Подсвечивать способности других — это тоже важная способность.</p>
+<p>Тут может создаться впечатление эгоманьяка, которому необходимо, чтобы всё вращалось вокруг него. Но стоит вспомнить ту же «Моану», где он был лишь автором песен в чужом мультфильме, подстраивался под заданные рамки и оставался в тени. Или «Звёздные войны: пробуждение силы», где для нужд фильма сделал вообще <a href="https://www.youtube.com/watch?v=JaaL5QoI3GM">песню</a> на несуществующем языке.</p>
+<p>Есть ещё и промежуточная ситуация с мультфильмом «Виво», где он озвучил главного героя (животное кинкажу): самого Миранду в кадре не видно, но он одним голосом тянет одеяло на себя, и узнать его тут легко.</p>
+<div class="yt" data-id="mAW1yvaZPzY"><img src="https://i.ytimg.com/vi/mAW1yvaZPzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Ну хорошо, он многостаночник с узнаваемой манерой и может оказываться по обе стороны камеры, но мало ли у нас таких было? Вуди Аллен вот тоже горазд снять себя в своём фильме по своему сценарию, тоже совмещал Голливуд с Бродвеем, и его тоже узнаешь за версту. Но с Мирандой особенно интересно, что его разностороннесть не заканчивается на выполняемых ролях: он как сочинитель черпает из очень разных источников.</p>
+<p>Одна бросающаяся в глаза составляющая — хип-хоп. О «Гамильтоне» часто говорят как об экспериментальном привнесенении речитатива в мюзиклы. Но мне кажется, что для самого Миранды это не эксперимент, а совершенно естественный шаг. Он не «решил привнести хип-хоп» — он сам и есть хип-хоп. Если Валерия Гай-Германика для убедительности речитативных вставок в сериале «Бонус» привлекала рэпера Дуню, то Миранде не нужно никого привлекать, он сам кого хочешь проконсультирует.</p>
+<div class="yt" data-id="_ozDDHUsi6I"><img src="https://i.ytimg.com/vi/_ozDDHUsi6I/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Рифмы и панчи, флоу и биты — всё это он понимает отлично. Поскольку главная цель мюзикла — рассказать связную историю, тут не можешь слишком удариться в многосложные рифмы в ущерб нарративу, но даже в таких ограничивающих условиях он иногда рифмует строчки чуть ли не целиком:</p>
+<blockquote>
+<p>Hamilton <strong>faces an endless</strong> uphill <strong>climb</strong><br />
+Hamilton's <strong>pace is relentless</strong>, he wastes no <strong>time</strong></p>
+</blockquote>
+<p>Строка «Heard you mother say "come again?"» — это игра слов про мамку, которая могла бы прозвучать в современном диссе, а вместо это ввёрнута в речь персонажа XVIII века. А дискуссии американских отцов-основателей у него выглядят как рэп-батлы.</p>
+<p>При этом сам Миранда не участвует в батлах, не выпустил ни одного сольного альбома, не гастролирует с концертами — то есть де-юре он даже не входит в число рэперов. Но в то же время, по-моему, де-факто он один из лучших рэперов планеты.</p>
+<p>Одного этого мне уже было бы достаточно для восторгов. Но у других рэперов нет того, что есть у него: он настолько же хорошо ощущает себя в «традиционной» мюзикловой музыке. Он не пытается сбросить с корабля современности бродвейские традиции, заменив их хип-хопом — наоборот, он их любит. Его вокальные данные ограничивают его как исполнителя, но там, где поют другие герои, он может дать им абсолютно классическую песню — и сделать её офигенной. Джонатан Грофф у него так <a href="https://www.youtube.com/watch?v=-P_1RYVTjcA">поёт</a> за короля Георга, что участие Гроффа в новой «Матрице» вызывает такую реакцию:</p>
+<figure><img src="../images/lmm/02.jpg" alt="" loading="lazy"></figure>
+
+<p>А ещё интереснее, что песни у него не делятся строго на «певучие» и «речитативные» — одно может легко переходить в другое в любой момент. В обоих жанрах он как рыба в воде, и он даже не пытается разлить их по двум разным аквариумам, а сливает в единое море и свободно плавает по нему.</p>
+<p>И более того: двумя жанрами он не ограничивается, периодически заходя на ещё какие-то территории. Одна из моих любимых песен у него — «Wait for It», отходящая от общей канвы куда-то в сторону аренби. В итоге её даже перепевал Ашер — и, по-моему, у Ашера получилось заметно хуже оригинала. С моей точки зрения, тут Миранда пришёл на чужую поляну и даже на ней всех убрал.</p>
+<div class="yt" data-id="X04-9LE6EOA"><img src="https://i.ytimg.com/vi/X04-9LE6EOA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>И вот что ещё: «Wait for It» хороша не только по звуку. Да, её вполне можно слушать отдельно от мюзикла как самодостаточное произведение, можно ставить на радио, перепевать, и она отлично работает в этом качестве. И мюзикл вроде как можно послушать без неё, там сюжетно ничего не происходит. Но по-настоящему сияет она для меня как раз в контексте мюзикла. В этой песне дают слово антагонисту, показывают мир его глазами — и если до этой песни он вызывал у меня негатив, то дальше хотелось ему сопереживать.</p>
+<p>Миранда вообще хорошо работает и на этом уровне. У него проработанные персонажи (которых не делятся на «хороших и плохих», даже главный герой не вполне героизируется). У него отлично с драматургией: он смог найти персонажа из школьного учебника истории (казалось бы, что может быть скучнее для молодёжи из тиктока) и подать его так, что теперь молодёжь снимает по этому тысячи тиктоков. У него разные песни мюзикла хорошо работают на перекличках друг с другом: где-то это простые репризы, но где-то не с первого прослушивания замечаешь, что слова «just you wait» тут встречаются то как бахвальство, то как угроза.</p>
+<hr />
+<p>А отдельно мне нравится, как Миранда работает с «повесточкой». Сейчас принято считать, что фильмы стали продвигать социальные идеи и это обязательно убивает творчество (словно «Броненосец "Потёмкин"» не продвигал социальные идеи ещё сто лет назад и словно это помешало ему стать шедевром). Да, есть фильмы, где меня самого это раздражает — но считаю, что в случае «Гамильтона» это только улучшило мюзикл в творческом отношении.</p>
+<p>Безусловно, тут не упустят случая напомнить, что освобождение от Британии ещё не давало освобождения рабам. Но в целом вместо монотонного вдалбливания «что такое хорошо и что такое плохо» Миранда работает отдельными яркими мазками. Будучи пуэрториканского происхождения, понятно, какую сторону он занимает в американской дискуссии о мигрантах. И у него Гамильтон и Лафайет, также родившиеся за пределами США, перед решающим боем за независимость замечают: «Immigrants: we get the job done».</p>
+<p>Это как раз рэперская способность панчить: одной хлёсткой строчкой одновременно и напомнить «США обязаны мигрантам самим своим существованием», и высказаться про нынешний день, где мигранты выполняют грязную работу, пока коренное население ругает их в интернетах. Если не путаю, на живых исполнениях «Гамильтона» пришлось удлинить музыкальный проигрыш после этой фразы, потому что зрители так бурно реагировали, что становились не слышны следующие строки.</p>
+<p>Или вот — героиня цитирует Декларацию независимости и добавляет от себя:</p>
+<blockquote>
+<p>«"We hold these truths to be self-evident<br />
+That all men are created equal"<br />
+And when I meet Thomas Jefferson I'm 'a compel him<br />
+To include women in the sequel»</p>
+</blockquote>
+<p>По-моему, офигенно: одновременно и привести главный американский текст вполне восхищённо, и в то же время добавить к нему феминистскую позицию так, чтобы вместе это звучало остроумно, а не превращалось в занудную лекцию. Миранда не борется с привычным пониманием истории (кстати, в США многие хейтят его за это с позиций «все эти отцы-основатели были ужасными рабовладельцами»), а органично дополняет его современным взглядом — так же, как органично дополняет бродвейский звук речитативом.</p>
+<p>Не знаю, насколько всё перечисленное мной может понравиться тебе. Но вот что мне кажется неоспоримым: если теперь, со всем этим контекстом про Миранду, вернуться к песне из «Моаны», то не остаётся вопросов «почему песни этого автора могут выделяться на фоне других», правда?</p>
+<hr />
+<p>Вероятно, текст создаёт впечатление, что я переслушал и пересмотрел всё, к чему Миранда имеет хоть какое-то отношение. На самом деле это совершенно не так.</p>
+<p>Я даже не смотрел официальную видеозапись «Гамильтона», а только слышал песни (поэтому в этом тексте они проиллюстрированы фанатскими видео). Но там причина техническая: принципиально не пиратствую, а Disney+ в России пока что недоступен. А вот почему до сих пор не послушал другой его мюзикл «In the Heights», не посмотрел его фильм «Tick, tick… BOOM!», не сходил недавно на мультфильм «Энканто» с его песнями?</p>
+<p>Ну, наверное, когда-то доберусь и до них, но спешки не ощущаю. Потому что при всей крутизне Миранды границы есть и у неё — и не думаю, что в «In the Heights» услышу что-то такое, чего в «Гамильтоне» совсем не было. Думаю, как Вуди Аллен всю жизнь снимает один фильм, так и он всю жизнь будет развивать свой бродвейско-речитативный гибрид. Это не обязательно плохо, на того же Вуди многие каждый год с удовольствием ходят, просто мне в своё время оказалось вполне достаточно «Манхэттена» и «Энни Холл».</p>
+<hr />
+<p>А напоследок вот что. Песня «Hurricane», возможно, и не самая лучшая у него, но есть причина, по которой она мне близка.</p>
+<div class="yt" data-id="RGubhKCjrJU"><img src="https://i.ytimg.com/vi/RGubhKCjrJU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>То, что Гамильтон писал тексты, определило всю его жизнь. То, что Миранда пишет тексты песен, определило всю его жизнь. Поэтому, когда Миранда сел писать про Гамильтона, в этом сочинительстве он увидел близкую себе тему и подчеркивал её. И в «Hurrycane» есть слова о текстах-как-действиях: о текстах как о способе выбраться из нищеты, покорить возлюбленную, изменить историю целой страны. Интересно, что даже словосочетания тут строит так, чтобы сочинение теста в них получалось активным действием: «I wrote my way out», «I wrote financial systems into existence».</p>
+<p>И я как человек, который тоже всю жизнь пишет тексты, хочу сказать, что песня такими формулировками отлично передаёт мои ощущения. Всё так, текст может быть далеко не просто буквами, им можно много что делать.</p>
+<p>Вот и сейчас, например, с помощью текста я создаю подарок на день рождения, извините за неровный почерк, дописываю уже в метро по пути.</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../nf/">← A2 · NF</a>
+    <span class="pos">Side A · Track 3 of 7</span>
+    <a class="next" href="../eminem/">A4 · Эминем: 8 роль →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
