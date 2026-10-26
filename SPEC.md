@@ -36,7 +36,7 @@ Status: **draft**. Sections are split into *Settled* (decided, build on it) and 
   | `original` | URL where the post was first published |
   | `series` | `music` or `other`: internal id only; display names are open (Open §2) |
   | `parts` | Optional: original URLs of a multi-part post (`dugri`) |
-  | `draft` | Optional: `true` for unpublished posts (`cybermus`) |
+  | `draft` | Optional: `true` for unpublished posts (`cybersound`) |
 
 - Markdown conventions the site must render:
   - **YouTube embeds:** a YouTube URL alone on a line. There are many; music posts depend on them.
@@ -50,7 +50,7 @@ Status: **draft**. Sections are split into *Settled* (decided, build on it) and 
 - The site hosts **more than one type of content**:
   - **The music series.** Yearly birthday posts about music, each a special project with a shared theme. This is the core of the site.
   - **Other posts.** Older posts worth keeping, and reference material.
-- `cyberpunk2020` is **in**. The new cyberpunk music post (`cybermus`) links to it, so it must live on the same site as reference material. The link in `cybermus` currently points to `expectfun.github.io/jukebox/cyberpunk.html` and must be updated to the final URL.
+- `cyberpunk2020` is **in**. The new cyberpunk music post (`cybersound`) links to it, so it must live on the same site as reference material. The link in `cybersound` currently points to `expectfun.github.io/jukebox/cyberpunk.html` and must be updated to the final URL.
 - How the types are split and presented is open (see Open §2).
 
 ### Current posts (12)
@@ -68,7 +68,7 @@ Status: **draft**. Sections are split into *Settled* (decided, build on it) and 
 | 2025-01-25 | sudan-en | Sudan: Songs of Unnoticed Events | telegra.ph |
 | 2025-12-17 | adhd | Хип-хоп и СДВГ | telegra.ph |
 | 2026-01-07 | jagged-intelligence | Jagged intelligence | expectfun.github.io |
-| — (draft) | cybermus | Как звучит киберпанк? | not yet published |
+| — (draft) | cybersound | Как звучит киберпанк? | not yet published |
 
 ---
 
@@ -165,7 +165,7 @@ All 12 posts are built as pages (`prototypes/<slug>.html`) from the Markdown by 
 - It fits because most posts are a yearly music series (birthday posts to Саша about an artist or a music scene), and every post is full of songs.
 - Already in place:
   - `~/life/code/jukebox/` exists with conversion tools (`html2md.py`, `pdf2md.py`) and two converted posts, but no site yet.
-  - The `cybermus` draft already links to `expectfun.github.io/jukebox/cyberpunk.html`, which implies a `/jukebox/` URL.
+  - The `cybersound` draft already links to `expectfun.github.io/jukebox/cyberpunk.html`, which implies a `/jukebox/` URL.
 - To be described by Eugene: what exactly makes it a jukebox visually and in how it works.
 - Concerns to check:
   - Non-music posts (`software2020`, `jagged-intelligence`, the AI series) don't fit a jukebox metaphor naturally.
@@ -187,7 +187,7 @@ The music series is the core: 8 posts, one per year, all on a shared theme. The 
 Facts that affect the choice:
 - The groups are uneven: 9 music posts (8 years plus the English Sudan translation) against 3 others today. The "others" may grow faster, through the AI series.
 - The groups differ partly by language (the AI series is in English).
-- Some "other" posts are reached mainly through links from music posts (`cybermus` → `cyberpunk2020`), not from the index. A direct URL has to work whatever the index looks like.
+- Some "other" posts are reached mainly through links from music posts (`cybersound` → `cyberpunk2020`), not from the index. A direct URL has to work whatever the index looks like.
 
 Options:
 - **A. Side A / Side B** *(Eugene's idea)*. The two types are the two sides of a vinyl record or cassette, and the design plays on it: flipping the record, turning the tape over. The split is explicit and part of the concept.
@@ -203,7 +203,7 @@ Options:
 These can be combined. For example, E as the data model with A or C as the presentation, or D for reference posts on top of any of them.
 
 **Decided:** two series, stored as `series: music` / `series: other` in front matter. The ids are internal and stable; what the site *calls* them is a display choice made later.
-- `music` (9): alyona, nf, lmm, eminem, dugri, sudan, sudan-en, adhd, cybermus
+- `music` (9): alyona, nf, lmm, eminem, dugri, sudan, sudan-en, adhd, cybersound
 - `other` (3): software2020, cyberpunk2020, jagged-intelligence
 
 The `other` series is treated as **bonus material**: everything that isn't the main content. Its posts don't share a topic. Most are about tech, but `cyberpunk2020` is about culture, so the name shouldn't claim a topic.
@@ -220,7 +220,7 @@ The `other` series is treated as **bonus material**: everything that isn't the m
 
 ### 3. Site structure and URL
 - Where it lives:
-  - `expectfun.github.io/jukebox/` (a separate repo, matching the link in `cybermus`)
+  - `expectfun.github.io/jukebox/` (a separate repo, matching the link in `cybersound`)
   - `expectfun.github.io/posts/` (inside the existing home repo)
   - a custom domain
 - The name of the site, which depends on the concept.
@@ -235,7 +235,7 @@ The `other` series is treated as **bonus material**: everything that isn't the m
 
 ### 5. Content scope
 - Which posts go in:
-  - **Birthday music series (8):** `alyona`, `nf`, `lmm`, `eminem`, `dugri`, `sudan`, `adhd`, plus `cybermus` once it's done. These are clearly in.
+  - **Birthday music series (8):** `alyona`, `nf`, `lmm`, `eminem`, `dugri`, `sudan`, `adhd`, plus `cybersound` once it's done. These are clearly in.
   - **Habr articles written for work:** `software2020`, and `cyberpunk2020`, which is settled as in (see Content types).
   - **English AI series:** `jagged-intelligence`, which is planned to grow.
   - **Not collected yet:** `~/life/code/city/posts/good-spec.html`.
@@ -254,5 +254,5 @@ The `other` series is treated as **bonus material**: everything that isn't the m
 ### 8. Content fixes pending
 - `lmm`: the year 2021 is inferred, not confirmed.
 - `sudan`: the date is 12-14, but the telegra.ph URL says 12-13. Other posts use the URL date.
-- `cybermus`: needs a date and the FSOL "Dead Cities" and Deltron 3030 cover images, which are marked "ЗАГРУЗИТЬ ОБЛОЖКУ".
+- `cybersound`: needs a date.
 - `dugri`: the anchor format may need changing for the web renderer (see Source content).
