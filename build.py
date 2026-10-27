@@ -129,11 +129,16 @@ def build_post(meta, body, sides, pairs):
         text = f'← {label}' if rel == 'prev' else f'{label} →'
         return f'<a class="{rel}" href="../{t["slug"]}/">{text}</a>'
 
+    # RU · EN: the current language lit, the other one a link to the translation
     alt_link = ''
     if slug in pairs:
         other = pairs[slug]
-        alt_link = (f'<a href="../{other}/" lang="en">Read in English</a>' if other.endswith('-en')
-                    else f'<a href="../{other}/" lang="ru">Читать по-русски</a>')
+        here, there = ('en', 'ru') if slug.endswith('-en') else ('ru', 'en')
+        label = {'en': 'Read in English', 'ru': 'Читать по-русски'}[there]
+        parts = {here: f'<span class="on" lang="{here}" aria-current="page">{here.upper()}</span>',
+                 there: (f'<a href="../{other}/" lang="{there}" hreflang="{there}" title="{label}" '
+                         f'aria-label="{label}">{there.upper()}</a>')}
+        alt_link = f'<span class="lang">{parts["ru"]}<span aria-hidden="true">·</span>{parts["en"]}</span>'
     is_en = re.search(r'[A-Za-z]{3,}', meta['title']) and not re.search('[А-Яа-я]', meta['title'])
     page = fill(TEMPLATES['post'], {
         'lang': 'en' if is_en else 'ru',
@@ -167,7 +172,9 @@ def build_index(posts, sides):
     open(os.path.join(ROOT, 'index.html'), 'w').write(page)
 
 
-TEMPLATES = {name: open(os.path.join(SRC, name + '.html')).read() for name in ('index', 'post')}
+KNOB = open(os.path.join(SRC, 'knob.html')).read()   # the theme knob, shared by both pages
+TEMPLATES = {name: open(os.path.join(SRC, name + '.html')).read().replace('{{knob}}', KNOB)
+             for name in ('index', 'post')}
 
 if __name__ == '__main__':
     posts = load_posts()
