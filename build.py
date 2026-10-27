@@ -110,12 +110,16 @@ def fill(template, values):
 def notice(meta, pairs):
     """The line under a translation's title. translated_from: en marks a Russian translation of an
     English original, and stays after review, linking to the original; translation: machine adds
-    that nobody has reviewed it yet."""
+    that nobody has reviewed it yet, and sensitive: true makes that a fuller warning."""
     machine = meta.get('translation') == 'machine'
     if meta.get('translated_from') == 'en' and meta['slug'] in pairs:
         link = f'<a href="../{pairs[meta["slug"]]}/" lang="en" hreflang="en">читать оригинал</a>'
         text = (f'Машинный перевод с английского, автор его ещё не вычитал. Оригинал написан на английском: {link}.'
                 if machine else f'Перевод с английского. Оригинал написан на английском: {link}.')
+    elif machine and meta.get('sensitive') == 'true':
+        text = ('Machine-translated, not yet reviewed by the author. The subject is painful and sensitive, '
+                'and in translation some wording may have come out harsher or less precise than in the '
+                'Russian original. Please read with that in mind.')
     elif machine:
         text = 'Machine-translated, not yet reviewed by the author.'
     else:
