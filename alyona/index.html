@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alyona Alyona — Longplay</title>
-<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/alyona/">
-<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/alyona-en/">
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/alyona/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/alyona-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -153,7 +153,7 @@
 </head>
 <body data-side="A" class="">
   <div class="topbar">
-    <a class="back" href="../en/#A1">
+    <a class="back" href="../#A1">
       <svg viewBox="0 0 34 30" aria-hidden="true">
         <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
         <g class="platter">
@@ -169,9 +169,9 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><a class="flip" data-lang="en" href="../alyona-en/" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../alyona-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
   /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
   .flip {
     display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
@@ -201,7 +201,11 @@
   // flip the lever to the other side, fade out, then open the other language
   // (the href is read at the last moment: the record adds the track the needle is on)
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+  const flips = document.querySelectorAll('.flip');
+  flips.forEach(a => { a.dataset.here = a.dataset.lang; });
+  // back via the browser's back button restores the page as it was left: put the lever back
+  addEventListener('pageshow', e => { if (e.persisted) flips.forEach(a => { a.dataset.lang = a.dataset.here; }); });
+  flips.forEach(a => a.addEventListener('click', ev => {
     if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
     ev.preventDefault();
     a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
@@ -248,7 +252,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -348,7 +352,7 @@
 </ul>
 <p>В общем, каждый из этих факторов сам по себе выглядит снижающим шансы на успех, а уж когда они собираются все вместе, это выглядит как описание анти-успеха.</p>
 <p>И когда появился самый первый клип «Рибки», намеренно пёстрый, в комментариях The Flow на это в целом была реакция как на мем. Толстая воспитательница из украинского посёлка выпустила хип-хоп-клип, где она в купальнике на водном мотоцикле? Ну, давайте повеселимся, а завтра к чему-то другому перейдём — может, волнистый попугайчик хип-хоп запишет. Хм, кстати, а зачитывает воспитательница ничего так, даже удивительно.</p>
-<div class="yt" data-id="6lJETYWNT9U"><img src="https://i.ytimg.com/vi/6lJETYWNT9U/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="6lJETYWNT9U"><img src="https://i.ytimg.com/vi/6lJETYWNT9U/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Но когда появился второй клип, реакция оказалась другой: теперь это воспринимали уже не как курьёз, а на полном серьёзе писали, что это лучше 90% русскоязычного хип-хопа. Комментаторы сами офигевали от возникающего у них когнитивного диссонанса, но не могли не отдать должное.</p>
 <p>Причём отдельно интересно, что негативной реакции не было вообще. Мне запомнились чьи-то слова (не дословно): «Всё это время, пока в комментах Flow хейтили даже самых признанных людей, от Кендрика Ламара до Оксимирона, я думал: каким же должен быть рэпер, чтобы тут к нему никто не смог придраться? Окей, теперь знаю, спасибо».</p>
@@ -362,14 +366,14 @@
 <p>Два года ждать не пришлось: совсем недавно она сама взяла и выпустила новую 8-песенную запись <strong>«В хатi МА»</strong>. Тут комментаторы Флоу дружно написали то, чего я и опасался: ну, с мастерством не поспоришь, но это превращается в конвейерный «хип-хоп от Алёны». И послушав, я по большей части вынужден был с ними согласиться: пара песен очень радует, но многие другие оставили именно такое впечатление «уже слышанного». Насколько я затёр до дыр первую запись, настолько нет желания затирать вторую.</p>
 <p>Тут бы расстроиться — но по итогам я даже чувствую некоторое облегчение. Синдром второго альбома вообще распространён, мало кому удаётся удивлять им как первым — и вместо того, чтобы два года тревожиться по этому поводу, я уже сейчас могу расслабиться и просто получать удовольствие от полюбившихся песен с обеих записей. Сама по себе Алёна всё равно остаётся прекрасной (как написали в комментариях к «Вписке», это «отдел по производству добра и света в этом мире»). И несмотря на разочарование от второй записи, по-прежнему есть чего ждать в будущем: она ещё ни разу не выступала в России, и мне хотелось бы впервые побывать на её концерте.</p>
 <p>А ещё, думаю, в 2020-м полномасштабной хип-хоп-звездой станет и другая девушка — <strong>Drummatix</strong>. Но о ней, видимо, будет следующий пост через год! А пока вот моё любимое у Алёны:</p>
-<div class="yt" data-id="Spq6QDDDDIY"><img src="https://i.ytimg.com/vi/Spq6QDDDDIY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="Spq6QDDDDIY"><img src="https://i.ytimg.com/vi/Spq6QDDDDIY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <span></span>
-    <span class="pos">Side A · Track 1 of 7</span>
-    <a class="next" href="../nf-en/">A2 · NF →</a>
+    <span class="pos">Сторона A · трек 1 из 7</span>
+    <a class="next" href="../nf/">A2 · NF →</a>
   </nav>
 
 <div class="curtain" id="curtain" aria-hidden="true"></div>

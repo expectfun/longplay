@@ -28,7 +28,11 @@
   // flip the lever to the other side, fade out, then open the other language
   // (the href is read at the last moment: the record adds the track the needle is on)
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+  const flips = document.querySelectorAll('.flip');
+  flips.forEach(a => { a.dataset.here = a.dataset.lang; });
+  // back via the browser's back button restores the page as it was left: put the lever back
+  addEventListener('pageshow', e => { if (e.persisted) flips.forEach(a => { a.dataset.lang = a.dataset.here; }); });
+  flips.forEach(a => a.addEventListener('click', ev => {
     if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
     ev.preventDefault();
     a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';

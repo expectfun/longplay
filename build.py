@@ -129,10 +129,13 @@ def preprocess(md, lang):
     return md
 
 
-def page_lang(meta):
-    """en for English versions (slug-en) and for unpaired posts with an English title, else ru."""
-    t = meta['title']
-    return 'en' if meta['slug'].endswith('-en') or (re.search(r'[A-Za-z]{3,}', t) and not re.search('[А-Яа-я]', t)) else 'ru'
+def page_lang(meta, pairs):
+    """A paired post's language comes from its name alone: slug-en is English, slug Russian (a Russian
+    title can be all Latin, like «Alyona Alyona»). Only an unpaired post falls back to its title."""
+    slug, t = meta['slug'], meta['title']
+    if slug.endswith('-en') or slug in pairs:
+        return 'en' if slug.endswith('-en') else 'ru'
+    return 'en' if re.search(r'[A-Za-z]{3,}', t) and not re.search('[А-Яа-я]', t) else 'ru'
 
 
 def in_lang(slug, lang, pairs):
@@ -193,7 +196,7 @@ def notice(meta, pairs):
 
 def build_post(meta, body, sides, pairs, posts):
     slug = meta['slug']
-    lang = page_lang(meta)
+    lang = page_lang(meta, pairs)
     ui = UI[lang]
     record = '../en/' if lang == 'en' else '../'
     track_slug = pairs[slug] if slug.endswith('-en') and slug in pairs else slug
