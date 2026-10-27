@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lin-Manuel Miranda — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A3">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../lmm/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>Lin-Manuel Miranda</h1>
+    <p class="year">2021</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/lmm/01.jpg" alt=""></figure>
+
+  <article>
+<p>Hi, Sasha! Basically, my gift texts for your birthdays have turned into an annual column: "the musician who impressed me this past year" :)</p>
+<p>A long time ago I liked the songs in Disney's «Moana» so much (especially one, «How Far I'll Go») that after watching it I went to a streaming service to listen to them again. And I couldn't even explain what exactly I liked. Disney songs usually bore me: they feel made from a template, where you could swap one songwriter for another and nobody would notice. Here, too, everything seemed to fit the formula, but both the performance and the material grabbed me.</p>
+<div class="yt" data-id="cPAbx5kgCJo"><img src="https://i.ytimg.com/vi/cPAbx5kgCJo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Back then I didn't even know that «How Far I'll Go» had been nominated for an Oscar, or that it had nearly a billion views on YouTube (so it had grabbed far more people than just me). On the streaming service I discovered that Russian users got the «Moana» songs in drab versions from the Russian dub (the only thing I enjoyed there was Ilya Lagutenko, frontman of the Russian band Mumiy Troll, as the giant crab). In the end I simply forgot about all of it.</p>
+<p>Then this year I listened to the musical «Hamilton», was blown away, wanted to know "what else has Lin-Manuel Miranda done", opened Wikipedia and found out that he wrote the songs for «Moana». At that moment everything fell into place. Indeed, this songwriter can't simply be swapped for another: there's no one else like him in the world.</p>
+<hr />
+<p>Why? Miranda amazes me not only with his talent but with his versatility: he's good at very different things at once.</p>
+<p>To start, I'll just copy and paste from his Wikipedia page: "American actor, singer, songwriter, rapper, director, playwright, producer and filmmaker".</p>
+<p>With «Hamilton», he came up with the idea and worked it out himself, wrote all the songs himself, and then played the lead role in the Broadway production himself. And the result was one of the major musicals of the 21st century, thanks to all of these ingredients: the idea, the story, the lyrics, the melodies and the charisma of the performance. While it was still a draft, he performed the first song at the White House in front of Obama, practically on his own (with minimal accompaniment), and even without the power of a Broadway production it was already impressive.</p>
+<div class="yt" data-id="WNFf7nMIGnE"><img src="https://i.ytimg.com/vi/WNFf7nMIGnE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Of course, it would be wrong to credit everything in «Hamilton» to Miranda alone. The other performers in the Broadway production are striking too: some have far more powerful voices than Miranda, others handle fast rap more nimbly. But even where other artists shine, you can feel his hand. For example, knowing that the technically gifted rapper Daveed Diggs would be in the production, Miranda deliberately wrote machine-gun lines into his part that he couldn't have rapped himself. Showcasing other people's abilities is an important ability too.</p>
+<p>This might give the impression of an egomaniac who needs everything to revolve around him. But remember «Moana», where he was only the songwriter on someone else's film, fit into a given frame and stayed in the shadows. Or «Star Wars: The Force Awakens», where, for the film's needs, he made a <a href="https://www.youtube.com/watch?v=JaaL5QoI3GM">song</a> in a language that doesn't even exist.</p>
+<p>There's also an in-between case, the animated film «Vivo», where he voiced the main character (a kinkajou): Miranda himself isn't on screen, but his voice alone steals the show, and he's easy to recognize.</p>
+<div class="yt" data-id="mAW1yvaZPzY"><img src="https://i.ytimg.com/vi/mAW1yvaZPzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>All right, he's a jack of all trades with a recognizable style who can be on either side of the camera, but haven't we had plenty of those? Woody Allen, too, likes to cast himself in his own film from his own script, he too combined Hollywood with Broadway, and you can recognize him a mile off too. But what's especially interesting about Miranda is that his versatility doesn't end with the roles he takes on: as a writer he draws from very different sources.</p>
+<p>One obvious ingredient is hip-hop. «Hamilton» is often described as an experimental introduction of rap into musicals. But I think for Miranda himself it isn't an experiment but a completely natural step. He didn't "decide to bring in hip-hop": he <em>is</em> hip-hop. When the Russian director Valeria Gai Germanika wanted the rap sections of her series «Bonus» to sound convincing, she brought in the rapper Dunya; Miranda doesn't need to bring anyone in, he could advise anyone himself.</p>
+<div class="yt" data-id="_ozDDHUsi6I"><img src="https://i.ytimg.com/vi/_ozDDHUsi6I/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Rhymes and punchlines, flow and beats: he understands all of it perfectly. Since the main goal of a musical is to tell a coherent story, you can't go too far into multisyllabic rhymes at the expense of the narrative, but even under such constraints he sometimes rhymes almost entire lines:</p>
+<blockquote>
+<p>Hamilton <strong>faces an endless</strong> uphill <strong>climb</strong><br />
+Hamilton's <strong>pace is relentless</strong>, he wastes no <strong>time</strong></p>
+</blockquote>
+<p>The line "I heard ya mother said, 'Come again?'" is a "yo mama" joke that could appear in a modern diss track, but here it's slipped into the speech of an 18th-century character. And his debates between the American Founding Fathers look like rap battles.</p>
+<p>And yet Miranda himself doesn't take part in battles, hasn't released a single solo album and doesn't tour, so de jure he isn't even counted among rappers. But at the same time, in my view, de facto he's one of the best rappers on the planet.</p>
+<p>That alone would be enough for me to rave about him. But he has something other rappers don't: he's just as at home in "traditional" musical theater music. He doesn't try to throw Broadway traditions overboard and replace them with hip-hop; on the contrary, he loves them. His voice limits him as a performer, but where other characters sing, he can give them an utterly classic song and make it amazing. Jonathan Groff <a href="https://www.youtube.com/watch?v=-P_1RYVTjcA">sings</a> King George for him so well that Groff's casting in the new «Matrix» gets this reaction:</p>
+<figure><img src="../images/lmm/02.jpg" alt="" loading="lazy"></figure>
+
+<p>Even more interesting, his songs aren't strictly divided into "sung" and "rapped": one can easily turn into the other at any moment. He's like a fish in water in both genres, and he doesn't even try to keep them in two separate aquariums; he pours them into one sea and swims through it freely.</p>
+<p>What's more, he doesn't limit himself to two genres, now and then venturing into other territories. One of my favorite songs of his is «Wait for It», which veers away from the overall style toward R&amp;B. Usher even ended up covering it, and in my view Usher's version is noticeably worse than the original. As I see it, Miranda walked onto someone else's turf here and still beat everyone on it.</p>
+<div class="yt" data-id="X04-9LE6EOA"><img src="https://i.ytimg.com/vi/X04-9LE6EOA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>And there's something else: «Wait for It» is good not only for its sound. Yes, you can easily listen to it apart from the musical as a self-contained work, play it on the radio, cover it, and it works great that way. And you could arguably listen to the musical without it, since nothing happens plot-wise. But for me it truly shines precisely in the context of the musical. This song gives the antagonist a voice and shows the world through his eyes, and if before it I disliked him, afterwards I wanted to empathize with him.</p>
+<p>Miranda works well on this level in general. His characters are well developed (they aren't divided into "good and bad"; even the protagonist isn't entirely glorified). His dramaturgy is excellent: he managed to take a character from a school history textbook (what could seem more boring to the TikTok generation?) and present him so that the TikTok generation now makes thousands of TikToks about him. The different songs of the musical work well by echoing each other: sometimes these are simple reprises, but sometimes it takes more than one listen to notice that the words "just you wait" appear here now as a boast, now as a threat.</p>
+<hr />
+<p>I especially like how Miranda handles "the agenda". These days it's common to believe that films have started pushing social ideas and that this inevitably kills creativity (as if «Battleship Potemkin» weren't pushing social ideas a hundred years ago, and as if that had stopped it from becoming a masterpiece). Yes, there are films where it annoys me too, but I think in the case of «Hamilton» it only made the musical better artistically.</p>
+<p>Of course, the musical doesn't miss a chance to remind us that freedom from Britain didn't yet mean freedom for slaves. But on the whole, instead of monotonously drilling in "what's good and what's bad", Miranda works in separate vivid strokes. Given his Puerto Rican roots, it's clear which side he takes in the American debate about immigrants. And in his musical, Hamilton and Lafayette, also born outside the United States, remark before the decisive battle for independence: "Immigrants: we get the job done".</p>
+<p>This is exactly the rapper's ability to land a punchline: with one stinging line, both to remind us that "the US owes its very existence to immigrants" and to say something about today, when immigrants do the dirty work while the native-born population scolds them on the internet. If I'm not mistaken, in live performances of «Hamilton» the musical break after this line had to be extended, because the audience reacted so loudly that the next lines couldn't be heard.</p>
+<p>Or here's a heroine quoting the Declaration of Independence and adding something of her own:</p>
+<blockquote>
+<p>"We hold these truths to be self-evident<br />
+That all men are created equal"<br />
+And when I meet Thomas Jefferson I'm 'a compel him<br />
+To include women in the sequel</p>
+</blockquote>
+<p>I think that's amazing: at once quoting the key American text with real admiration and adding a feminist position to it, so that together it sounds witty instead of turning into a tedious lecture. Miranda doesn't fight the familiar understanding of history (by the way, many people in the US hate him for this, from the position that "all those Founding Fathers were terrible slave owners"); he organically complements it with a modern view, just as he organically complements the Broadway sound with rap.</p>
+<p>I don't know how much of what I've listed you'll like. But here's what seems indisputable to me: if, with all this context about Miranda, you now go back to the song from «Moana», there's no longer any question of "why this songwriter's songs can stand out from the rest", right?</p>
+<hr />
+<p>The text probably gives the impression that I've listened to and watched everything Miranda has had anything to do with. In fact, that's not at all the case.</p>
+<p>I haven't even watched the official filmed version of «Hamilton», only heard the songs (which is why they're illustrated with fan videos in this text). But there the reason is technical: I don't pirate on principle, and Disney+ isn't available in Russia yet. But why haven't I yet listened to his other musical, «In the Heights», watched his film «Tick, tick… BOOM!», or gone to see the recent animated film «Encanto» with his songs?</p>
+<p>Well, I'll probably get to them someday, but I don't feel any rush. Because for all of Miranda's brilliance, it has its limits too, and I don't think I'll hear anything in «In the Heights» that wasn't in «Hamilton» at all. I think that just as Woody Allen has been making the same film all his life, Miranda will spend his life developing his Broadway-and-rap hybrid. That's not necessarily bad: many people happily go to see Woody every year; it's just that for me, «Manhattan» and «Annie Hall» were quite enough.</p>
+<hr />
+<p>And finally, this. The song «Hurricane» may not be his best, but there's a reason it's close to me.</p>
+<div class="yt" data-id="RGubhKCjrJU"><img src="https://i.ytimg.com/vi/RGubhKCjrJU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Hamilton's writing defined his whole life. Miranda's songwriting has defined his whole life. So when Miranda sat down to write about Hamilton, he saw a theme close to his own in that writing and highlighted it. And «Hurricane» has lines about writing as action: writing as a way to escape poverty, win over a loved one, change the history of an entire country. Interestingly, he even builds the phrases so that writing becomes an active deed in them: "I wrote my way out", "I wrote financial systems into existence".</p>
+<p>And as someone who has also spent his whole life writing, I want to say that the song's phrasing captures my feelings perfectly. That's right: a text can be far more than just letters; you can do a lot with it.</p>
+<p>Right now, for example, I'm using a text to make a birthday present. Please excuse the uneven handwriting: I'm finishing it on the metro on my way.</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../nf/">← A2 · NF</a>
+    <span class="pos">Side A · Track 3 of 7</span>
+    <a class="next" href="../eminem/">A4 · Эминем: 8 роль →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
