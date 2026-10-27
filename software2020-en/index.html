@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Everything in Software Is Amazing and Nobody&#x27;s Happy — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="B" class="">
+  <div class="topbar">
+    <a class="back" href="../#B1">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../software2020/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>Everything in Software Is Amazing and Nobody&#x27;s Happy</h1>
+    <p class="year">2020</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/software2020/01.jpg" alt=""></figure>
+
+  <article>
+<p>There's a typical position you can come across on Habr (a Russian tech site) and beyond: "even though hardware keeps getting better over the years, humanity has cancelled out the effect by writing ever worse software".</p>
+<p>As in: processors have more cores now, but everything lags more than ever. Electron and Slack are spawns of darkness, sent to rob us of happiness and memory. Mobile apps have become hungrier than old operating systems. And operating systems themselves no longer make any real progress, yet for some reason they keep bloating. How much better it was back when people could fit an OS on a floppy disk!</p>
+<p>I'll say it plainly: when I see statements like that, it drives me up the wall. I think they miss a whole range of important factors. And in the end the situation resembles Louis C.K.'s classic bit «<a href="https://www.youtube.com/watch?v=MkS3hyzarrA">Everything's amazing and nobody's happy</a>»: everything has become amazingly good, and people sit around complaining.</p>
+<p>So I decided to describe these missing factors. Since the text came out sharp, I want to stress that the opinion is entirely my own (even though I refer to the conferences of the company I work for).</p>
+<h2 id="selective-memory">Selective memory</h2>
+<p>There's a well-known nostalgia effect: "the grass was greener and the music was better back then". But I think for many people this effect takes on frightening proportions, when their feelings diverge dramatically from reality.</p>
+<p>I'm talking about statements like this one: "Almost everything on computers feels slower than in 1983". Judging by the thousands of likes, this isn't an isolated opinion but a widespread one.</p>
+<blockquote>
+<p>almost everything on computers is perceptually slower than it was in 1983</p>
+<p>— Gravis (edited) (@gravislizard) <a href="https://twitter.com/gravislizard/status/927593460642615296">November 6, 2017</a></p>
+</blockquote>
+<p>My first reaction: "And how did streaming 4K video feel in 1983?" That is, let's start by remembering that most of today's uses of a computer were impossible back then, partly precisely because of speed. Once upon a time a film (not even in 4K, but in 1080p) would have taken months to download, and then the computer couldn't have played it at 24 FPS. So how do you compare today's speed with a speed so unimaginably low that it didn't exist at all?</p>
+<p>Second reaction: yes, some things that moved from the command line to a GUI may take longer there. I'm willing to believe that Word in 2020 starts slower than the console editor vi did in 1983 (I can't compare personally: I first sat at a computer in the 90s). But if this matters so much to you, you can still use the command line for many "tasks from the 80s" in 2020. I'm writing this text in vim right now: a wonderful editor that keeps up with the times thanks to its plugin ecosystem. It looks great on a modern Retina iMac: the letters have become very crisp, and it still responds instantly. So what's the problem?</p>
+<p>But the main point isn't even these two things. What matters more is this: I think we've started to forget how slow computers used to be. When something starts to lag more, we notice it immediately, but when something becomes faster or easier, we simply take it for granted and forget the past.</p>
+<p>To everyone who writes "everything used to be faster", I have this question: do you even remember, say, this?</p>
+<figure><img src="../images/software2020/02.png" alt="" loading="lazy"></figure>
+
+<p>I'll be honest: I don't really think about it myself either. When I shut down my computer today, I don't reflect on how twenty years ago I sat and waited between pressing a button in the OS and pressing the button on the system unit. I simply took it for granted that this is no longer necessary and forgot that it was ever otherwise.</p>
+<p>Startup times have changed a lot too. Now I sit down at my iMac, press one key, and a second later it's ready to work (thanks to SSDs and sleep mode). As a kid waiting for Windows to boot from an HDD, I would hardly have believed I'd live to see this.</p>
+<p>"When an email has a gazillion images, it opens terribly slowly, sometimes as long as ten seconds!" I understand that can be annoying, but listen: in 2000, to check my email I first spent a minute enjoying the trills of the modem, then waited for the webmail's main page to load at its leisure, and then the email itself didn't load instantly either, and it had no images at all, only text. Today something like that would open without delay. Maybe we just shouldn't stuff a thousand images into a means of communication that was invented for something else? And before declaring "everything has gone downhill", let's think: how long would an email with that many images have taken to open in 2000?</p>
+<p>Or here's another memory, lost in time, like tears in rain. In the 2000s there was a popular joke: "A slow computer is when you know all the Photoshop developers by name." For those who don't get it: back then, pirated Photoshop was very popular in Russia, and every time they launched it, Russians had to stare at this for a long time:</p>
+<figure><img src="../images/software2020/03.png" alt="Oh, I just realized I know one of these people: Sean Parent gave a talk at our C++ Russia conference" loading="lazy"><figcaption>Oh, I just realized I know one of these people: Sean Parent <a
+href="https://www.youtube.com/watch?v=Xtk_JXDqmxo">gave a talk</a> at
+our C++ Russia conference</figcaption></figure>
+
+<p>Now compare. Today people joke: "Once it took two kilobytes of memory to put a man on the Moon, and now it takes two gigabytes to run Slack." It sounds punchy, but do you notice the difference? However much RAM Slack consumes, users don't face the situation of "you can go make tea while the program starts". Everything has gotten better, and we didn't notice.</p>
+<p>Or here's a telling historical artifact: the 2002 episode «Даунлоад» ("Download") of «Масяня», a hugely popular Russian Flash cartoon series. The characters are terribly worried about a disconnect that would force them to download a file all over again.</p>
+<div class="yt" data-id="m05xKxkIGU4"><img src="https://i.ytimg.com/vi/m05xKxkIGU4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Note: the file they're downloading is 591 kilobytes. The characters are worried about having to re-download half a megabyte. That was the real state of things in 2002.</p>
+<p>For comparison, a recent example from my own life. I had a small technical problem on my Mac, and on Stack Overflow I found the advice "install Xcode and accept its terms of use". My reaction: it's odd to download an 8-gigabyte IDE to press one button, but if it helps, why not.</p>
+<p>So program sizes have grown over the years (in the days of «Масяня», an "8-gigabyte IDE" would have made people's hair stand on end), but downloading them has become much easier, and our lives have become much better.</p>
+<p>And the last example in this section is about "bloated mobile apps". Every now and then people write indignant posts like «<a href="https://trevore.com/post/app-sizes-are-out-of-control/">App sizes are out of control</a>»: since when does LinkedIn take up 275 megabytes on a phone?! In 2018 you could <a href="https://tonsky.me/blog/disenchantment/">read</a> the complaint: "All that leaves me around 1 GB for my photos after I install all the essential (social, chats, maps, taxi, banks etc) apps."</p>
+<p>I won't lie, those 275 megabytes of LinkedIn raise questions for me too. But I remember how in 2010 Habr <a href="https://habr.com/ru/post/109616/">reported</a> (in Russian) that Alfa-Bank, a Russian bank, had released a mobile app. It weighed 30 megabytes, a size that wouldn't raise any questions at all today. But back then, the comments said:</p>
+<figure><img src="../images/software2020/04.jpg" alt="" loading="lazy"></figure>
+
+<p>Do you know why? Back then, a Russian user might be carrying, for example, an <a href="https://en.wikipedia.org/wiki/HTC_Hero">HTC Hero</a>. Let's look at its specs: "storage — 512 MB, 165 for applications". 165 megabytes in total for all installed apps! Under those conditions you constantly had to choose which ones were more important and which you could live without. And to install a 30-megabyte one, you'd have to remove several others at once. It was painful.</p>
+<p>And if we could go back to 2010, walk up to the people feeling that pain and tell them the 2018 line "that leaves me around 1 GB for my photos", I think they'd beat us up. Those words would sound not like a complaint but like mockery and bragging.</p>
+<p>And even since 2018, when that complaint appeared, things have improved: today the budget Xiaomi Mi A3 comes with 64 gigabytes in its base version, so after installing apps there will clearly be far more than one gigabyte left.</p>
+<p>Yes, apps have grown severalfold over 10 years. But storage over the same period has grown HUNDREDS of times. So life has become dozens of times better.</p>
+<p>And do you even remember what it was like to use a smartphone in 2010, and how many different "everything is slow" pains there were?</p>
+<ul>
+<li>Little RAM meant apps constantly had to be launched "from scratch" instead of instantly switching to one already running.</li>
+<li>And underpowered processors launched them from scratch very slowly.</li>
+<li>I don't even want to remember the speed of mobile internet.</li>
+<li>Transferring photos to a computer and backing up your phone had to be done over a cable, and in the days of USB 2.0 that was agonizingly slow.</li>
+</ul>
+<p>Using a smartphone looked like constant waiting: whatever you wanted to do involved periods of "standing there, staring at the screen". If you were out and needed a map, you stood still and first waited for the app to deign to launch, then waited for the map in it to deign to load. And on top of that you paid noticeably for the data it used.</p>
+<p>Compared to all that, we now live in paradise, yet we complain actively. It looks like "first world problems", something like "I want to read Twitter lying down, holding my phone above my face, but then I might accidentally drop it on myself". Well, my sympathies, but saying "everything has gotten worse" in that situation seems disrespectful to both the past and the present.</p>
+<blockquote>
+<p>Overall conclusion: loud claims that "everything used to work faster and better" turn out to be obviously untrue. It seems that their authors' memory nostalgically serves up only the pleasant parts of the past and suppresses the unpleasant ones. A great deal was much slower and worse.</p>
+</blockquote>
+<hr />
+<h2 id="not-understanding-the-internals">Not understanding the "internals"</h2>
+<p>There's another typical situation. People say "software is ever more bloated and sluggish, even though almost nothing changes for the better for the user", and yet they aren't quite aware of what's actually going on in there.</p>
+<p>A small illustrative example. In 2018 there was a <a href="https://tonsky.me/blog/disenchantment/">much-discussed piece</a> by Nikita Prokopov about "software disenchantment", and among other things it said: "Google Play Services, which I do not use (I don't buy books, music or videos there)—300 MB that just sit there and which I'm unable to delete."</p>
+<p>Reading that, you want to fill up with righteous anger, yes. But there's a catch: Google Play Services actually has nothing to do with "buying books". It includes many different APIs, and, as Wikipedia <a href="https://en.wikipedia.org/wiki/Google_Play_Services">puts it</a>, "All major Android services are controlled by Google Play Services". So, in all likelihood, Nikita uses this software actively without knowing it: Google just gave it a confusing name.</p>
+<p>My goal here isn't to criticize a specific post but to show a general approach: we often declare "apps have bloated/slowed down for no good reason" without fully understanding the reasons. Something was added to an app, its developers have detailed information about what exactly and why, and we don't, yet for some reason we consider ourselves more competent on the matter than they are.</p>
+<p>And there's a lot inside that isn't obvious from outside. Take text editors, for example: people have been making them since time immemorial on the weakest hardware, everything about them has long been clear, and there's nothing there to lag, "what could be simpler". So from the outside it looks like this: if something doesn't respond instantly, it's clumsy developers who have forgotten what humanity already knew how to do. But if you dig into the topic (we once published a <a href="https://habr.com/ru/company/jugru/blog/424763/">Habr post</a> about it, in Russian), you suddenly discover lots of non-obvious nuances, and the words "what could be simpler" stop sounding convincing.</p>
+<p>Or here's another one. News about mobile operating systems often gets this reaction: "They haven't done anything useful in the last eight years or so. Every year they roll out a new version with great fanfare, it's bigger than the previous one, but the only difference I see is new emoji. I couldn't care less about those emoji, give me back the old version, it was better."</p>
+<figure><img src="../images/software2020/05.png" alt="" loading="lazy"></figure>
+
+<p>Listen, every IT person seems to know from experience: you can spend a huge amount of effort on a well-justified backend refactoring and the user won't even notice, or you can change a couple of icons in the interface in half an hour and heated discussions will break out among users. So we know that only some changes are visible "from the outside", and often not the most important ones. Why, then, don't we realize that if the only thing we ourselves notice in a new OS version is the emoji, that says more about us than about the OS?</p>
+<p>Take, for example, Project Treble in Android 8.0. Android famously has a big problem: while iPhones easily update to new OS versions, Android phones usually stay forever on the preinstalled version, because their manufacturers don't want to bother. So Google undertook a massive rework of the whole architecture to make manufacturers' lives easier and encourage updates. And although Treble didn't solve the problem completely, the statistics show a noticeable improvement. So Google put a lot of work into fighting a long-standing problem (refactoring a colossus like that is no walk in the park), and managed to partially improve the situation. I think that's exactly what a company should do: deal with long-standing problems. They did the right thing.</p>
+<p>Now tell me: unless you're a mobile developer, have you even heard of it? When you first picked up a phone with Android 8.0+, did it affect your opinion of the new version at all? Hardly, because in the first months of using a phone it doesn't show for the user at all. You can only notice it later, when a new version of Android comes out. And only if your phone's manufacturer turns out to be among those Treble prompted to update their devices. And even then the user may not realize that Google deserves credit for the update, and keep saying "they haven't done anything useful in eight years".</p>
+<p>And this situation is typical: the "underwater part of the iceberg" is generally large. When Android introduced Adaptive Battery ("smart" detection of which apps may drain the battery in the background), did you measure whether your phone's power consumption changed? When Google Play Protect looks after your security in the background, do you remember that it didn't used to exist? When support for the AV1 video codec was added, did you consider that this codec very likely represents the future and such support is useful? Or do you just pick up your phone, and the emoji catch your eye while AV1 support doesn't?</p>
+<p>After this post came out, a great <a href="https://threadreaderapp.com/thread/1242983413642076160.html?refreshed=yes">thread</a> (in Russian) appeared from <a href="https://habr.com/ru/users/lany/">lany</a> about how software bloats largely because of handling rare situations. And here's what follows: for the 1% of cases where these situations arise, everything has become much better, but the 99% of people who never run into these rare situations can't properly appreciate the changes.</p>
+<blockquote>
+<p>This is needed extremely rarely. But it's already hundreds of kilobytes compressed (the clock now depends on an unzipping algorithm) and megabytes uncompressed. Of course, all of this has to be updated regularly. An update mechanism appears in the clock. Next up, leap seconds.</p>
+<p>— Tagir Valeev (@tagir_valeev) <a href="https://twitter.com/tagir_valeev/status/1242987538597412866">March 26, 2020</a> (translated from Russian)</p>
+</blockquote>
+<p>It follows that when we lump together all "bloated and sluggish apps" and complain about them, in many cases there were objective reasons. Somewhere, people during working hours carefully weighed all the pros and cons, discussed them with each other, and concluded that "the pros outweigh the cons". And then we come along, with no idea what was on the scales, with no intention of spending time on careful study, see only the changed size, and confidently conclude that "everything has gone downhill".</p>
+<blockquote>
+<p>Overall conclusion: some of the claims about "pointlessly bloated software" come from misunderstanding. And making such claims without carefully researching the reasons isn't the smartest strategy.</p>
+</blockquote>
+<hr />
+<h2 id="attention-to-performance">Attention to performance</h2>
+<p>Claims about "software gone bad" sound as if developers used to economize on computing power, and now they all couldn't care less about optimization. As in: all that matters is that it works, and if the hardware requirements turn out high, Moore's law will sort it out somehow. If the code runs slowly, eats memory like there's no tomorrow and takes up a lot of space, that'll do; nobody's going to worry about it and improve anything.</p>
+<p>Listen, that's simply not true. As a single example: Facebook Messenger was recently <a href="https://techcrunch.com/2020/02/28/messenger-removes-discover">rewritten</a>, and reportedly its performance doubled and its size shrank fourfold. And regarding the 275 megabytes of the LinkedIn app mentioned above: I just checked and saw "195.4 MB" in the App Store, so it seems they've shrunk it by almost a third too. So both companies clearly thought about resource consumption and devoted a lot of effort to reducing it, effort that could have gone into "cranking out features".</p>
+<p>And since my job is connected with developer conferences and I cross paths with many developers (from different stacks, too), I see which topics concern them. What they listen to talks about, what they discuss and write posts about.</p>
+<p>And performance is definitely one of those topics. From talk titles like «<a href="https://www.youtube.com/watch?v=REaGfwq3Q5Y">Optimizing iOS app launch time</a>» (in Russian) you can see that developers are willing to spend 60 minutes listening about milliseconds.</p>
+<p>People talk about performance everywhere, whether in the JavaScript world («<a href="https://www.youtube.com/watch?v=HPFARivHJRY">JavaScript performance through a spyglass</a>») or in mobile development («<a href="https://habr.com/ru/company/jugru/blog/427845/">How to fit a million stars into an iPhone</a>»), both in Russian. But the backend talks about it most. I think that's because users buy their smartphones themselves, whereas on the backend the company pays for the computing power, so there's a strong financial motivation to optimize.</p>
+<p>I recently ran a simple experiment: I opened the program of our Java conference <a href="https://jpoint.ru/?utm_source=habr&amp;utm_medium=493178">JPoint</a> and looked at how many talk descriptions mention something about performance. Later, because of the coronavirus, we moved the conference to June, so the program may change, but the results are telling anyway. Here they are:</p>
+<ul>
+<li>"This talk will be about tuning Producer performance"</li>
+<li>"We'll look at methods for optimizing file I/O"</li>
+<li>"Maybe for one of your modules you want more performance than you'll ever be able to squeeze out of Java?"</li>
+<li>"What safepoint-related optimizations does the HotSpot JVM make? What should developers keep in mind to avoid unwanted pauses?"</li>
+<li>"Project Valhalla, inline types and everything around them, from the programming model to performance"</li>
+<li>"Optimize query performance, throughput and memory consumption"</li>
+<li>"The talk is a detailed breakdown of how writing to the Apache Cassandra database works from a performance point of view"</li>
+</ul>
+<p>Listen, if I'd run this experiment as a drinking game, I'd have been drunk by the end of it. It's plain to see: Java developers care about making their code not just work, but work fast.</p>
+<p>What's more, they often care about it too much! I've heard more than once from people who work closely on performance that it's easy to overdo it here. For example, for the sake of a negligible performance gain, people use dirty hacks that end up creating more problems than they solve. Well, that was covered in Aleksey Shipilёv's excellent keynote at JPoint 2017, which we <a href="https://habr.com/ru/company/jugru/blog/338732/">transcribed</a> for Habr (in Russian).</p>
+<figure><img src="../images/software2020/06.png" alt="" loading="lazy"></figure>
+
+<blockquote>
+<p>To sum up: while the internet laments that "developers have gotten lazy and stopped thinking about slowness altogether", in reality many developers think about it <em>more than they need to</em>.</p>
+</blockquote>
+<hr />
+<h2 id="meaningfulness-and-expediency">Meaningfulness and expediency</h2>
+<p>And now, I think, the most important point.</p>
+<p>Yes, over time apps have come to require more resources, sometimes by orders of magnitude. Yes, projects started pulling in much more, even things that aren't really needed, instead of spending time isolating the "strictly necessary". That's true.</p>
+<p>But I believe that bigger apps don't make today's developers incompetent fools. Quite the opposite:</p>
+<p><strong>Developers would be fools if apps had NOT grown.</strong></p>
+<p>Imagine a world where hardware developed over recent decades just as it did in ours, but the approach to software development didn't change. Programs there still fit on a floppy disk, even though nobody uses floppy disks anymore. In the name of performance, more or less everything is written in C. All developers constantly go down as close to the hardware as possible and know every spot where a couple of bytes can be saved. And although Retina screens arrived, nobody made app icons more detailed, so they wouldn't get heavier. In short, a festival of optimization and careful use of resources. Everything that people now mourn as "lost craftsmanship".</p>
+<p>Do you know what impression this picture makes on me? A large family was forced to live in one small room, so they learned to place things with millimeter precision and mastered the secret art of making five-tier bunk beds. Then they moved into a spacious apartment with many rooms, but out of habit occupied only one room there and left all the others empty. People are still living on top of each other.</p>
+<p>Question: doesn't this seem like madness to you? If it became possible to give everyone plenty of space, why save it? Who benefits from the ancient art of five-tier beds if there's still nowhere to invite a guest? Isn't it time to master the new art of choosing a king-size bed?</p>
+<p>It's the same in software. If, in an era when even budget smartphones have 64 gigabytes, we worry that "the Kotlin runtime will increase our app by a megabyte", then we'll turn into that family. Relax: space exists so that something can be in it. If it goes to waste, that doesn't make anyone better off. If there's now plenty of space and something calls for a grand piano, then go ahead and put it in without worrying about square centimeters.</p>
+<p>Slack is that grand piano. Okay, it eats a lot of memory, but have you heard non-IT people complain about it the way they once complained about Photoshop? My impression is that ordinary users already have enough space for this "piano" not to stop them "walking across the room". Yes, you could replace it with an upright and save space. But if you live in a palace, and the palace keeps getting bigger over the years, why?</p>
+<p>I think it's mostly IT people who worry about Slack, because they need RAM for other heavy tasks. But IT people are a separate story: to extend the apartment metaphor, they're people who have turned their apartment into a workshop. Well, yes, give them any palace and every room will be taken up by something very important. Then the piano can get in the way: you could put a lathe there instead. But most people in the world live differently: they don't need lathes at home, and for their way of life there are already enough resources.</p>
+<p>In that situation, feverishly avoiding everything that takes up memory once there's plenty of it is like those mobile task managers where users kill running apps to "free up RAM". The makers of mobile platforms have said many times: "Stop, you madmen. The system will kill apps itself if memory runs short; why kill them before that? What's the point of buying a smartphone with lots of RAM and then keeping it empty and not using what you paid for?"</p>
+<figure><img src="../images/software2020/07.jpg" alt="Looks optimized. Would you like to live here?" loading="lazy"><figcaption>Looks optimized. Would you like to live here?</figcaption></figure>
+
+<p>And I'm also reminded of the story of the "Y2K bug". One of the IT people from the mid-20th century recalled in old age: "We were among those who created it. Back then we saved every byte. And when we came up with the idea that a year could be stored as two digits instead of four, we felt very clever. We saved two bytes in lots of places! And only toward the end of the century did the consequences become clear."</p>
+<p>Yes, at the time, writing the year as two digits must have looked like a sensible decision. And it embodies everything that advocates of the "careful" approach champion. Here, care for resources truly reached its limit.</p>
+<p>But then, many years later, other people had to spend a lot of resources dealing with the consequences of that decision and preventing problems.</p>
+<p>And now that the two saved bytes won't help anyone and the negative consequences are known, it would be very strange to store the year that way.</p>
+<p>So: much of what we're tempted today to praise as "sensible saving of resources" will in the future look like the same kind of "penny-pinching" that cost more resources than it saved. For example, because a developer's time is also an extremely valuable resource, and it often isn't included in the calculation. If you went all-in on data alignment, and your app became a little smaller and faster, but you spent a week on it that could have gone into a useful feature, did you make things better or worse for the user?</p>
+<blockquote>
+<p>Yes, it's very tempting to feel "I'm smart and thrifty, I know how to save resources where others squander them". It's a pleasant feeling.</p>
+<p>And pleasant feelings matter. If a developer is sick of a project, that's no good: it will hit their motivation and make things worse for everyone.</p>
+<p>But you have to be able to tell where something is useful for everyone (directly making users happier) and where it's the pleasant feeling of scratching your own ego. And not pass one off as the other.</p>
+</blockquote>
+<hr />
+<h2 id="a-conciliatory-conclusion">A conciliatory conclusion</h2>
+<p>I anticipate objections in the comments: "but task X really does run slower for me than 13 years ago, give me back my 2007".</p>
+<p>Don't get me wrong: I'm not trying to say such tasks don't exist. <a href="https://danluu.com/input-lag/">They do</a>. And excessive use of dependencies exists too. And bloatware exists. When I hear that Photoshop has video editing, I get the same "WHY" feeling as you do. When I read that creating any app with create-react-app immediately means 4,304 directories with 28,678 files in them, I too wonder whether we've taken a wrong turn somewhere. There are many real problems worth talking about.</p>
+<p>My only objection is that around these problems, some kind of radical sect arises, believing in an imminent end of the world caused by software bloat. This sect rewrites history ("everything used to work faster!"), misunderstands what's happening ("why has Windows grown so much over the years, nothing much has changed in it"), says undeserved things about developers ("they don't want to optimize anything") and goes to the extreme of "let's save every byte, even when it makes things worse for users". Let's not do that.</p>
+<p>My objections to the radical position, of course, also came out somewhat radical (just in the opposite direction). They can be nitpicked too, and they can be called a sect too. But the goal of this post isn't for every word of mine to be taken as the ultimate truth. Its goal is this: for people to get drawn into sects a little less.</p>
+<blockquote>
+<p>The main conclusion is boring and banal, but no less true for it: it all depends on the specific situation. Optimizations are neither absolute evil nor absolute good. They can help and harm at the same time. There are situations where optimizations are clearly worth it, and situations where they clearly aren't. And there are in-between situations where different people will judge "worth it or not" differently, none of them will be more right, and that's fine.</p>
+<p>And if anyone, including me, tells you otherwise, they're a cultist: send them packing.</p>
+</blockquote>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <span></span>
+    <span class="pos">Side B · Track 1 of 3</span>
+    <a class="next" href="../cyberpunk2020/">B2 · Киберпанк 2020: как развивался жанр с появления до наших дней →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
