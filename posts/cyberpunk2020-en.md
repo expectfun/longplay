@@ -2,6 +2,7 @@
 title: "Cyberpunk 2020: How the Genre Evolved from Its Origins to the Present Day"
 date: 2020-12-11
 series: other
+theme: cyber
 author: Eugene Trifonov
 cover: ../images/cyberpunk2020/cover.jpg
 teaser: "This blog usually features posts about our conferences, but nothing IT-related is alien to us, and this Friday, while the whole world is talking about Cyberpunk 2077, I wanted to take a break."

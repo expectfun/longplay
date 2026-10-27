@@ -25,7 +25,7 @@ UI = {
         'read': 'Читать →', 'close': 'Закрыть', 'min': 'мин', 'sound': 'Звук', 'stop': 'Остановить и поднять иглу',
         'note': 'Выберите название или опустите иглу на пластинку, чтобы послушать превью трека. '
                 'Ширина дорожки зависит от времени чтения поста.',
-        'knob': {'auto': 'авто', 'light': 'светлая', 'dark': 'тёмная', 'autoLong': 'авто, как в системе',
+        'knob': {'auto': 'авто', 'light': 'светлая', 'dark': 'тёмная', 'cyber': 'кибер', 'autoLong': 'авто, как в системе',
                  'aria': 'Тема: {mode}. Нажмите, чтобы переключить.'},
     },
     'en': {
@@ -36,7 +36,7 @@ UI = {
         'read': 'Read →', 'close': 'Close', 'min': 'min', 'sound': 'Sound', 'stop': 'Stop and lift the needle',
         'note': "Pick a title or place the needle on the record to preview a track. "
                 "Band width follows each post's reading time.",
-        'knob': {'auto': 'auto', 'light': 'light', 'dark': 'dark', 'autoLong': 'auto, follows the system',
+        'knob': {'auto': 'auto', 'light': 'light', 'dark': 'dark', 'cyber': 'cyber', 'autoLong': 'auto, follows the system',
                  'aria': 'Theme: {mode}. Click to change.'},
     },
 }
@@ -231,6 +231,9 @@ def build_post(meta, body, sides, pairs, posts):
         't_back': ui['back'],
         't_tracks': ui['tracks_nav'],
         'knob_text': knob_text(lang),
+        # theme: cyber in the front matter adds a fourth position to the knob (styles in src/post.html)
+        'knob_modes': 'auto light dark cyber' if meta.get('theme') == 'cyber' else 'auto light dark',
+        'cyber_fonts': CYBER_FONTS if meta.get('theme') == 'cyber' else '',
         'side': side,
         'body_class': 'draft' if meta['draft'] else '',
         'robots': '\n<meta name="robots" content="noindex">' if meta['draft'] else '',
@@ -267,7 +270,7 @@ def build_index(posts, sides, pairs, lang):
         'lang': lang, 'root': root,
         'alternates': alternates({'ru': '', 'en': 'en/'}),
         'lang_switch': lang_switch(lang, {'ru': '../', 'en': 'en/'}),
-        'knob_text': knob_text(lang),
+        'knob_text': knob_text(lang), 'knob_modes': 'auto light dark',
         **{f't_{k}': ui[k] for k in ('side', 'record_side', 'read', 'close', 'min', 'sound', 'stop', 'note')},
         't_side_a': ui['sides']['A'], 't_side_b': ui['sides']['B'],
     })
@@ -275,6 +278,10 @@ def build_index(posts, sides, pairs, lang):
     os.makedirs(out, exist_ok=True)
     open(os.path.join(out, 'index.html'), 'w').write(page)
 
+
+# the cyber theme's type, all with Cyrillic; the browser fetches the font files only once the theme is on
+CYBER_FONTS = ('\n<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400'
+               '&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">')
 
 # the theme knob and the language toggle's styles and script, shared by both pages
 PARTS = {name: open(os.path.join(SRC, name + '.html')).read() for name in ('knob', 'flip')}

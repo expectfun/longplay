@@ -2,6 +2,7 @@
 title: "What Does Cyberpunk Sound Like?"
 draft: true
 series: music
+theme: cyber
 author: Eugene Trifonov
 cover: ../images/cybersound/01.jpg
 teaser: "This year, cyberpunk feels like the right topic for my music post. Back in school I read William Gibson's novel «Neuromancer», and ever since I've been waiting for someone to adapt it."

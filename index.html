@@ -252,7 +252,8 @@
 })();
 </script>
 <style>
-  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark.
+     Posts with theme: cyber get a fourth position, cyber, and the marks spread out to make room */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
   /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
      (and never covers the language toggle to its left) */
@@ -276,7 +277,13 @@
   }
   @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
   .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
-  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+  .knob .mark-cyber { display: none; }
+  .knob[data-four] .mark-cyber { display: inline; }
+  .knob[data-four] .mark-auto { transform: translate(-1.4px, 2px); }
+  .knob[data-four] .mark-light { transform: translate(-5.2px, 1.4px); }
+  .knob[data-four] .mark-dark { transform: translate(-6.3px, -5.2px); }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark,
+  .knob[data-mode="cyber"] .mark-cyber {
     color: var(--accent); opacity: 1;
   }
   /* the room lights: dim, switch, come back up */
@@ -284,9 +291,9 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-modes="auto light dark" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;cyber&quot;: &quot;кибер&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
-      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon), and on some posts cyber (a prompt, >_) -->
       <g class="mark mark-auto">
         <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
         <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
@@ -296,6 +303,7 @@
         <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
       </g>
       <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <path class="mark mark-cyber" d="M 27.6,11.4 l 1.7,1.6 l -1.7,1.6 M 30.2,14.9 h 1.9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
       <g class="dial">
         <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
         <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
@@ -310,13 +318,16 @@
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
 (() => {
-  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
+  const MODES = knob.dataset.modes.split(' ');
+  const ANGLE = MODES.length > 3 ? { auto: -66, light: -22, dark: 22, cyber: 66 } : { auto: -55, light: 0, dark: 55 };
+  if (MODES.length > 3) knob.dataset.four = '';
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
   const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  // cyber is kept apart from lp-theme, so the record and the other posts keep the reader's light or dark
   let mode = root.dataset.theme || 'auto', hideLabel;
 
   function point(m) {
@@ -327,7 +338,11 @@
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
-    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+    try {
+      if (m === 'cyber') return localStorage.setItem('lp-cyber', '1');
+      localStorage.removeItem('lp-cyber');
+      if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m);
+    } catch (e) {}
   }
 
   point(mode);
