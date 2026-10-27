@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NF — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A2">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../nf/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>NF</h1>
+    <p class="year">2020</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/nf/01.jpg" alt=""></figure>
+
+  <article>
+<p>Last year for your birthday I wrote about the Ukrainian rapper Alyona Alyona, and now it's fast hip-hop again (what else would you expect from me), but in a completely different mood: as life-affirming as Alyona is, NF is that bleak.</p>
+<p>Nathan Feuerstein is a white American rapper whose albums top the Billboard chart. He's very lyric-driven: in an era when you can repeat "gucci gang" ten times, he writes long, thoughtful lyrics that show off a rich vocabulary. And he obsesses over rhymes and sound so much that his obsessive-compulsive disorder clearly plays a part. Performing these lyrics, he sometimes switches to machine-gun speed. As for content, you'll find both dark soul-searching and self-praise. In the second case, he brags about skill rather than wealth, as many rappers do: luxury doesn't interest him, and having become a star, he still wears simple clothes.</p>
+<p>Replace the artist's name in the previous paragraph with "Eminem", and the whole paragraph still holds true. No wonder NF hasn't been able to escape comparisons with him for his entire career. And Eminem himself seems to have taken a shot at Nathan with the line "an effin' Recovery clone of me" in "The Ringer" (he didn't name anyone directly, but the line hardly starts with "an ef" by accident). But calling him "an Eminem clone" drives me up the wall. Yes, the huge influence is plain to see, and NF talks about it openly in every interview. But reducing his music to that influence alone, in my view, means missing the most important thing in it and overlooking important differences.</p>
+<p>The most obvious difference: NF never swears. And yet many of his tracks come down on the listener like an avalanche, and in 2020 making bangers like that without swearing is like boxing with your hands tied (and winning). "I can't believe there's someone that can rap so hard without cussing", reads a comment under his video for "The Search", and that comment has 35 thousand likes. Meanwhile, I can't think offhand of a single Eminem song that streaming services don't mark as "explicit"; for him, it's a key ingredient (to quote the man himself, "from the moment I heard rap was cussing, I was in").</p>
+<div class="yt" data-id="fnlJw9H0xAM"><img src="https://i.ytimg.com/vi/fnlJw9H0xAM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>The second important difference (which also explains the lack of swearing): NF is a Christian, and that matters for understanding his music too. I don't think it's right to call it Christian hip-hop, since religion isn't the focus here, but it comes up often enough for Billboard to include NF in its Christian charts (where, by sales, he turns out to be a major figure). Whereas Eminem, even with all the swearing removed from his lyrics, is impossible to imagine as a Christian star.</p>
+<p>You could also point out that the beats are noticeably different, and that Nathan sings his own hooks. But I think none of that is the main thing; something else matters more. Yes, Eminem has his soul-searching too, describing his inner demons, with titles like "Darkness". But, as the saying goes, "you merely adopted the dark; I was born in it, moulded by it". For NF, all-consuming hopelessness isn't just one of his themes; it's where he spends most of his time and what most of his lyrics are about. His songs are fifty shades of gloom, and his videos are fifty shades of washed-out grey. Pitchfork wrote that one of his albums "often reads like a suicide note".</p>
+<p>But where Pitchfork, for some reason, concludes "the album is weak", I feel the opposite. There are cases when an artist is obviously not very compatible with the world around them, and it's clearly very hard on them, but at the same time that very thing gives rise to striking work. They become a raw nerve that takes in all the world's sorrow and relays it to us. The result is uncomfortable but powerful music. For me, NF is one of those cases.</p>
+<p>What sets him apart from other such cases is that he has not only an "everything is bad" side, but also a battle-rap side. Being a Christian, he doesn't diss everyone directly the way Eminem does, but asserting himself through rap skills is something close to his heart. And even when a lyric has no outright self-praise, you can see how much technical delivery and well-crafted lyrics matter to him. He makes songs about how terrible everything is with a jeweler's care, and clearly sees beauty in that care. It seems to be one of the few things in life that bring him joy, and music literally saves him from death.</p>
+<p>And maybe not only him. NF's music resonates with people who feel bad for all kinds of reasons, and in the comments you often read something like "finally someone put my feelings into words, thank you, it makes me feel a little better". This resonance is most visible with the song "Hate Myself", because people who type "I hate myself" into Google stumble upon it. Someone also uploaded an hour-long version of the song for those tired of hitting "replay" on the regular video, and the comments there say "probly safe to assume everyone that came here wants to die".</p>
+<div class="yt" data-id="AhNqXJikNNU"><img src="https://i.ytimg.com/vi/AhNqXJikNNU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>In essence, Nathan uses music as therapy. In fact, one of his albums is called "Therapy Session", so he draws this parallel himself. Of course, you'd want to advise someone with such inner struggles to turn not only to his fans but also to real therapists who can offer more qualified help. But he understands this himself and did so long ago.</p>
+<p>The main drawback of NF's music is clear: many will call it monotonous. Eminem, again, can be goofy, aggressive, sad, motivating and much else. Nathan exists within a much narrower range of moods, and across four albums there's no escaping a sense of repetition. That's why, even though I like the artist, I still haven't listened to all four albums in full.</p>
+<p>Still, there's variety here, and some songs stand out noticeably to me. I've already shared two of them above: the first tries to knock you off your feet with sheer force, keeps shifting gears and has no chorus; the second, on the contrary, has a soft, melodic chorus. I think both are really great in their own way, and after the pandemic I want to sing both at karaoke.</p>
+<p>And I'll finish with a third one, different from both: it's a rare case when an NF song can cautiously be called optimistic. Well, at least not pessimistic. So it's probably the best fit for a birthday!</p>
+<div class="yt" data-id="lxRwEPvL-mQ"><img src="https://i.ytimg.com/vi/lxRwEPvL-mQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../alyona/">← A1 · Alyona Alyona</a>
+    <span class="pos">Side A · Track 2 of 7</span>
+    <a class="next" href="../lmm/">A3 · Лин-Мануэль Миранда →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>

@@ -139,7 +139,7 @@ def build_post(meta, body, sides, pairs):
                  there: (f'<a href="../{other}/" lang="{there}" hreflang="{there}" title="{label}" '
                          f'aria-label="{label}">{there.upper()}</a>')}
         alt_link = f'<span class="lang">{parts["ru"]}<span aria-hidden="true">·</span>{parts["en"]}</span>'
-    is_en = re.search(r'[A-Za-z]{3,}', meta['title']) and not re.search('[А-Яа-я]', meta['title'])
+    is_en = slug.endswith('-en') or (re.search(r'[A-Za-z]{3,}', meta['title']) and not re.search('[А-Яа-я]', meta['title']))
     page = fill(TEMPLATES['post'], {
         'lang': 'en' if is_en else 'ru',
         'side': side,
@@ -149,6 +149,8 @@ def build_post(meta, body, sides, pairs):
         'cover': meta['cover'],
         'cover_caption': f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '',
         'year': 'draft' if meta['draft'] else meta.get('date', '')[:4],
+        'notice': ('<p class="notice">Machine-translated, not yet reviewed by the author.</p>'
+                   if meta.get('translation') == 'machine' else ''),
         'position': 'Draft · not on the record yet' if idx is None else f'Side {side} · Track {idx + 1} of {len(tracks)}',
         'alt_link': alt_link,
         'back': '../' if idx is None else f'../#{side}{idx + 1}',
