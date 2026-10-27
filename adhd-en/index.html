@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hip-Hop and ADHD — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A7">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../adhd/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>Hip-Hop and ADHD</h1>
+    <p class="year">2025</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/adhd/01.jpg" alt=""></figure>
+
+  <article>
+<p>Hi, Sasha!</p>
+<p>In this year's edition of my "birthday text about music" column, it's once again not only about music. This post is also about neurodivergence, such as attention deficit disorder.</p>
+<p>So what is it like to live, and what kind of songs come out, when your brain doesn't work like most people's?</p>
+<p>All along I've felt that the rappers I love have something in common. Now I think they might all get similar diagnoses. And maybe I would too, which is why I love their music. And why I can tell you something "from the inside".</p>
+<p>Some disclaimer is needed, naturally:</p>
+<blockquote>
+<p>Here it's important to keep in mind that I'm not an expert. Don't make confident diagnoses based on this text; for that, it's better to see a specialist.</p>
+</blockquote>
+<p>And specialists, for that matter, don't understand everything either. Humanity simply hasn't properly figured out how the brain works yet. Even the terminology is tricky, so in places I treat it loosely.</p>
+<p>Hence, while science can't fully explain the subject, I think even information from less competent people is useful. People like me and rappers!</p>
+<hr />
+<h2 id="thats-how-it-starts">That's how it starts</h2>
+<p>And what can people from hip-hop tell us about mental health problems, in a genre where a typical hit sounds like "my problem is choosing between a Lambo and a Ferrari"? Why study the subject through them? Well, to start with the obvious: rappers differ, and some don't rap about Lamborghinis at all.</p>
+<p>Perhaps more importantly, <strong>a typical rapper's main subject is himself</strong>. These endless autobiographies can be tiring. But when you want to understand "what it's like to live with a particular mental trait", it's actually very useful when a person describes it in detail. Even if they don't know its "proper" name themselves.</p>
+<div class="yt" data-id="gYMkEMCHtJ4"><img src="https://i.ytimg.com/vi/gYMkEMCHtJ4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Pretty much from the very beginning, hip-hop has rapped about mental health (in the broad sense). The important early hit «The Message» (1982) is a song about life in a troubled place: broken glass and rats all around, and no money to get out. And already there the chorus, <em>"Don't push me, cause I'm close to the edge / I'm trying not to lose my head"</em>, mentions not just life's hardships but their effect on the mind.</p>
+<p>Years later, <strong>Geto Boys</strong> developed the theme in great detail in their biggest hit, «Mind Playing Tricks on Me» (1991). It's entirely about how life in the ghetto causes mental struggles: insomnia, anxiety, suicidal thoughts. And the song's very title stresses that a person doesn't fully understand or control their own brain.</p>
+<div class="yt" data-id="IJtHdkyo0hc"><img src="https://i.ytimg.com/vi/IJtHdkyo0hc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>By the time people started paying more attention to therapy, there was only more of this. The British rapper <strong>Dave</strong>'s album «Psychodrama» is framed as a therapy session, <strong>Logic</strong> named his hit «1-800-273-8255» after the number of a suicide prevention hotline, and I've already <a href="../nf-en/">written</a> about the rapper <strong>NF</strong> and his depression.</p>
+<p>In what follows, I'll focus on things like ADHD and OCD, which affect what a person focuses on. I think they shape songs even when the song itself is about something else entirely.</p>
+<hr />
+<h2 id="may-i-have-your-attention-please">May I have your attention, please?</h2>
+<p>Remember my <a href="../eminem-en/">post</a> about <strong>Eminem</strong>? There I mentioned in passing that his obsession with rhymes and sound looks like obsessive-compulsive disorder. But back then it sounded like a figure of speech.</p>
+<p>Then I later discovered that on Genius he himself had annotated his own line about OCD:</p>
+<figure><img src="../images/adhd/02.png" alt="" loading="lazy"></figure>
+
+<p>Hmm, this may explain a lot, about Eminem and not only him.</p>
+<p>Driven by OCD, people may endlessly wash their hands or arrange things at home symmetrically. They know it's pointless. But they CAN'T NOT do it.</p>
+<p>And I've long loved rappers who arrange their sound echoes with about the same care. Eminem is far from the only one. For example, how long does <strong>Horus</strong>, a Russian rapper, work out a chain like «страничках / спич / напичкан / дичь / притчей / типичны / лично / тепличных»?</p>
+<div class="yt" data-id="H6p9l4e9HHU"><img src="https://i.ytimg.com/vi/H6p9l4e9HHU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Young rappers: do they simply decide "hip-hop loves rhymes, so I'll pile them on as much as I can"? Or does their brain constantly try to arrange words in the best possible way anyway, and that's why they end up in hip-hop?</p>
+<p>What the most stubborn ones also add are self-imposed constraints. <strong>Dyadya Zhenya</strong>, a Russian rapper, managed to write impressive songs without using the letter "r" in his lyrics at all. It's said to be because he can't roll his r's. But I think it was also a choice like the writer Sergei Dovlatov's rule of "never starting the words in a sentence with the same letter".</p>
+<div class="yt" data-id="emVLcD5qJro"><img src="https://i.ytimg.com/vi/emVLcD5qJro/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Imposing a constraint on yourself is also an interesting OCD-style challenge. Can you write a good battle text without swearing? What if you weave your best thoughts together with lines by Joseph Brodsky? Can you build a whole song out of lines from different characters so that they add up to the hero's biography? What, chickened out? Not man enough?</p>
+<p>Someone will say: "This is all empty word-juggling that can go on forever and has no value. As if, since childhood, songwriters spent sleepless shifts sorting sounds, selecting the snappiest, scraping the barrel, striving for superstardom, sharpening skills, staging showdowns, while listeners, for their part, sank into stupefied slumber... you get the idea, right? You can churn out lyrics like that by the mile, and they'll quickly stop inspiring anyone."</p>
+<p>Holy moly, but why treat this as the only criterion, cut off from everything else? I think this "OCD approach" shines when it's not all there is. When rhymes strengthen an already interesting song instead of being the only thing in it. That's when they can help a rapper become famous. And if this approach really is tied to how the brain works, then a rapper with OCD has an advantage over others.</p>
+<p>It might seem that "for them the disorder turns out to be not a curse but a blessing". But I think it will still be a curse too. If you can arrange sounds with amazing harmony but CAN'T NOT do it, you're not fully in control of your life. And it would be naive to assume it will show only in your writing and leave the rest of your life untouched.</p>
+<p>Not long ago, Eminem himself talked about this in the little-noticed song «<a href="https://www.youtube.com/watch?v=64jjsEtvkdM">Legacy</a>». Roughly: my brain doesn't work like everyone else's, and at school it made life miserable, but without it I couldn't connect words so cleverly, and in the end I wouldn't have succeeded.</p>
+<p>Gift and curse can be one and the same, and his song «Not Afraid» has wordplay about exactly that: <em>"Like a 'fuck you' for Christmas, his gift is a curse"</em>.</p>
+<hr />
+<h2 id="attention-is-all-you-need">Attention is all you need</h2>
+<p>You'll find more than OCD in hip-hop. ADHD became a song title for <a href="https://www.youtube.com/watch?v=QjlFqgRbICY">Kendrick Lamar</a> back in 2011, and in 2025 for the newcomer <a href="https://www.youtube.com/watch?v=fdpjNzyyVJU">Madk1d</a> (and outside hip-hop, for the French multi-instrumentalist <a href="https://www.youtube.com/watch?v=TGIvO4eh190">Igorrr</a>). But <strong>Joyner Lucas</strong> went furthest of all. First he named his whole debut album after his diagnosis, «ADHD» (2020). And now, in 2025, he has released a sequel, «ADHD 2». Here's the main song from the first album:</p>
+<div class="yt" data-id="vpNUzNBw6FI"><img src="https://i.ytimg.com/vi/vpNUzNBw6FI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Of note is how the genre is handled already in the intro: a minute and a half of non-stop rapping gradually grows tenser until it reaches an "explosion"; who else does that? But ADHD itself comes in with the main part of the video, where even the visuals are meant to "show the world through Joyner's eyes". The hero is filmed with no cuts at all, yet the context keeps switching and the camera never stops moving. Watching "<a href="https://www.youtube.com/watch?v=UEhd1ZFpf7Y">how they even filmed it</a>" is interesting too.</p>
+<p>Unlike what some might assume, Joyner is no "soy snowflake" whom many would tell "you've invented diagnoses for yourself, you should just man up". In many ways he's precisely a "manly rapper" proclaiming how tough he is. But he's just as direct in proclaiming: "I have ADHD, it's not made up, it really affects my life, and you have no idea what it's like to be me".</p>
+<ul>
+<li>He has songs on these albums on "ordinary" topics like money, but the main theme runs through them like a dotted line. For example, in the videos for songs from «ADHD 2» he raps now about <a href="https://www.youtube.com/watch?v=y-YAnyGzJY8">being unable to fall asleep</a> without background noise, now about <a href="https://www.youtube.com/watch?v=jnVfHe-nR_c">anxiety getting the better of him</a>.</li>
+<li>And on a song with Logic, he <a href="https://genius.com/17236252">added</a> a sample with background information about how only boys used to be considered prone to ADHD, "because they're seen as loud and rowdy".</li>
+<li>Playfully, he <a href="https://genius.com/Joyner-lucas-chris-skit-lyrics">showed</a> the typical attitude of the people around him in a skit where Chris Tucker calls him, roughly: "Dude, how long are you going to drag out the album? Stop using your ADHD as an excuse. My mom has ADHD too, and she never used it as an excuse to be lazy."</li>
+</ul>
+<p>Predictably, Eminem invited Joyner to do a <a href="https://www.youtube.com/watch?v=mvSItvjFE1c">duet</a>, and it makes sense that they connected: for example, both sometimes switch to ultra-fast rapping, and my question above, "who else raises the tension in a rap for a minute and a half straight", <a href="https://youtu.be/it_04dk_97E?si=JVMvOqNf7A9Qf0Ia&amp;t=140">wasn't rhetorical</a>. Doing that takes long rehearsals of fast verses. People usually find such a monotonous activity rather boring...</p>
+<p>...in all but one case: when the person is fixated on it. And interestingly, ADHD, like OCD, is quite capable of "fixation".</p>
+<p>Naturally, "a person with attention deficit disorder" sounds as if they never focus on anything. But in fact it's sometimes the opposite: ADHD can involve hyperfocus, when attention can concentrate on a seemingly boring topic very intensely and for a long time, in a way other people couldn't manage. This can help with research, for example.</p>
+<figure><img src="../images/adhd/03.jpeg" alt="" loading="lazy"></figure>
+
+<p>Exactly where does the "deficit" come from, then? The difficulty isn't a "lack of attention" but trouble steering it. It's as if the brain "decides for itself" what to focus on. And switching it to "what's needed" is harder than for other people.</p>
+<p>Someone with ADHD who gets hooked on something can reach amazing heights in it. But at the same time they may fail at things that seem simple to everyone around them.</p>
+<p>So for a rapper, ADHD, like OCD, can turn out to be a blessing and a curse at once. It makes life very hard, but it's also what sets you apart from others.</p>
+<p>His song «ADHD» is a vivid example: Joyner talks about both sides there. He starts with <em>"It kinda feels like I'm dying on the inside"</em>, but soon moves on to <em>"Maybe I'm just everything that you're missing"</em>.</p>
+<hr />
+<h2 id="the-way-i-am">The way I am</h2>
+<p>Experience has made me familiar with some of the feelings Joyner describes. And although I don't write hip-hop myself, I too sometimes polish my texts endlessly, making a mountain of edits even after publishing. And I can get stuck on a sudden topic "until I've properly figured it out" (like <a href="../sudan-en/">the music of Sudan</a>, yep). Meanwhile, with other topics that would be more useful, I sometimes feel like this:</p>
+<figure><img src="../images/adhd/04.jpg" alt="" loading="lazy"></figure>
+
+<p>A diagnosis of ADHD is something I've long suspected for myself, but I've had different answers from different specialists, so I don't claim anything with certainty. One doctor at a supposedly reputable clinic even told me: "What ADHD? That's the Americans stuffing kids with Ritalin because of their made-up notions, and then those kids shoot up schools."</p>
+<p>Linking school shootings to Ritalin is a <a href="https://www.fox10phoenix.com/news/nra-links-school-violence-to-ritalin-but-experts-deny-link">myth</a> invented by the National Rifle Association on the principle of "don't take our guns away, let's ban something else". That's when I felt what nonsense even "distinguished specialists" can sometimes talk, and from the rapper Logic's <a href="https://genius.com/37969960">line</a> <em>"killing them with no Ritalin"</em> I sensed that he had run into this myth too.</p>
+<p>Through looking into the subject, though, I've come to some general conclusions that I'm more sure of than any specific diagnosis. Right now the internet looks as if half the people are declaring "we all have ADHD", and the other half "you're all just lazy and invented an excuse". What can I say about it in general?</p>
+<h3 id="1">1.</h3>
+<p>Honestly, we have to admit: we simply understand very little about this yet. Science hasn't properly figured out how attention and motivation work. For example, speaking of "laziness", what scientific term even corresponds to that everyday notion?</p>
+<p>Surely our ideas will expand a lot. Maybe concepts like "ADHD" will come to sound the way "the vapors" sounds now: people said that about everything until they figured things out properly. And today's internet arguments about these concepts will sound like cavemen arguing whether "the Earth is round or square", with both sides agreeing that "obviously, it's flat".</p>
+<p>Ultimately, don't cling too much to specific terms like "ADHD"; they will be revised. It's better to look at the bigger picture:</p>
+<h3 id="2">2.</h3>
+<p>Concentration, I assume, is affected by differences in how people's brains work. Roughly speaking, their brains produce different amounts of neurotransmitters (that's a simplification, but it's a handy way to picture the situation). And these differences can be either innate or acquired.</p>
+<p>Clearly, people differ in other parameters too, like height and weight, and everyone understands that. And everyone knows that tall people have a built-in advantage in basketball. But neurotransmitters aren't visible "from the outside". And people wrongly assume that in situations like "taking a test" or "remembering to start the washing machine", everyone is on equal terms. That said, the opposite mistakes, with false diagnoses, surely happen too.</p>
+<figure><img src="../images/adhd/05.jpg" alt="Some neurodivergent people will recognize themselves in this situation" loading="lazy"><figcaption>Some neurodivergent people will recognize themselves in this
+situation</figcaption></figure>
+
+<h3 id="3">3.</h3>
+<p>Even so, the mere fact of differences doesn't mean "we're off the hook, we have ADHD and nothing depends on us, so we won't make any effort".</p>
+<p>Short people are unlikely to make the NBA. But at the backyard level, you can win at basketball by training more than others. Likewise, with an unusual way of concentrating, some things aren't worth taking on, and others are, but you have to be ready for extra difficulty.</p>
+<p>Someone who says "I have ADHD, so I'll put in even more effort to get such-and-such result" isn't taking "the lazy person's position" but the opposite.</p>
+<h3 id="4">4.</h3>
+<p>Although such things cause a lot of difficulties, in some places they can play to your advantage. Short people have a harder time in basketball, but they have an edge in horse racing. And there are hypotheses that ADHD or autism correlate with programming. Lots of people would like to "get into IT" but quickly give up, while others love to code. What sets the latter apart?</p>
+<p>To put it cautiously: I don't consider neurodivergence the only factor, but it's unlikely to have played no part. So it turns out it gave people an advantage that others envy. As with some rappers, it became a blessing. It's no accident that some neurodivergent people were called "gifted" at school (sometimes with "but lazy" added).</p>
+<figure><img src="../images/adhd/06.jpg" alt="" loading="lazy"></figure>
+
+<p>Whatever the case, as with rappers, <strong>even a blessing will still be a curse too</strong>. If you get hooked on some well-paid tasks, that doesn't mean every task in life will be like that. And when you face the others, you'll still be banging your head against the wall.</p>
+<blockquote>
+<p>One analogy I've come across: <strong>ADHD is like your brain being a powerful supercar, but you're a passenger in it</strong>.</p>
+</blockquote>
+<p>Revs up like nothing else can. But you don't really decide which way it goes. It's as if you have superpowers but no full control over them.</p>
+<hr />
+<h2 id="hes-lost-control-again">He's lost control again</h2>
+<p>Keeping all that in mind, here's the culmination of everything above: a song by the little-known rapper <strong>Tonedeff</strong>, «Control», from the album «Polymer» (2016), which I listened to more than anything else this past year.</p>
+<p>A little over a year ago I was googling the rhyme schemes of some songs (a nerdy pastime in itself, of course), stumbled on this by chance and was floored:</p>
+<figure><img src="../images/adhd/07.png" alt="" loading="lazy"></figure>
+
+<p>Note: all the places in the verse that sound alike are marked in different colors. And when I saw this coloring (before I'd heard the song, read the words closely or knew anything about the artist), I immediately felt: OH WOW, HOW STUBBORN AND OBSESSED HE IS.</p>
+<p>Don't expect strict rhymes here, these are sound echoes, but... for dozens of lines in a row, the lyrics were written so that their beginnings, middles and endings all echo each other. It's as if Tonedeff took one long phonetic phrase and found 50 different ways in a row to fill it with meaningful content on a particular theme.</p>
+<p>Ever heard other rappers do this? I don't remember it even from Eminem.</p>
+<p>Viewed as a whole, the approach feels like a careful game of Jenga. The author seems to pile suitable lines on top of each other, testing how many he can stack before the result stops being a meaningful monologue and collapses into a heap of random sound-alikes with no content.</p>
+<p>Even more so when I later heard the song:</p>
+<div class="yt" data-id="cbJvZOilfiM"><img src="https://i.ytimg.com/vi/cbJvZOilfiM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<ul>
+<li>Runtime: TEN MINUTES.</li>
+<li>You couldn't tell by ear how many tracks it's assembled from, but it's a huge number: in a <a href="https://youtu.be/jDKIWvFyE_o?si=e8EerYnQoAEoVzcD&amp;t=5432">documentary</a>, Tonedeff shows them and says mixing the song took him NINE MONTHS.</li>
+<li>The music uses a "wall of sound": Tonedeff was inspired by the concept and listened to a lot, from Phil Spector's productions to My Bloody Valentine and Sigur Rós, to bring the approach into hip-hop. The song closes the album, and this "wall" in its second half is the climax of the whole preceding hour.</li>
+<li>He both raps fast and sings in it, performing everything himself rather than bringing someone in for backing vocals.</li>
+</ul>
+<p>It's the most meticulous work, especially for a little-known rapper with minimal budgets who does almost everything alone. He even shot and edited the documentary about himself, and the result looks like the work of professional directors. He seems to reach in every direction at once, and wants to do something great in each.</p>
+<figure><img src="../images/adhd/08.jpg" alt="" loading="lazy"></figure>
+
+<p>Now, you might think that a person with such a meticulous approach would have everything under control in life too. But if you listen closely, it's the other way around. «Control» is a song precisely about lacking control over yourself. He uses the Jenga metaphor himself... but in the sense of "everything I touch falls apart".</p>
+<p>Going further, in the second verse he says it outright, roughly: my own brain turns out to be my enemy; it seizes power, and I have to fight it for control of myself. And with two sides at war inside me, I can't tell <strong>who I am in my own body: the parasite or the host?</strong></p>
+<hr />
+<p>Even so, "lazy" is absolutely not the word for the author of such a carefully crafted song. And at the same time, it's a song about missed alarms and broken promises, about alcohol abuse and a broken marriage, about how you can be a procrastinator and a perfectionist at once.</p>
+<p>Looking to prove something to everyone with "unusual clever solutions" on his debut album, Tonedeff found the hip-hop audience didn't appreciate it, and popularity never came. And on «Polymer» he went all-in on perfectionism simply for its own sake. He understood that few would even notice all this fine craftsmanship and realize how much effort went into it. But the people this kind of music suits, who did notice «Control», rate it highly. Including me.</p>
+<p>Some of why I love it is simply that it's a good song. Some of it is how carefully the sound echoes are crafted. And some of it is that in places I recognize myself in it.</p>
+<p>Every bit of this is familiar to me: both the trouble with self-control and the lyrical nerdiness. If my self-control were better, I'd have published this text exactly on your birthday instead of blowing the deadline. And if not for the nerdiness, I wouldn't have spent so many hours trying to polish its wording. For example, I wouldn't have bothered to make the first letters of the paragraphs (not counting subheadings) spell out a phrase together. My brain decided it would be more interesting that way, and that it had to be done. (In this English version, the phrase is in English too.)</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../sudan/">← A6 · Судан: песни незамеченных событий</a>
+    <span class="pos">Side A · Track 7 of 7</span>
+    <span></span>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
