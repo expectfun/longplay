@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eminem: 8 Roles — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="A" class="">
+  <div class="topbar">
+    <a class="back" href="../#A4">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../eminem/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>Eminem: 8 Roles</h1>
+    <p class="year">2022</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/eminem/01.jpg" alt=""></figure>
+
+  <article>
+<p>Hi, Sasha. In 2022 there wasn't much room for new music, so this time my gift text for your birthday celebrates an anniversary: it's about an artist who turned 50 this fall.</p>
+<p>You'd think nothing could be more boring than writing about Eminem, whose every sneeze has long been examined under a microscope. Isn't everything long since clear to everyone?</p>
+<p>I don't think it is.</p>
+<p>First, some things only become clear when you dig into the annotations on Genius. I've been digging, and I want to share what I found.</p>
+<p>And second, Eminem's story lets you draw interesting conclusions not only about him but about music and people in general. I wanted to draw them.</p>
+<p>So I decided to describe his whole career, roughly dividing it into eight "roles".</p>
+<hr />
+<h2 id="role-1-the-nerd">Role 1: The nerd</h2>
+<p>The beginning of his career has well-known biographical details: grim Detroit, poverty, bullying, an absent father, conflicts with his mother and his wife, pennies from odd jobs to feed his daughter, and the rap scene that helped him get out of it.</p>
+<p>But there's a less familiar part. Eminem burst into the public eye in 1999, but his first album was «Infinite» (1996). Why does almost nobody remember it now? What was it, anyway?</p>
+<div class="yt" data-id="TyUWs246kAo"><img src="https://i.ytimg.com/vi/TyUWs246kAo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>If you put it on, you quickly notice that even then Eminem was very technical about phonetics and flow, packing his lyrics with as many sound echoes as possible:</p>
+<blockquote>
+<p>Man, I got <strong>evidence</strong>, I'm <strong>never dense</strong><br />
+And I've been <strong>clever ever since</strong></p>
+</blockquote>
+<p>You can spot a lyrics nerd right away: all rappers want to sound slick, but here it already looks like obsessive-compulsive disorder.</p>
+<p>But technique is where it ends: there are no sharp jokes yet, no virtuoso storytelling, no unique charisma. And the themes are standard ("I'm cool", "Detroit, my hometown, I'm yours"). The album isn't bad, you can enjoy it, but there's nothing much to hold on to; even the cover is a model of blandness. No wonder it went unnoticed.</p>
+<p>And I think we can draw this moral: <em>although technique in music can impress, it's fairly pointless when it's just technique for its own sake, cut off from everything else.</em></p>
+<p>As another rapper, Oxxxymiron, <a href="https://genius.com/Versus-battle-12-04-15-oxxxymiron-vs-johnyboy-lyrics">put it</a> many years later, in a Russian battle:</p>
+<blockquote>
+<p>It's not about the number of punchlines, not the quality of the rhymes:<br />
+It's about the person behind them</p>
+</blockquote>
+<p>And on this album you can't yet really hear the person. Critics wrote that he "copies Nas and AZ", listeners didn't buy the album, and that made Eminem angry.</p>
+<hr />
+<h2 id="role-2-the-maniac">Role 2: The maniac</h2>
+<p>Besides his solo work, Eminem was part of the Detroit group D12. His friend Proof was in it, and he suggested that every member come up with an alter ego; that's how the character Slim Shady was born.</p>
+<p>Because of the failure of «Infinite», Eminem was angry at the world, and speaking as a made-up character makes it easy to say anything: if need be, "I'm out of it, I didn't say that, it was all him".</p>
+<p>So the second album, «The Slim Shady LP» (1999), became a chance to pour everything out. And this time even gangsta rap listeners, supposedly used to all kinds of brutality, were stunned.</p>
+<p>What could stun them? For example, the song «'97 Bonnie &amp; Clyde». It plays on Will Smith's «Just the Two of Us», a sweet track about a father and his child. And in Eminem's lyrics, a loving father talks to his little daughter on the way to the beach. Only in this case he has killed his wife and is now on his way to get rid of the body. This made it onto the album cover:</p>
+<figure><img src="../images/eminem/02.jpg" alt="" loading="lazy"></figure>
+
+<p>As someone wrote, "there have been more violent songs in rap, but few more disturbing". The character coos at the child, and it sounds scarier than rappers swearing and making threats. Street hip-hop is harsh, but even there they usually don't drag small children into the brutality. Slim Shady has no such limit. He's more deranged than the deranged.</p>
+<p>And it's creepier still because the pet name the character uses for the child is short for Hailie, the name of Eminem's real daughter. And the song uses a recording of her voice. And Eminem didn't get along with her mother, Kim. If I were the real Kim, after a song like that I'd have fled to another continent with Hailie on a fake passport.</p>
+<p>And that's just one of the songs on «The Slim Shady LP». The album's lyrics are violence, jokes beyond the pale, swearing, unhealthy sex, mental health problems, drugs, suicide and insults to his own mother. All of it is cranked to the max, so it often looks cartoonish and unserious (the clownish hit «My Name Is»), but sometimes frighteningly real (the hard-won monologue about poverty, «Rock Bottom»). If Tarantino made an animated, blood-soaked gay porn film about a destitute killer clown on hallucinogens, even that would feel less extreme, provocative and eclectic.</p>
+<div class="yt" data-id="sNPnbI1arSE"><img src="https://i.ytimg.com/vi/sNPnbI1arSE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p><em>(the lyrics in this video version are heavily toned down; the album version is better)</em></p>
+<p>Slim Shady drew orders of magnitude more attention than the bland «Infinite». Some were delighted, including Dr. Dre, who helped it succeed. Others were horrified, for example conservative parents who noticed what music their kids had come to love. Eminem went from a nobody to both a hero and a villain. He was accused of everything at once, from homophobia to provoking school shootings. His mother decided to sue him for millions over defamation in his lyrics.</p>
+<p>To accusations of brutality, he replied that people get killed in horror films too and nobody cares, but tell the same story in a song and everyone loses their mind. I'd also note that «The Slim Shady LP» has the song «Role Model», which sarcastically lets young listeners know they shouldn't look up to the author, and that the things in his songs aren't exactly a good guide to action.</p>
+<p>Later, in «The Real Slim Shady», he voiced this point: the only difference between him and you is that he has the balls to say out loud, in public, the things you won't. He gave the floor to his inner demons and came to look like a maniac. But lots of people have demons; they're just usually not handed a microphone. So it turns out Eminem is even more self-aware than many: at least he says all this honestly, instead of pretending it doesn't exist.</p>
+<p>You could chalk up all the criticism of Eminem to a puritanical society eager to blame someone for its problems ("all these school shootings are because of hip-hop"). But I don't think all the criticism is groundless. Say, when women's dying gasps become a recurring sound effect in songs, I do find that genuinely problematic. I don't think it's a reason to cancel artists, but I think it's a reason to consider how such music shapes people's view of the world, and what age rating is right for it.</p>
+<p><em>And here's the moral I see. In discussions of all kinds of problematic art, positions are usually binary: either "it's problematic, let's do without it", or "it's talented, let's not infringe on free speech". But I think «The Slim Shady LP» clearly shows that "it's talented" and "it's problematic" are not mutually exclusive. "Great and terrible" is usually a figure of speech, but this is literally a great album and a terrible album.</em></p>
+<hr />
+<h2 id="role-3-the-idol">Role 3: The idol</h2>
+<p>«The Slim Shady LP» brought a big surge in popularity, but total dominance came next, with «The Marshall Mathers LP» (2000) and the film «8 Mile» (2002).</p>
+<p>«The Marshall Mathers LP» became one of the best-selling albums in history. Did anything change in his work compared to «The Slim Shady LP»? At first glance it's a direct continuation: «'97 Bonnie &amp; Clyde» even got a prequel here, «Kim». The clownish hit «My Name Is» was succeeded by the clownish hit «The Real Slim Shady». Violence, insults, drugs: it's all on the album, even the characters in the skits are the same.</p>
+<p>But I see differences too. One is right in the album's title, where Marshall Bruce Mathers used his real name. There's a title track where he speaks as himself, without any Slim Shadys, calling himself just a regular guy who doesn't know why there's so much fuss about him. And the cover shows not invented horrors but the porch of his childhood home.</p>
+<figure><img src="../images/eminem/03.jpg" alt="" loading="lazy"></figure>
+
+<p>Another tectonic shift happened too. A typical complaint about early Eminem was "it's shock-value bubblegum for schoolkids, and this one-hit wonder has nothing to say" (the way people talk about some Instasamka today, a Russian rapper famous for being outrageous). And on «The Marshall Mathers LP» came the most convincing answer: the song «Stan».</p>
+<p>A horror story again, but different from the earlier ones. Here there's the epistolary form, excellent storytelling that raises the temperature from verse to verse, and a perfectly fitting sample of a Dido song.</p>
+<div class="yt" data-id="gOMhN-hfMtY"><img src="https://i.ytimg.com/vi/gOMhN-hfMtY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>And most importantly, the song introduces Eminem himself, replying at the end. Thanks to this, it becomes clear that the author of the song isn't a crazed maniac but a sensible person who would have been glad to stop someone else's madness in time. And the song was received not as "a cheap scare for schoolkids" but as "a dramatic work raising the problem of unhealthy fandom". The word "stan" made it into dictionaries, and Eminem into history. Now nobody could call him a one-hit wonder anymore.</p>
+<p>His status was cemented even further by the semi-autobiographical film «8 Mile», where the hero looked not like a troublemaker but like someone who started out in the harshest conditions and earned his success.</p>
+<p>«Lose Yourself» from that film became the first hip-hop track to win an Oscar. Eminem's first single to go diamond (sales of more than 10 times platinum). And his first hit that didn't insult or horrify but inspired.</p>
+<div class="yt" data-id="_Yhyp-_hX2s"><img src="https://i.ytimg.com/vi/_Yhyp-_hX2s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Perhaps the <em>moral here is that it's easy to grab people's attention with insults and brutality, but it's quite possible to win in a constructive way too</em>.</p>
+<p>Another "constructive moment" was performing «Stan» live with Elton John. Eminem was constantly accused of homophobia; he replied that he had nothing against gay people, he'd just been raised on the streets of Detroit, where the f-slur was used as an insult with no connection to orientation. And the performance showed that he had no real conflict with gay people.</p>
+<p>As a result, by 2002 Eminem had achieved absolutely everything. Diamond sales, excellent press, the respect of the hip-hop scene, a successful start to a film career, enormous attention across every layer of society. Later he recalled that time with the line "I had the world by the balls, eating out my palm". He wasn't just selling lots of records; he had the world by the balls.</p>
+<hr />
+<h2 id="role-4-the-addict">Role 4: The addict</h2>
+<p>What can a talented but unstable person do once they've achieved everything? Blow it all.</p>
+<p>Working 16-hour days on the set of «8 Mile», Eminem developed insomnia. Someone recommended Ambien to him. That's how his addiction to prescription drugs began.</p>
+<p>In 2004, while recording his fifth album, «Encore», he was taking them in large quantities, and the album was received much worse than the previous ones. The golden period was over.</p>
+<p>In 2005 he had to cancel part of a tour altogether and take a creative break.</p>
+<p>And in 2006, his best friend Proof was shot dead during a fight at a Detroit club, which made his state even worse.</p>
+<p>As a result, Eminem had four relatively quiet years, during which he fought his addiction (with help from that same Elton John). The fight ended in victory: for many years now, Eminem hasn't touched substances that could ruin his life.</p>
+<p>In 2009 he announced a long-awaited comeback with no fewer than two albums. The first was «Relapse», whose cover portrait was laid out in pills.</p>
+<figure><img src="../images/eminem/04.jpg" alt="" loading="lazy"></figure>
+
+<p>But the album didn't bring the kind of victory he'd won over addiction. You can't call it a failure either: many can only dream of double platinum. But «Relapse» is considered one of Eminem's weakest albums. And the sales figures no longer translated into having the world by the balls. "Well, yeah, Eminem put something out, it's okay, now let's move on to the next thing."</p>
+<p>«Relapse» has good songs. But at his best, Eminem wrote not just good songs but songs for the ages. «Without Me» is still in demand today (20 years later), but who remembers that «We Made You» or «Crack a Bottle» exist? Nothing from «Relapse» made it into history.</p>
+<div class="yt" data-id="RSdKmX2BH7o"><img src="https://i.ytimg.com/vi/RSdKmX2BH7o/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>I suspect that for Eminem this already meant failure. If you've stopped being the center of the universe, that's it: Akela has missed his kill, as the line from «The Jungle Book» goes in Russian.</p>
+<p><em>Moral: well, apparently, don't do drugs</em></p>
+<hr />
+<h2 id="role-5-the-god">Role 5: The god</h2>
+<p>Eminem entered the 2010s a legend in terms of past achievements, but a loser in the present. How do you prove to everyone again that you're the best? Eminem admitted the shortcomings of «Relapse», started reworking the half-finished «Relapse 2», and in the end renamed it «Recovery», because everything had drifted far from the original idea.</p>
+<p>And in 2010, «Recovery» really did turn out to be something of a recovery. Two of its videos have more than a billion views on YouTube each: once again he managed to write supersongs that resonated in the hearts of millions.</p>
+<div class="yt" data-id="j5-yKhDd64s"><img src="https://i.ytimg.com/vi/j5-yKhDd64s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>One of them is «Not Afraid», an uplifting stadium anthem about overcoming. Eminem, who had been through fire and water in his life, now saw his mission as helping others cope with hardship, and recorded a song for that.</p>
+<p>And «Love the Way You Lie» started his collaboration with Rihanna, which three years later continued with another hit, «The Monster». Rihanna gave both songs pop appeal and catchiness; people set them as ringtones and played them at discos. Although both, if you listen closely, are fairly dark.</p>
+<p>«Love the Way You Lie» is about two people who can't live without each other and can't live with each other. For Eminem, who divorced the same woman twice, it's familiar territory.</p>
+<p>«The Monster» is about Eminem's mental health problems and inner demons. A person with a lot not right in his life tells us about it, and humanity didn't particularly notice, but loved the song as a dance hit.</p>
+<div class="yt" data-id="EHkozMIXZ8w"><img src="https://i.ytimg.com/vi/EHkozMIXZ8w/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>With «The Monster», the video is especially interesting. Eminem makes his way through the layers of his unconscious, and at the end reaches Slim Shady. Who is, of course, a monster, but writes vivid lyrics, so you can visit him for their sake.</p>
+<p>But I consider the most important song of the 2010s, in terms of Eminem's relevance, to be «Rap God» (2013). It's the song that entered the Guinness Book of Records as the hit with the most words (1,560 of them). The song that leads Genius in views among all English-language lyrics. The song whose video has a billion views. The song with that famous fast part. The song that, when it came out, listeners posted on social media with captions like "I just came". When people at karaoke want to test how well I rap, they ask me: "can you do «Rap God»?" (the right answer: not quite, I swallow some syllables, but listeners usually don't have time to notice I've swallowed them).</p>
+<div class="yt" data-id="XbGs_qK2PQA"><img src="https://i.ytimg.com/vi/XbGs_qK2PQA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>Hip-hop is largely built on self-praise. Sometimes it annoys me (Eminem's included): "Do you have nothing else to rap about but how great you are? How long can you keep chewing over the same thing?"</p>
+<p>But that makes what «Rap God» achieved all the more valuable. There's an abyss of hip-hop songs in the genre of "how mighty my paws are", and Eminem managed to make the defining song in this hypercompetitive segment. So his paws are the mightiest! Having made a loud claim to the status of a god, he managed to back it up: a rare case of a swing that lands harder than it promised. The one many had written off came back and showed who in hip-hop is god and GOAT (greatest of all time).</p>
+<p><em>Moral: it's curious that superstardom doesn't always require following pop formulas like "three minutes, a catchy sung chorus, so many lines per verse". «Rap God» won even though it does the opposite: six minutes of rapping, with none of Rihanna's pop melody and almost no chorus at all.</em></p>
+<hr />
+<h2 id="role-6-the-loser">Role 6: The loser</h2>
+<p>Did the success of «Rap God» mean the problems were behind him? No, not at all.</p>
+<p>In 2015 Eminem worked on the soundtrack for «Southpaw», a film about a successful boxer whose life goes downhill after his wife's death. Presumably the story of "a star in crisis who rebuilds his life piece by piece from scratch" was personally close to him.</p>
+<p>But both the film and Eminem's singles for it, «Phenomenal» and «Kings Never Die», went largely unnoticed. The film came nowhere near being a new «8 Mile». And both songs, I think, are just more "I'm cool" songs, and it's unclear why they were needed at all after «Rap God»: dude, what's this "kings never die", when you'd previously ended a legendary song by asking why be a king when you can be a god? Going from god to king is downshifting.</p>
+<p>This was no longer even a "sales are good, songs are good, but no more great ones" situation. Now the sales were no longer platinum. And critical reviews, once moderately favorable, turned negative more and more often.</p>
+<p>And this time he couldn't blame it on addiction, a friend's death or anything like that. It just wasn't working.</p>
+<p>His ability to find rhymes hadn't gone anywhere; technically, his songs were still impressive. But here we come back to the beginning of this text: technique alone won't get you far. And apart from it, once again there wasn't much to latch on to. In that period, Eminem featured on the song «Speedom» with a verse as fast as «Rap God», but while the fast part of «Rap God» was praised and learned by heart, the verse on «Speedom» simply went unnoticed.</p>
+<p>Two years after «Southpaw», in 2017, came «Revival»: his first full-length album in four years, with a lot of preparation and expectations to match. Many guest vocalists, and not rappers with verses but pop singers on the choruses (apparently remembering the superhits with Rihanna). A carefully planned marketing campaign. The very title, saying he was back and showing signs of life: brace yourself, world. And… a flop.</p>
+<figure><img src="../images/eminem/05.jpg" alt="The facepalm on the cover seems fitting" loading="lazy"><figcaption>The facepalm on the cover seems fitting</figcaption></figure>
+
+<p>Both critics and fans were very unhappy. In the comments on The Flow, a Russian hip-hop site, the album was sometimes called "unlistenable". Music outlets wrote: "Remember when Eminem could be hilariously funny? In 77 minutes here, only one line can, with a stretch, be called a joke." The only candidate for a superhit was «River» with Ed Sheeran, and even that was botched in the rollout: the video took a long time and came out rather odd, so on YouTube the audio-only version has more views.</p>
+<p>What's behind the problems of «Revival»? I see two reasons. One is that the Eminem of the 2010s wanted to be more "constructive" than the Eminem of the 2000s: instead of fights and insults, mutual support and finding common ground. A commendable wish, and the constructive approach once paid off with «Lose Yourself» and «Not Afraid», but that success couldn't be scaled up. The single «Cleanin' Out My Closet» (2002), where he insults his mother, sold far better than the single «Headlights» (2013), where he apologizes to her.</p>
+<p>«Revival» has, for example, an anti-racist statement, «Untouchable». It's no surprise that a white man who owes his entire career to Black music is anti-racist. But I think the result is just another piece of agitprop for everything good and against everything bad, not something vivid.</p>
+<p>The other problem is more general. It's not only about Eminem but about any musician who changed the game early in their career: you can't keep doing that all your life.</p>
+<p>It's a well-known scenario, repeated many times in different contexts. Say you're a long-haired kid inventing heavy metal: conservatives denounce this "devil's music", teenagers love it, you're a rebel against the system, and your albums top the best-of lists. Then decades pass, you're still churning out heavy riffs, but their heaviness no longer outrages anyone, and to new teenagers you <em>are</em> the boring system to rebel against. Maybe your old superhits still fill stadiums, but you can no longer write a new one; at best, just a good song. "Yeah, it's not the same anymore, but thanks for my childhood."</p>
+<p>I think it simply comes down to how the human brain works. On one hand, it needs something new and unfamiliar for vivid impressions. On the other, the older it gets, the fewer new neural connections it forms and the less unfamiliar material it can generate. So listeners want music to change, and musicians find it harder and harder to change anything over the years. There are special cases (David Bowie reinvented himself until the end of his life), but in general it's as inevitable as gravity.</p>
+<p>Eminem fell into this trap like everyone else. For all his talent, he's not actually a god and can't walk on water; he has no antidote to gravity. But in his case there's an interesting nuance: as quoted earlier in this text, the difference is that he has the balls to say out loud the things you won't. And it turns out this isn't only about things like which of the Spice Girls he'd like to sleep with.</p>
+<p>Many musicians worry about losing relevance but try not to show it; it's not something people say out loud. And among rappers, with their toxic hypermasculinity, showing weakness is even less acceptable. A street dog can easily describe how he'll take you down, but worrying about losing relevance is too complicated for him to put into words. Not for Eminem, though.</p>
+<p>So the first single from «Revival» was «Walk on Water»: precisely about how nothing is working for him, and how he feels about it.</p>
+<div class="yt" data-id="ryr75N0nki0"><img src="https://i.ytimg.com/vi/ryr75N0nki0/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>There are no superfast verses here, no progressive agitprop, no mocking jokes, no dance beats: just a candid monologue in which Eminem criticizes his own work harder than some critics do.</p>
+<p>It didn't save the album from failure: critics panned it anyway. But I think the song itself is wonderful. Oxxxymiron (also both a master of self-praise and a fan of sad reflection, and also, just to be clear, officially labeled a "foreign agent" in Russia) tweeted: "Eminem has a f***ing amazing track! Almost the first in many years that isn't just technically cool but actually moved me."</p>
+<p><em>Moral: there are problems we can hardly do anything about, but I think honestly admitting them and talking about them is already better than keeping quiet.</em></p>
+<hr />
+<h2 id="role-7-the-avenger">Role 7: The avenger</h2>
+<p>The long-awaited «Revival» came with a carefully planned marketing campaign that built up fans' expectations and ended in a fizzle.</p>
+<p>A mere eight months later, with no announcements, singles or warnings, a new album suddenly appeared: «Kamikaze». As if out of nowhere: Eminem simply uploaded it to streaming services and posted the links. It was the opposite of his previous approach.</p>
+<p>Listening to the album, it became clear why it had appeared so quickly and been released this way: it was a reaction to the hate «Revival» got. Eminem had read enough scathing reviews, got furious and decided to give everyone a proper answer. The number of disses per unit of time here is huge even by his standards. The "FU-2" and "TIKCU5" on the cover are "fuck you too" and "suck it".</p>
+<figure><img src="../images/eminem/06.jpg" alt="To me, the cover looks like the jet thrust of a seriously burned-up backside" loading="lazy"><figcaption>To me, the cover looks like the jet thrust of a seriously burned-up
+backside</figcaption></figure>
+
+<p>«Kamikaze» itself, like its marketing approach, is practically the opposite of «Revival». Instead of being constructive, Slim Shady's fangs are back. Instead of pop on the choruses, trusted comrades-in-arms with verses. And instead of careful planning, the album seems recorded in one breath; it even runs only 45 minutes instead of his usual 75 (and holding his breath for 45 minutes is no problem for Eminem). The first six minutes are a single unbroken hate monologue, «The Ringer», where the flow keeps changing but the angry pressure stays.</p>
+<p>Who exactly does Eminem hate on «Kamikaze»? The whole world, generally, but there are more specific targets. The journalists who trashed «Revival» ("What's your talent? Oh, criticizing my talent"). The whole new school of hip-hop, which traded complex lyrics for incoherent mumbling ("You clowns don't understand the classics"). The rapper Machine Gun Kelly, for calling Eminem's 16-year-old daughter hot. The Grammys, for feeding off artists' success. Donald Trump, for being Donald Trump.</p>
+<p>The album didn't break sales records, but in the comments on The Flow, where a year earlier «Revival» had been called "unlistenable", people wrote about «Kamikaze»: "wow, what a beatdown". As in: to hell with all those pop singers on the choruses; the good Eminem is the angry Eminem.</p>
+<p>I generally agree with the "what a beatdown" verdict. Long ago, in «The Way I Am», railing at the people who drive him mad, he remarked that at least they give him the fuel he needs for his fire. And that's exactly what happened here: «Revival» lacked fire, and now, thanks to his anger, there was more than enough of it. When there's a clear target, aimless wandering becomes a quest: without conflict, Eminem's technical lines were like flailing at the air (skillful but aimless), and now his song hooks turned into boxing hooks.</p>
+<p>"You already know who the fuck you are, Kelly", he addressed Machine Gun Kelly, slightly stressing "are, Kelly" so that listeners would think of R. Kelly, the singer convicted of sex crimes against minors. Who else can turn a line into such an insulting comparison so elegantly, without adding a single letter? Kelly wasn't afraid to take on the rap god and replied with his own diss, «<a href="https://www.youtube.com/watch?v=Fp0BScQSSvg">Rap Devil</a>» (a fairly good one), and Eminem answered with another song, «<a href="https://www.youtube.com/watch?v=FxQTY-W6GIo">Killshot</a>»: you don't often see a beef this big and vivid.</p>
+<p>Besides anger, this album brought back cheerful goofing around. «Revival» was deadly serious throughout, and drew criticism for it, while on «Kamikaze» the title track is just about the silliest thing Eminem has ever recorded. Besides the harsh attacks, the album also showed that their author could treat all those attacks with irony.</p>
+<p><em>Moral: in general, you'd like music to change the world for the better, but the «Revival»–«Kamikaze» pair clearly shows that destruction is often more useful for creativity than construction. And it's also interesting to watch how failures can lead to success: if not for the flop of «Revival», Eminem wouldn't have gotten that magic kick in the pants and recorded a better album.</em></p>
+<hr />
+<h2 id="role-8-">Role 8: ???</h2>
+<p>A successful angry album is good, but not a cure-all. As the album itself notes, what's next, a «Kamikaze 2» attacking everyone who didn't like «Kamikaze»? Clearly, the next step had to be different. But how exactly?</p>
+<p>In 2020 came «Music to Be Murdered By», his most recent album so far. What is it like? In what shape did Eminem reach his anniversary? Did gravity win after all, leaving nothing but repetition? Or did he find a way to cheat it and surprise everyone?</p>
+<p>Well, one track surprised many: «Godzilla», with Juice WRLD. After hating on the new school with all his might, Eminem suddenly recorded a song with one of its leaders. And the situation was made even more dramatic by the fact that Juice WRLD died at 21, before the song came out. Many expected posthumous releases might appear, but nobody thought one would turn out like this.</p>
+<div class="yt" data-id="r_0JjYUe5jo"><img src="https://i.ytimg.com/vi/r_0JjYUe5jo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+
+<p>«Godzilla» got half a billion views. It didn't exactly become a song for the ages, but it showed that Eminem can still make hits whose fast part teenagers will learn by heart. That he hasn't become an irrelevant musician of the past for good.</p>
+<p>What about the rest of the album? I personally really like some of its songs, and in completely different ways. «Darkness» is a serious, dark story <a href="https://t.me/trifonov/524">with double storytelling</a> (in Russian), protesting against overly loose gun sales. «Those Kinda Nights», on the contrary, is a very frivolous duet with Ed Sheeran about club life and casual sex, both hilarious and outrageous.</p>
+<p>But overall the album can be called neither a triumph nor a flop. It's <em>not bad</em>.</p>
+<p>Eminem is doing surprisingly well for his position. One of the most-liked comments under the «Godzilla» video says "I refuse to believe he's 48".</p>
+<p>But still, "for his position". Gravity isn't going anywhere. His achievements today are a pale shadow of his former heights. He can hardly do anything about it.</p>
+<p>It would be nice to end this text with some clear-cut conclusion: either a happy ending or a sad one. So that it would make a clear, complete story: either about how the workings of the brain defeat even the most talented creators, or about how patience and hard work overcome everything.</p>
+<p>But the truth is, I don't have such a clear-cut conclusion. <em>So I guess the moral is this: in films everything ends clearly and everyone has a well-defined role, but life is more complicated.</em></p>
+<p>So I don't know what word to use for his role at 50. He's not entirely a hero, a villain, a leader or a loser. He's a person who sometimes writes incredible things and sometimes complete nonsense. Who in his songs sometimes deliberately insults people, and sometimes deliberately supports them. Who sometimes hits the bullseye and sometimes misses the target entirely.</p>
+<p>What feelings does his current creative state evoke? I'm mostly satisfied: when I find three songs I really like on another album, I'm happy with them, and I don't particularly expect more.</p>
+<p>But Eminem himself may well be infuriated by it and want more.</p>
+<blockquote>
+<p>But if I could give him advice, I'd say "forget it": I'm not his therapist.</p>
+</blockquote>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../lmm/">← A3 · Лин-Мануэль Миранда</a>
+    <span class="pos">Side A · Track 4 of 7</span>
+    <a class="next" href="../dugri/">A5 · Палестина/Израиль: музыка и боль →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
