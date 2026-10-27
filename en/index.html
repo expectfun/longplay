@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
+<title>Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/en/">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  :root {
+    --bg: #12100e;
+    --ink: #efe8dc;
+    --muted: #9b9184;
+    --line: rgba(239, 232, 220, 0.12);
+    --side-a: #d4502f;
+    --side-b: #2a9d8f;
+    --accent: var(--side-a);
+    --glow: #221d18;                       /* centre of the background gradient */
+    --wash: rgba(255, 255, 255, .06);      /* button and row fills on the page */
+    --wash-strong: rgba(255, 255, 255, .11);
+    --card: rgba(18, 16, 14, .82);
+    --card-shadow: 0 18px 50px rgba(0,0,0,.45);
+    --curtain: #0b0a09;
+    color-scheme: dark;
+  }
+  /* light: the post pages' paper and ink; the turntable stays a dark object on it.
+     On when the system is light and the knob isn't set to dark, or when the knob is set to light */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f3eee6; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+      --side-a: #c4472a; --side-b: #23897c;
+      --glow: #fffdf9;
+      --wash: rgba(31, 27, 23, .05); --wash-strong: rgba(31, 27, 23, .09);
+      --card: rgba(250, 247, 242, .9); --card-shadow: 0 18px 50px rgba(31, 27, 23, .22);
+      --curtain: #faf7f2; color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f3eee6; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --side-a: #c4472a; --side-b: #23897c;
+    --glow: #fffdf9;
+    --wash: rgba(31, 27, 23, .05); --wash-strong: rgba(31, 27, 23, .09);
+    --card: rgba(250, 247, 242, .9); --card-shadow: 0 18px 50px rgba(31, 27, 23, .22);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  body[data-side="B"] { --accent: var(--side-b); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(1200px 700px at 30% 20%, var(--glow), var(--bg));
+    color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header {
+    max-width: 1400px; margin: 0 auto; padding: 28px 24px 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  }
+  header .knob { width: 52px; height: 46px; }   /* a size up, next to the big title */
+  header .right { display: inline-flex; align-items: center; gap: 18px; }
+  header h1 {
+    margin: 0; font: 600 clamp(2.2rem, 4.5vw, 3.4rem)/1.05 Literata, Georgia, serif;
+    letter-spacing: -.01em;
+  }
+
+  main {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    padding: 20px 24px 40px; align-items: flex-start; max-width: 1400px; margin: 0 auto;
+  }
+
+  /* ---------- turntable ---------- */
+  .stage { flex: 1 1 620px; min-width: 0; }
+  .deck {
+    position: relative; width: 100%; aspect-ratio: 1000 / 800;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  }
+  .deck > svg, .deck > .record { position: absolute; }
+  .deck > svg { inset: 0; width: 100%; height: 100%; }
+  .deck .arm-layer { pointer-events: none; }
+  .deck.over-band { cursor: pointer; }
+  /* record box: centre (400,400), radius 360 inside the 1000x800 deck */
+  .record {
+    left: 4%; top: 5%; width: 72%; height: 90%;
+    perspective: 1600px;
+  }
+  .record .disc { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+  .record svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .spin { width: 100%; height: 100%; will-change: transform; }
+  /* preview card: appears over the turntable once the needle is down */
+  .stage { position: relative; }
+  .preview {
+    position: absolute; left: 3%; bottom: 3.5%; width: min(470px, 64%); z-index: 3;
+    display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: start;
+    padding: 14px 16px 14px 14px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: var(--card-shadow);
+    opacity: 0; transform: translateY(10px); pointer-events: none;
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .preview.on { opacity: 1; transform: none; pointer-events: auto; }
+  .preview img { width: 76px; height: 76px; object-fit: cover; border-radius: 8px; }
+  .preview small { color: var(--accent); font: 600 .7rem/1.3 ui-monospace, Menlo, monospace; letter-spacing: .12em; }
+  .preview .pv-title { font-weight: 600; line-height: 1.3; margin: 3px 0 6px; }
+  .preview p { margin: 0 0 10px; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+  .preview .pv-read {
+    display: inline-block; color: var(--bg); background: var(--accent); text-decoration: none;
+    font-weight: 600; font-size: .9rem; padding: 6px 14px; border-radius: 999px;
+  }
+  .preview .pv-read:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .preview .pv-title { padding-right: 26px; }
+  .pv-close {
+    position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: none; color: var(--muted); cursor: pointer; font: 22px/1 system-ui, sans-serif;
+  }
+  .pv-close:hover { color: var(--ink); }
+  .pv-close:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
+  @media (max-width: 720px) {
+    .preview { position: fixed; left: 12px; right: 12px; bottom: 12px; width: auto; }
+    /* room to scroll the last tracks out from under the open card */
+    body:has(.preview.on) { padding-bottom: 240px; }
+  }
+
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { html.arrive body::after { display: none; } }
+  .sheen {
+    position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+    background: conic-gradient(from 25deg,
+      transparent 0deg, rgba(255,255,255,.10) 22deg, transparent 50deg,
+      transparent 180deg, rgba(255,255,255,.07) 202deg, transparent 232deg);
+    -webkit-mask: radial-gradient(circle, transparent 33%, #000 33.6%, #000 97.5%, transparent 98%);
+            mask: radial-gradient(circle, transparent 33%, #000 33.6%, #000 97.5%, transparent 98%);
+    mix-blend-mode: screen;
+  }
+  .band-hl { fill: var(--accent); opacity: 0; transition: opacity .18s; }
+  .band-hl.on { opacity: .16; }
+  .band-hl.playing { opacity: .1; }
+  .label-cover { opacity: 0; transition: opacity .35s; }
+  .label-cover.on { opacity: 1; }
+
+  button {
+    font: inherit; color: var(--ink); background: var(--wash);
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px; cursor: pointer;
+  }
+  button:hover { background: var(--wash-strong); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- sleeve / tracklist ---------- */
+  .sleeve { flex: 0 1 380px; min-width: 280px; }
+  .sides { display: flex; gap: 22px; margin: 2px 0 12px; }
+  .sides button {
+    border: 0; border-radius: 0; background: none; padding: 4px 0 6px; cursor: pointer; text-align: left;
+    font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 2px solid transparent;
+  }
+  .sides button:hover { background: none; color: var(--ink); }
+  .sides button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); cursor: default; }
+  .sides small { display: block; margin-top: 2px; font-size: .68rem; letter-spacing: .08em; opacity: .75; text-transform: none; }
+  .deck-key { cursor: pointer; outline: none; }
+  .deck-key:focus-visible rect { stroke: var(--accent); stroke-width: 2; }
+  .deck-key:hover rect { fill: #29251f; }
+  ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  li .trk {
+    width: 100%; display: grid; grid-template-columns: 2.4rem 1fr auto; gap: 10px; align-items: baseline;
+    text-align: left; border: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+    background: transparent; padding: 11px 6px;
+  }
+  a.trk { color: inherit; text-decoration: none; }
+  li .trk:hover, li .trk.hover { background: var(--wash); }
+  li .trk.playing { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .no { font: 600 .8rem ui-monospace, Menlo, monospace; color: var(--accent); }
+  .t { display: block; }
+  .y { display: block; color: var(--muted); font-size: .8rem; }
+  .len { font: .8rem ui-monospace, Menlo, monospace; color: var(--muted); }
+
+  .note { color: var(--muted); font-size: .8rem; margin-top: 16px; }
+
+  @media (max-width: 720px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    main { gap: 18px; }
+  }
+</style>
+</head>
+<body data-side="A">
+<header>
+  <h1>Longplay</h1>
+  <span class="right"><a class="flip" data-lang="en" href="../" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
+  .knob-label {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+</header>
+
+<main>
+  <section class="stage">
+    <div class="preview" id="preview" aria-live="polite">
+      <img id="pvImg" alt="">
+      <div>
+        <small id="pvMeta"></small>
+        <div class="pv-title" id="pvTitle"></div>
+        <p id="pvTeaser"></p>
+        <a class="pv-read" id="pvRead">Read →</a>
+      </div>
+      <button class="pv-close" id="pvClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="deck" id="deck">
+      <!-- static deck: plinth, platter, strobe dots, pivot base -->
+      <svg viewBox="0 0 1000 800" aria-hidden="true">
+        <defs>
+          <linearGradient id="plinth" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2a2622"/><stop offset="1" stop-color="#171513"/>
+          </linearGradient>
+          <radialGradient id="platter" cx=".5" cy=".5" r=".5">
+            <stop offset=".9" stop-color="#0d0d0d"/><stop offset="1" stop-color="#2b2b2b"/>
+          </radialGradient>
+          <radialGradient id="metal" cx=".35" cy=".3" r=".8">
+            <stop offset="0" stop-color="#f4f4f2"/><stop offset=".55" stop-color="#a9a9a6"/><stop offset="1" stop-color="#5f5f5c"/>
+          </radialGradient>
+        </defs>
+        <rect x="8" y="8" width="984" height="784" rx="30" fill="url(#plinth)" stroke="rgba(255,255,255,.07)"/>
+        <circle cx="400" cy="400" r="378" fill="url(#platter)"/>
+        <g id="strobe"></g>
+        <circle cx="850" cy="130" r="56" fill="#141210" stroke="rgba(255,255,255,.08)"/>
+        <circle cx="850" cy="130" r="40" fill="url(#metal)"/>
+        <g id="armrest"></g>
+        <g id="soundBtn" class="deck-key" role="button" tabindex="0" aria-label="Sound" aria-pressed="true">
+          <rect x="772" y="690" width="62" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
+          <path d="M 788,711 h 7 l 9,-8 v 28 l -9,-8 h -7 Z" fill="rgba(239,232,220,.6)"/>
+          <g id="soundWaves" fill="none" stroke="rgba(239,232,220,.6)" stroke-width="2" stroke-linecap="round">
+            <path d="M 809,711 q 4,6 0,12"/><path d="M 814,706 q 8,11 0,22"/>
+          </g>
+          <g id="soundOff" stroke="rgba(239,232,220,.6)" stroke-width="2" stroke-linecap="round" style="display:none">
+            <path d="M 809,711 l 10,12 M 819,711 l -10,12"/>
+          </g>
+          <circle id="soundLed" cx="824" cy="699" r="2.6" style="fill: var(--accent)"/>
+        </g>
+        <g id="startBtn" class="deck-key" role="button" tabindex="0" aria-label="Stop and lift the needle">
+          <rect x="846" y="690" width="110" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
+          <text x="901" y="724" text-anchor="middle" fill="rgba(239,232,220,.6)" font-size="17" letter-spacing="3" font-family="system-ui">STOP</text>
+        </g>
+      </svg>
+
+      <!-- the record: flips in CSS 3D, spins as a whole; the sheen stays still -->
+      <div class="record">
+        <div class="disc" id="disc">
+          <div class="spin" id="spin">
+          <svg viewBox="-360 -360 720 720" id="recordSvg" aria-hidden="true">
+            <defs>
+              <!-- the cover is the circle's fill, so it can never be painted as a bare square -->
+              <pattern id="labelPat" width="1" height="1" patternContentUnits="objectBoundingBox">
+                <image id="labelCoverImg" width="1" height="1" preserveAspectRatio="xMidYMid slice"/>
+              </pattern>
+            </defs>
+            <circle r="360" fill="#0b0b0b"/>
+            <g id="grooves"></g>
+            <g id="highlights"></g>
+            <g id="label">
+              <circle r="118" id="labelBg" style="fill: var(--accent)"/>
+              <g id="labelCover" class="label-cover">
+                <circle r="112" fill="url(#labelPat)"/>
+                <circle r="112" fill="rgba(0,0,0,.42)"/>
+              </g>
+              <path id="labelPath" d="M 0,-96 a 96,96 0 1,1 0,192 a 96,96 0 1,1 0,-192" fill="none"/>
+              <text font-size="13" letter-spacing="3" fill="rgba(255,255,255,.85)" font-family="system-ui">
+                <textPath href="#labelPath" id="labelText"></textPath>
+              </text>
+              <text id="labelSide" y="-22" text-anchor="middle" font-size="30" font-weight="700"
+                    fill="rgba(255,255,255,.92)" font-family="system-ui" letter-spacing="4">SIDE A</text>
+              <text id="labelCount" y="44" text-anchor="middle" font-size="12" letter-spacing="3"
+                    fill="rgba(255,255,255,.75)" font-family="system-ui"></text>
+              <path d="M -7,-66 L 7,-66 L 0,-54 Z" fill="rgba(255,255,255,.9)"/>
+              <text x="18" y="72" font-size="9" letter-spacing="1" fill="rgba(255,255,255,.7)" font-family="system-ui">℗ 2026</text>
+              <circle r="7" fill="#d8d8d4"/>
+            </g>
+          </svg>
+          </div>
+          <div class="sheen"></div>
+        </div>
+      </div>
+
+      <!-- tonearm on top -->
+      <svg viewBox="0 0 1000 800" class="arm-layer" aria-hidden="true">
+        <defs>
+          <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+          <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f1f1ee"/><stop offset=".5" stop-color="#b9b9b5"/><stop offset="1" stop-color="#7d7d79"/>
+          </linearGradient>
+          <g id="armShape">
+            <rect x="-118" y="-25" width="64" height="50" rx="9"/>
+            <rect x="-56" y="-6" width="478" height="12" rx="6"/>
+            <path d="M 418,-6 L 432,-28 L 444,-22 L 430,6 Z"/>
+            <g transform="translate(500,0) rotate(18)">
+              <rect x="-80" y="-18" width="94" height="36" rx="6"/>
+              <rect x="-62" y="-34" width="10" height="20" rx="3"/>
+            </g>
+            <circle r="24"/>
+          </g>
+        </defs>
+        <g id="armShadow" filter="url(#blur)" fill="#000" opacity=".5"><use href="#armShape"/></g>
+        <g id="arm">
+          <use href="#armShape" fill="url(#tube)"/>
+          <g transform="translate(500,0) rotate(18)">
+            <rect x="-34" y="-12" width="38" height="24" rx="3" fill="#151515"/>
+            <rect x="-34" y="-12" width="38" height="5" style="fill: var(--accent)"/>
+          </g>
+          <circle r="11" fill="#6d6d6a"/>
+        </g>
+      </svg>
+    </div>
+
+  </section>
+
+  <aside class="sleeve">
+    <div class="sides" role="tablist" aria-label="Record side">
+      <button role="tab" id="tabA" aria-selected="true">Side A<small>year in music</small></button>
+      <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
+    </div>
+    <ol id="tracks"></ol>
+    <p class="note">Pick a title or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
+  </aside>
+</main>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+const IMG = '../images/';   // the English record lives one folder down, at en/
+const MIN = 'min';
+const SIDES = {
+ "A": {
+  "name": "year in music",
+  "tracks": [
+   {
+    "slug": "alyona-en",
+    "title": "Alyona Alyona",
+    "year": "2019",
+    "min": 7,
+    "cover": "alyona/01.jpg",
+    "page": "../alyona-en/",
+    "teaser": "A year ago, at your previous birthday in 2018, I played a couple of songs by the rapper Alyona Alyona, who had only just become known: at the time, she had all of two music videos."
+   },
+   {
+    "slug": "nf-en",
+    "title": "NF",
+    "year": "2020",
+    "min": 6,
+    "cover": "nf/01.jpg",
+    "page": "../nf-en/",
+    "teaser": "Last year for your birthday I wrote about the Ukrainian rapper Alyona Alyona, and now it's fast hip-hop again (what else would you expect from me), but in a completely different mood: as life-affirming as Alyona is, NF is that bleak."
+   },
+   {
+    "slug": "lmm-en",
+    "title": "Lin-Manuel Miranda",
+    "year": "2021",
+    "min": 12,
+    "cover": "lmm/01.jpg",
+    "page": "../lmm-en/",
+    "teaser": "Basically, my gift texts for your birthdays have turned into an annual column: \\\"the musician who impressed me this past year\\\" :)"
+   },
+   {
+    "slug": "eminem-en",
+    "title": "Eminem: 8 Roles",
+    "year": "2022",
+    "min": 29,
+    "cover": "eminem/01.jpg",
+    "page": "../eminem-en/",
+    "teaser": "In 2022 there wasn't much room for new music, so this time my gift text for your birthday celebrates an anniversary: it's about an artist who turned 50 this fall."
+   },
+   {
+    "slug": "dugri-en",
+    "title": "Palestine/Israel: Music and Pain",
+    "year": "2023",
+    "min": 72,
+    "cover": "dugri/01.jpg",
+    "page": "../dugri-en/",
+    "teaser": "A lot was written about the Israeli–Palestinian conflict this year, but I think something important is usually missed. Historical texts about how the borders changed are useful, but they don't convey the PAIN."
+   },
+   {
+    "slug": "sudan-en",
+    "title": "Sudan: Songs of Unnoticed Events",
+    "year": "2024",
+    "min": 18,
+    "cover": "sudan-en/01.jpg",
+    "page": "../sudan-en/",
+    "teaser": "My friend enjoys the way I write about music, so every year, I write a blog post for his birthday. This time it turned out to be about more than just songs."
+   },
+   {
+    "slug": "adhd-en",
+    "title": "Hip-Hop and ADHD",
+    "year": "2025",
+    "min": 20,
+    "cover": "adhd/01.jpg",
+    "page": "../adhd-en/",
+    "teaser": "My birthday music column is, once again, not only about music. This post is also about neurodivergence, such as attention deficit disorder."
+   }
+  ]
+ },
+ "B": {
+  "name": "other writing",
+  "tracks": [
+   {
+    "slug": "software2020-en",
+    "title": "Everything in Software Is Amazing and Nobody's Happy",
+    "year": "2020",
+    "min": 27,
+    "cover": "software2020/01.jpg",
+    "page": "../software2020-en/",
+    "teaser": "There's a typical position you can come across on Habr and beyond: \\\"even though hardware keeps getting better over the years, humanity has cancelled out the effect by writing ever worse software\\\"."
+   },
+   {
+    "slug": "cyberpunk2020-en",
+    "title": "Cyberpunk 2020: How the Genre Evolved from Its Origins to the Present Day",
+    "year": "2020",
+    "min": 15,
+    "cover": "cyberpunk2020/cover.jpg",
+    "page": "../cyberpunk2020-en/",
+    "teaser": "This blog usually features posts about our conferences, but nothing IT-related is alien to us, and this Friday, while the whole world is talking about Cyberpunk 2077, I wanted to take a break."
+   },
+   {
+    "slug": "jagged-intelligence-en",
+    "title": "Jagged intelligence",
+    "year": "2026",
+    "min": 10,
+    "cover": "jagged-intelligence/01.jpg",
+    "page": "../jagged-intelligence-en/",
+    "teaser": "Sure, everyone and their bear is writing about AI now, making you sick of reading about it. But they usually don't know how to do it right. I do. My blog is the right one to read."
+   }
+  ]
+ }
+};
+
+// ---------- geometry (deck coordinates, viewBox 1000x800) ----------
+const C = { x: 400, y: 400 };          // record centre
+const P = { x: 850, y: 130 };          // tonearm pivot
+const L = 500;                          // pivot → stylus
+const R_OUT = 352, R_IN = 142, GAP = 6; // grooved area and gap between tracks
+const R_REST = 470;                     // where the stylus parks, off the record
+const D = Math.hypot(C.x - P.x, C.y - P.y);
+const BASE = Math.atan2(C.y - P.y, C.x - P.x);
+const deg = r => r * 180 / Math.PI;
+function angleForRadius(r) {
+  const cos = (D * D + L * L - r * r) / (2 * D * L);
+  return deg(BASE - Math.acos(Math.max(-1, Math.min(1, cos))));
+}
+const REST_ANGLE = angleForRadius(R_REST);
+const IDLE = 12, PLAY = 200;   // degrees per second; 200 = 33⅓ rpm
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+
+// ---------- state ----------
+const state = {
+  side: 'A', bands: [],
+  angle: REST_ANGLE, lift: 0,          // lift: 0 = resting/playing on surface, 1 = raised
+  spin: 0, speed: 12, targetSpeed: 12, // platter, degrees and degrees/second (idle: a slow turn)
+  playing: -1, r: R_REST, hover: -1,
+};
+
+// ---------- record drawing ----------
+function layoutBands(tracks) {
+  const weights = tracks.map(t => Math.pow(Math.max(t.min, 4), 0.6));
+  const sum = weights.reduce((a, b) => a + b, 0);
+  const usable = R_OUT - R_IN - GAP * (tracks.length - 1);
+  let r = R_OUT;
+  return weights.map(w => {
+    const ro = r, ri = r - usable * w / sum;
+    r = ri - GAP;
+    return { ro, ri };
+  });
+}
+
+function annulus(ro, ri) {
+  return `M ${ro},0 A ${ro},${ro} 0 1,1 ${-ro},0 A ${ro},${ro} 0 1,1 ${ro},0 Z ` +
+         `M ${ri},0 A ${ri},${ri} 0 1,0 ${-ri},0 A ${ri},${ri} 0 1,0 ${ri},0 Z`;
+}
+
+function drawRecord() {
+  const side = SIDES[state.side];
+  state.bands = layoutBands(side.tracks);
+  const g = $('grooves'), h = $('highlights');
+  g.replaceChildren(); h.replaceChildren();
+  // lead-in and run-out: smooth, slightly glossier
+  el('path', { d: annulus(358, R_OUT + 1), fill: '#161616', 'fill-rule': 'evenodd' }, g);
+  el('path', { d: annulus(R_IN - 2, 120), fill: '#151515', 'fill-rule': 'evenodd' }, g);
+  let seed = state.side === 'A' ? 7 : 13;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  state.bands.forEach((b, i) => {
+    el('path', { d: annulus(b.ro, b.ri), fill: '#0e0e0e', 'fill-rule': 'evenodd' }, g);
+    // grooves: fine rings whose brightness wobbles like loud and quiet passages
+    for (let r = b.ro - 0.8; r > b.ri; r -= 1.7) {
+      const a = 0.025 + 0.05 * Math.abs(Math.sin(r * 0.11 + i)) * rnd();
+      el('circle', { r: r.toFixed(1), fill: 'none', stroke: `rgba(255,255,255,${a.toFixed(3)})`, 'stroke-width': 0.7 }, g);
+    }
+    if (i < state.bands.length - 1) {
+      el('path', { d: annulus(b.ri - 0.5, b.ri - GAP + 0.5), fill: '#1a1a1a', 'fill-rule': 'evenodd' }, g);
+    }
+    el('path', { d: annulus(b.ro, b.ri), class: 'band-hl', 'fill-rule': 'evenodd', 'data-i': i }, h);
+  });
+  // dust and light scuffs: not symmetric, so the spin is visible
+  for (let k = 0; k < 70; k++) {
+    const r = R_IN + rnd() * (356 - R_IN), a = rnd() * Math.PI * 2;
+    el('circle', { cx: (r * Math.cos(a)).toFixed(1), cy: (r * Math.sin(a)).toFixed(1),
+                   r: (0.5 + rnd() * 1.3).toFixed(2), fill: `rgba(255,255,255,${(0.12 + rnd() * 0.3).toFixed(2)})` }, g);
+  }
+  for (let k = 0; k < 7; k++) {
+    const r = R_IN + 10 + rnd() * (R_OUT - R_IN - 20), a0 = rnd() * Math.PI * 2, a1 = a0 + 0.15 + rnd() * 0.5;
+    el('path', { d: `M ${(r * Math.cos(a0)).toFixed(1)},${(r * Math.sin(a0)).toFixed(1)} A ${r},${r} 0 0,1 ${(r * Math.cos(a1)).toFixed(1)},${(r * Math.sin(a1)).toFixed(1)}`,
+                 fill: 'none', stroke: 'rgba(255,255,255,.09)', 'stroke-width': 0.8 }, g);
+  }
+  el('path', { d: 'M 150,-40 L 330,-95', stroke: 'rgba(255,255,255,.06)', 'stroke-width': 0.8 }, g);
+  $('labelSide').textContent = 'SIDE ' + state.side;
+  $('labelCount').textContent = side.tracks.length + ' TRACKS';
+  $('labelText').textContent = ('LONGPLAY • SIDE ' + state.side + ' • ').repeat(3);
+}
+
+function drawTracklist() {
+  const side = SIDES[state.side];
+  $('tabA').setAttribute('aria-selected', state.side === 'A');
+  $('tabB').setAttribute('aria-selected', state.side === 'B');
+  const ol = $('tracks');
+  ol.replaceChildren();
+  // Track numbers are permanent and chronological (A1 = the first post, new posts get the next number),
+  // so links like #A6 never change. The list shows the newest first; the record keeps A1 on the outer edge.
+  side.tracks.map((t, i) => [t, i]).reverse().forEach(([t, i]) => {
+    const li = document.createElement('li');
+    const inner = `<span class="no">${state.side}${i + 1}</span>` +
+      `<span><span class="t"></span><span class="y">${t.year}</span></span><span class="len">${t.min} ${MIN}</span>`;
+    li.innerHTML = t.page ? `<a class="trk" data-i="${i}" href="${t.page}">${inner}</a>` : `<button class="trk" data-i="${i}">${inner}</button>`;
+    li.querySelector('.t').textContent = t.title;
+    const b = li.querySelector('.trk');
+    b.addEventListener('mouseenter', () => setHover(i));
+    b.addEventListener('mouseleave', () => setHover(-1));
+    b.addEventListener('focus', () => setHover(i));
+    b.addEventListener('blur', () => setHover(-1));
+    b.addEventListener('click', ev => onTrackClick(i, ev));
+    ol.appendChild(li);
+  });
+}
+
+function setHover(i) {
+  state.hover = i;
+  document.querySelectorAll('.band-hl').forEach((p, k) => {
+    p.classList.toggle('on', k === i);
+    p.classList.toggle('playing', k === state.playing && k !== i);
+  });
+  document.querySelectorAll('#tracks .trk').forEach(b => {
+    const k = +b.dataset.i;
+    b.classList.toggle('hover', k === i);
+    b.classList.toggle('playing', k === state.playing);
+  });
+  const show = i >= 0 ? i : state.playing;
+  showLabelCover(show >= 0 ? IMG + SIDES[state.side].tracks[show].cover : null);
+}
+
+// The label shows a cover only once it's fully decoded: a half-loaded image never reaches the record.
+const decoded = {};
+function loadCover(src) {
+  if (!decoded[src]) {
+    const im = new Image();
+    im.src = src;
+    decoded[src] = im.decode().catch(() => {});
+  }
+  return decoded[src];
+}
+let labelWant = null;
+function showLabelCover(src) {
+  labelWant = src;
+  if (!src) { $('labelCover').classList.remove('on'); return; }
+  loadCover(src).then(() => {
+    if (labelWant !== src) return;   // the listener has moved on to another track
+    $('labelCoverImg').setAttribute('href', src);
+    $('labelCover').classList.add('on');
+  });
+}
+// warm up every cover once the page is idle, so hovering is instant
+addEventListener('load', () => (window.requestIdleCallback || setTimeout)(() =>
+  Object.values(SIDES).forEach(s => s.tracks.forEach(t => loadCover(IMG + t.cover)))));
+
+// ---------- tonearm ----------
+function renderArm() {
+  const lift = state.lift;
+  $('arm').setAttribute('transform',
+    `rotate(${state.angle.toFixed(3)} ${P.x} ${P.y}) translate(${P.x} ${P.y}) scale(${1 + 0.018 * lift})`);
+  $('armShadow').setAttribute('transform',
+    `translate(${(5 + 16 * lift).toFixed(1)} ${(7 + 22 * lift).toFixed(1)}) rotate(${state.angle.toFixed(3)} ${P.x} ${P.y}) translate(${P.x} ${P.y})`);
+  $('armShadow').setAttribute('opacity', (0.55 - 0.25 * lift).toFixed(2));
+}
+
+function drawStatic() {
+  const s = $('strobe');
+  for (let k = 0; k < 120; k++) {
+    const a = k / 120 * Math.PI * 2;
+    el('circle', { cx: (C.x + 371 * Math.cos(a)).toFixed(1), cy: (C.y + 371 * Math.sin(a)).toFixed(1), r: 2.2, fill: 'rgba(255,255,255,.18)' }, s);
+  }
+  // arm rest post, under the parked arm
+  const a = REST_ANGLE * Math.PI / 180;
+  const x = P.x + 330 * Math.cos(a), y = P.y + 330 * Math.sin(a);
+  el('rect', { x: x - 26, y: y - 10, width: 52, height: 20, rx: 6, fill: '#0f0e0d', stroke: 'rgba(255,255,255,.1)', transform: `rotate(${REST_ANGLE - 90} ${x} ${y})` }, $('armrest'));
+}
+
+// ---------- animation helpers ----------
+const ease = {
+  inOut: k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2,
+  out: k => 1 - (1 - k) * (1 - k),
+  in: k => k * k,
+};
+function tween(ms, fn, e = ease.inOut) {
+  return new Promise(res => {
+    if (reduced || ms <= 0) { fn(1); res(); return; }
+    const t0 = performance.now();
+    const step = t => {
+      const k = Math.max(0, Math.min(1, (t - t0) / ms));
+      fn(e(k));
+      k < 1 ? requestAnimationFrame(step) : res();
+    };
+    requestAnimationFrame(step);
+  });
+}
+const wait = ms => new Promise(r => setTimeout(r, reduced ? 0 : ms));
+
+async function liftUp(fast) {
+  sound.crackle(false);
+  const from = state.lift;
+  await tween((fast ? 170 : 260) * (1 - from), k => state.lift = from + (1 - from) * k, ease.out);
+}
+async function lower(onRecord, fast) {
+  await tween(fast ? 330 : 480, k => state.lift = 1 - k, ease.in);
+  if (onRecord) sound.drop();
+}
+async function swingTo(target, fast) {
+  const from = state.angle, delta = target - from;
+  await tween(fast ? 260 + Math.abs(delta) * 15 : 320 + Math.abs(delta) * 26, k => state.angle = from + delta * k);
+}
+
+// latest request wins; a running sequence finishes first
+let queued = null, running = false;
+async function request(action) {
+  queued = action;
+  if (running) return;
+  running = true;
+  while (queued) { const a = queued; queued = null; await a(); }
+  running = false;
+}
+
+// fast: the quicker version used when the drop leads into a post (≈1.5 s in total)
+async function playTrack(i, fast) {
+  if (state.playing === i && state.lift === 0) return;
+  sound.init();
+  state.targetSpeed = PLAY;
+  if (state.lift < 1) await liftUp(fast);
+  state.playing = -1; setHover(state.hover); hidePreview();
+  const b = state.bands[i];
+  const r = b.ro - 3;
+  await swingTo(angleForRadius(r), fast);
+  if (!fast && state.speed < 150) await wait(250);   // let the platter come up to speed
+  state.r = r;
+  await lower(true, fast);
+  state.playing = i;
+  setHover(state.hover);
+  sound.crackle(true);
+  showPreview(i);
+}
+
+async function stopPlay() {
+  if (state.angle === REST_ANGLE && state.lift === 0) { state.targetSpeed = IDLE; return; }
+  hidePreview();
+  await liftUp();
+  state.playing = -1; setHover(state.hover);
+  await swingTo(REST_ANGLE);
+  await lower(false);
+  state.targetSpeed = IDLE;
+}
+
+function newestTrack(side) {
+  const tracks = SIDES[side].tracks;
+  for (let i = tracks.length - 1; i >= 0; i--) if (!tracks[i].draft) return i;
+  return -1;
+}
+
+// idle: the arm is raised and hovers over the newest track, as if cued up and waiting
+function cueAngle() {
+  const b = state.bands[newestTrack(state.side)];
+  return angleForRadius(b.ro - 3);
+}
+async function cueNewest() {
+  if (state.playing >= 0) return;
+  if (state.lift < 1) await liftUp();
+  await swingTo(cueAngle());
+}
+
+async function flip() {
+  await stopPlay();
+  const disc = $('disc');
+  const turn = (a, b, e) => tween(420, k => disc.style.transform = `rotateY(${a + (b - a) * k}deg)`, e);
+  await turn(0, 90, ease.in);
+  state.side = state.side === 'A' ? 'B' : 'A';
+  document.body.dataset.side = state.side;
+  drawRecord(); drawTracklist(); setHover(-1);
+  await turn(-90, 0, ease.out);
+  disc.style.transform = '';
+  await cueNewest();
+}
+
+// ---------- main loop: platter spin, groove tracking ----------
+const spinEl = $('spin');
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min(0.05, (t - last) / 1000); last = t;
+  state.speed += (state.targetSpeed - state.speed) * Math.min(1, dt * (state.targetSpeed > state.speed ? 1.6 : 0.9));
+  state.spin = (state.spin + state.speed * dt) % 360;
+  if (!reduced) {
+    spinEl.style.transform = `rotate(${state.spin.toFixed(2)}deg)`;
+    $('strobe').setAttribute('transform', `rotate(${state.spin.toFixed(2)} ${C.x} ${C.y})`);
+  }
+  // while playing, the stylus slowly follows the groove inward
+  if (state.playing >= 0 && !running) {
+    const b = state.bands[state.playing];
+    state.r = Math.max(b.ri + 2, state.r - (b.ro - b.ri) / 180 * dt);
+    state.angle = angleForRadius(state.r);
+  }
+  renderArm();
+  requestAnimationFrame(frame);
+}
+
+// ---------- pointer on the record ----------
+const deck = $('deck');
+function bandAt(ev) {
+  const svg = deck.querySelector('svg');
+  const pt = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  const r = Math.hypot(pt.x - C.x, pt.y - C.y);
+  if (r > R_OUT || r < R_IN) return -1;
+  return state.bands.findIndex(b => r <= b.ro + GAP / 2 && r >= b.ri - GAP / 2);
+}
+deck.addEventListener('pointermove', ev => {
+  const i = bandAt(ev);
+  deck.classList.toggle('over-band', i >= 0);
+  if (i !== state.hover) setHover(i);
+});
+deck.addEventListener('pointerleave', () => { deck.classList.remove('over-band'); setHover(-1); });
+deck.addEventListener('click', ev => {
+  const i = bandAt(ev);
+  if (i < 0) return;
+  const t = SIDES[state.side].tracks[i];
+  if (t.page && (ev.metaKey || ev.ctrlKey)) { window.open(t.page, '_blank'); return; }
+  playOnRecord(i);
+});
+// keys on the deck: click, Enter or Space
+function deckKey(id, action) {
+  const k = $(id);
+  k.addEventListener('click', ev => { ev.stopPropagation(); action(); });
+  k.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); action(); }
+  });
+}
+deckKey('startBtn', () => request(stopPlay));
+['A', 'B'].forEach(side => $('tab' + side).addEventListener('click', () => {
+  if (state.side !== side) request(flip);
+}));
+
+// ---------- sound: needle drop thump + surface crackle, generated ----------
+const sound = (() => {
+  let ctx, crackleNode, crackleGain, enabled = true;
+  try { enabled = localStorage.getItem('vinyl-sound') !== 'off'; } catch (e) {}
+  const paint = () => {
+    $('soundBtn').setAttribute('aria-pressed', enabled);
+    $('soundWaves').style.display = enabled ? '' : 'none';
+    $('soundOff').style.display = enabled ? 'none' : '';
+    $('soundLed').style.opacity = enabled ? 1 : 0.15;
+  };
+  paint();
+  deckKey('soundBtn', () => {
+    enabled = !enabled; paint();
+    try { localStorage.setItem('vinyl-sound', enabled ? 'on' : 'off'); } catch (e) {}
+    if (!enabled) api.crackle(false); else if (state.playing >= 0) { api.init(); api.crackle(true); }
+  });
+  function noiseBuffer(seconds, fill) {
+    const b = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+    fill(b.getChannelData(0), ctx.sampleRate);
+    return b;
+  }
+  const api = {
+    init() {
+      if (ctx || !enabled) return;
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; }
+    },
+    drop() {
+      if (!enabled) return;
+      api.init(); if (!ctx) return;
+      const t = ctx.currentTime;
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(0.25, (d, sr) => { for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.03)); });
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+      const g = ctx.createGain(); g.gain.value = 0.5;
+      src.connect(lp).connect(g).connect(ctx.destination); src.start(t);
+      const o = ctx.createOscillator(); o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(35, t + 0.15);
+      const og = ctx.createGain(); og.gain.setValueAtTime(0.25, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      o.connect(og).connect(ctx.destination); o.start(t); o.stop(t + 0.22);
+    },
+    crackle(on) {
+      if (!ctx) return;
+      if (on && enabled && !crackleNode) {
+        crackleNode = ctx.createBufferSource();
+        crackleNode.buffer = noiseBuffer(4, d => {
+          for (let i = 0; i < d.length; i++) {
+            d[i] = (Math.random() * 2 - 1) * 0.015;
+            if (Math.random() < 0.0004) d[i] += (Math.random() < .5 ? -1 : 1) * (0.3 + Math.random() * 0.6);
+          }
+        });
+        crackleNode.loop = true;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
+        crackleGain = ctx.createGain(); crackleGain.gain.value = 0;
+        crackleGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.4);
+        crackleNode.connect(hp).connect(crackleGain).connect(ctx.destination);
+        crackleNode.start();
+      } else if (!on && crackleNode) {
+        const n = crackleNode, g = crackleGain; crackleNode = null;
+        g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+        n.stop(ctx.currentTime + 0.2);
+      }
+    },
+  };
+  return api;
+})();
+
+// ---------- opening a post ----------
+// A title in the tracklist and a band on the record do the same: drop the needle and show a
+// preview card (cover, title, the opening lines). The crackle keeps going until the listener
+// presses "Read", picks another track, or presses STOP.
+function onTrackClick(i, ev) {
+  if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0)) return;  // new tab: let the browser handle it
+  if (ev) ev.preventDefault();
+  playOnRecord(i);
+}
+
+function playOnRecord(i) {
+  if (state.playing === i && state.lift === 0) { showPreview(i); return; }   // already on this track
+  request(() => playTrack(i));
+}
+
+function showPreview(i) {
+  const t = SIDES[state.side].tracks[i];
+  $('pvImg').src = IMG + t.cover;
+  $('pvMeta').textContent = `${state.side}${i + 1} · ${t.year}`;
+  $('pvTitle').textContent = t.title;
+  $('pvTeaser').textContent = t.teaser;
+  $('pvRead').href = t.page;
+  $('preview').classList.add('on');
+}
+function hidePreview() { $('preview').classList.remove('on'); }
+
+// closing the card only clears the view: the record keeps playing, and clicking the track brings the card back
+$('pvClose').addEventListener('click', ev => { ev.stopPropagation(); hidePreview(); });
+addEventListener('keydown', ev => { if (ev.key === 'Escape') hidePreview(); });
+
+$('pvRead').addEventListener('click', ev => {
+  if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+  ev.preventDefault();
+  leave($('pvRead').getAttribute('href'), 650);
+});
+
+// fade through dark, then open the page; the next page fades up from dark
+function leave(url, ms) {
+  sound.crackle(false);
+  if (reduced) { location.href = url; return; }
+  try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+  const c = $('curtain');
+  c.style.transitionDuration = ms + 'ms';
+  c.classList.add('on');
+  setTimeout(() => { location.href = url; }, ms);
+}
+
+// RU · EN: open the other record with the needle on the same track
+document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', () => {
+  if (state.playing >= 0) a.href = a.getAttribute('href').split('#')[0] + '#' + state.side + (state.playing + 1);
+}));
+
+// arriving with #A6 (e.g. "Back to the record"): the needle is already on that track
+function restoreFromHash() {
+  const m = location.hash.match(/^#([AB])(\d+)$/);
+  if (!m || !SIDES[m[1]].tracks[+m[2] - 1]) return;
+  const side = m[1], i = +m[2] - 1;
+  if (side !== state.side) {
+    state.side = side;
+    document.body.dataset.side = side;
+    drawRecord(); drawTracklist();
+  }
+  const b = state.bands[i];
+  state.r = (b.ro + b.ri) / 2;
+  state.angle = angleForRadius(state.r);
+  state.lift = 0;
+  state.playing = i;
+  state.speed = state.targetSpeed = PLAY;
+  setHover(-1);
+}
+addEventListener('pageshow', e => {
+  if (e.persisted) $('curtain').classList.remove('on');   // back via the browser's back button
+});
+
+drawStatic();
+drawRecord();
+drawTracklist();
+if (state.playing < 0) { state.angle = cueAngle(); state.lift = 1; }
+restoreFromHash();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

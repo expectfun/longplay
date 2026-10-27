@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="ru">
+<html lang="{{lang}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
-<title>Longplay</title>
+<title>Longplay</title>{{alternates}}
 <script>
   // the theme knob's choice, before anything is drawn; none saved = follow the system
   try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -64,6 +64,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
   }
   header .knob { width: 52px; height: 46px; }   /* a size up, next to the big title */
+  header .right { display: inline-flex; align-items: center; gap: 18px; }
   header h1 {
     margin: 0; font: 600 clamp(2.2rem, 4.5vw, 3.4rem)/1.05 Literata, Georgia, serif;
     letter-spacing: -.01em;
@@ -200,7 +201,7 @@
 <body data-side="A">
 <header>
   <h1>Longplay</h1>
-  {{knob}}
+  <span class="right">{{lang_switch}}{{flip}}{{knob}}</span>
 </header>
 
 <main>
@@ -211,9 +212,9 @@
         <small id="pvMeta"></small>
         <div class="pv-title" id="pvTitle"></div>
         <p id="pvTeaser"></p>
-        <a class="pv-read" id="pvRead">Read →</a>
+        <a class="pv-read" id="pvRead">{{t_read}}</a>
       </div>
-      <button class="pv-close" id="pvClose" type="button" aria-label="Close">×</button>
+      <button class="pv-close" id="pvClose" type="button" aria-label="{{t_close}}">×</button>
     </div>
     <div class="deck" id="deck">
       <!-- static deck: plinth, platter, strobe dots, pivot base -->
@@ -235,7 +236,7 @@
         <circle cx="850" cy="130" r="56" fill="#141210" stroke="rgba(255,255,255,.08)"/>
         <circle cx="850" cy="130" r="40" fill="url(#metal)"/>
         <g id="armrest"></g>
-        <g id="soundBtn" class="deck-key" role="button" tabindex="0" aria-label="Sound" aria-pressed="true">
+        <g id="soundBtn" class="deck-key" role="button" tabindex="0" aria-label="{{t_sound}}" aria-pressed="true">
           <rect x="772" y="690" width="62" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
           <path d="M 788,711 h 7 l 9,-8 v 28 l -9,-8 h -7 Z" fill="rgba(239,232,220,.6)"/>
           <g id="soundWaves" fill="none" stroke="rgba(239,232,220,.6)" stroke-width="2" stroke-linecap="round">
@@ -246,7 +247,7 @@
           </g>
           <circle id="soundLed" cx="824" cy="699" r="2.6" style="fill: var(--accent)"/>
         </g>
-        <g id="startBtn" class="deck-key" role="button" tabindex="0" aria-label="Stop and lift the needle">
+        <g id="startBtn" class="deck-key" role="button" tabindex="0" aria-label="{{t_stop}}">
           <rect x="846" y="690" width="110" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
           <text x="901" y="724" text-anchor="middle" fill="rgba(239,232,220,.6)" font-size="17" letter-spacing="3" font-family="system-ui">STOP</text>
         </g>
@@ -323,18 +324,19 @@
   </section>
 
   <aside class="sleeve">
-    <div class="sides" role="tablist" aria-label="Record side">
-      <button role="tab" id="tabA" aria-selected="true">Side A<small>year in music</small></button>
-      <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
+    <div class="sides" role="tablist" aria-label="{{t_record_side}}">
+      <button role="tab" id="tabA" aria-selected="true">{{t_side}} A<small>{{t_side_a}}</small></button>
+      <button role="tab" id="tabB" aria-selected="false">{{t_side}} B<small>{{t_side_b}}</small></button>
     </div>
     <ol id="tracks"></ol>
-    <p class="note">Pick a title or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
+    <p class="note">{{t_note}}</p>
   </aside>
 </main>
 
 <div class="curtain" id="curtain" aria-hidden="true"></div>
 <script>
-const IMG = 'images/';
+const IMG = '{{root}}images/';   // the English record lives one folder down, at en/
+const MIN = '{{t_min}}';
 const SIDES = {{sides}};
 
 // ---------- geometry (deck coordinates, viewBox 1000x800) ----------
@@ -439,7 +441,7 @@ function drawTracklist() {
   side.tracks.map((t, i) => [t, i]).reverse().forEach(([t, i]) => {
     const li = document.createElement('li');
     const inner = `<span class="no">${state.side}${i + 1}</span>` +
-      `<span><span class="t"></span><span class="y">${t.year}</span></span><span class="len">${t.min} min</span>`;
+      `<span><span class="t"></span><span class="y">${t.year}</span></span><span class="len">${t.min} ${MIN}</span>`;
     li.innerHTML = t.page ? `<a class="trk" data-i="${i}" href="${t.page}">${inner}</a>` : `<button class="trk" data-i="${i}">${inner}</button>`;
     li.querySelector('.t').textContent = t.title;
     const b = li.querySelector('.trk');
@@ -783,6 +785,11 @@ function leave(url, ms) {
   c.classList.add('on');
   setTimeout(() => { location.href = url; }, ms);
 }
+
+// RU · EN: open the other record with the needle on the same track
+document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', () => {
+  if (state.playing >= 0) a.href = a.getAttribute('href').split('#')[0] + '#' + state.side + (state.playing + 1);
+}));
 
 // arriving with #A6 (e.g. "Back to the record"): the needle is already on that track
 function restoreFromHash() {

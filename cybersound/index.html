@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Как звучит киберпанк? — Longplay</title>
 <meta name="robots" content="noindex">
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/cybersound/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/cybersound-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -63,8 +65,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -170,15 +170,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../cybersound-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../cybersound-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -204,7 +249,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -225,7 +270,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -233,6 +278,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -241,8 +287,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -280,7 +326,7 @@
 
   <header class="post-head">
     <h1>Как звучит киберпанк?</h1>
-    <p class="year">draft</p>
+    <p class="year">черновик</p>
     
   </header>
 
@@ -296,7 +342,7 @@
 <h2 id="вариант-1-саундтреки">Вариант 1: саундтреки</h2>
 <p>Раз киберпанк хорошо известен по фильмам, то напрашивается музыка из них. Прежде всего вспоминается саундтрек Вангелиса к оригинальному «Бегущему по лезвию» (1982): у него и статус общепризнанного шедевра, и своя узнаваемая эстетика, да и попросту сам его люблю.</p>
 <p>Этот фильм известен «атмосферностью»: хотя в нём есть экшен-сцены, важнее неторопливые перелёты автомобилей между опустевшими небоскрёбами со светящейся рекламой. Фантастику тут скрещивают с нуаром, где тоже важна атмосфера: в мрачном мире, где силуэты скрываются за сигаретным дымом, немногословный герой идёт по следу нарушителей, а в процессе оказывается связан с женщиной. Сидя в одиночестве, он наливает виски… и использует для работы с уликами футуристичный голосовой интерфейс.</p>
-<div class="yt" data-id="jKCdNnAEpJY"><img src="https://i.ytimg.com/vi/jKCdNnAEpJY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="jKCdNnAEpJY"><img src="https://i.ytimg.com/vi/jKCdNnAEpJY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>С саундтреком похоже. Пока другие в начале 80-х использовали синтезаторы для бодрых танцев, Вангелис, наоборот, сделал музыку максимально «протяжной» и эмбиентной. Тут тоже не торопятся «развивать сюжет»; когда сидишь один в темноте с виски, это не требуется. Течение этой музыки — словно течение воды в реке. Зачем реке «законченный сюжет»? Просто любуйся течением, оно может быть бесконечным.</p>
 <p>Но при всей значимости работы Вангелиса, такой ответ на вопрос о «киберпанк-музыке» очень банальный: ну это понятно, а что ещё среди саундтреков можно выделить?</p>
@@ -304,7 +350,7 @@
 <p>А мне в случае с Tron жаль, что за этими сиквелами подзабыли оригинальный фильм 1982 года. Музыка там тоже была от неслучайного человека, Венди Карлос — важная фигура ранней электронной музыки. И сам фильм нравится больше: сейчас он визуально устарел, но «световые мотоциклы» в нём были оригинальнее тех современных спецэффектов, которые в сиквелах делали за миллионы. Новые фильмы ощущаю наборами обоев для рабочего стола: эффектная картинка, но на этом примечательное заканчивается.</p>
 <p>Геймеры могут назвать музыку из франшизы Deus Ex. У многих ностальгия от звуков из меню в самой первой игре 2000 года, а позже особое внимание привлёк саундтрек Майкла МакКанна к «Deus Ex: Human Revolution» (2011).</p>
 <p>Анимешники — например, музыку из «Призрака в доспехах», «Акиры» и «Экспериментов Лэйн». От западных саундтреков отличается заметно, иногда в футуристичные миры тут вплетают традиционные мотивы. Вот вступление «Призрака», где можно не только услышать музыку, но и увидеть зелёные буквы, отчасти вдохновившие зелёный код в «Матрице»:</p>
-<div class="yt" data-id="Uf7Pn8GB_jI"><img src="https://i.ytimg.com/vi/Uf7Pn8GB_jI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="Uf7Pn8GB_jI"><img src="https://i.ytimg.com/vi/Uf7Pn8GB_jI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Ах да, «Матрица». Если группа Rage Against the Machine не про фантастику, но её песней «Wake Up» завершается киберпанк-фильм, где антагонистом выступает the machine, что это говорит нам о песне? Этот фильм не столько прославил сочинённую для него музыку композитора Дона Дэвиса, сколько популяризовал уже существовавшие треки разных артистов (от Propellerheads до Мэрилина Мэнсона), но получился важный слепок эпохи.</p>
 <p>Что-то схожее у фильма «Хакеры»: он собрал треки важных электронных групп вроде Orbital, Underworld и The Prodigy, которые значимы и сами по себе, но у части людей стали ассоциироваться именно с этим сюжетом.</p>
@@ -320,12 +366,12 @@
 <p>Всё это не именно киберпанк, но вызывало у людей много вопросов, связанных с «технологическим будущим». Любопытно, что местами они перекликаются с тем, чем теперь люди задаются в связи с генеративной музыкой.</p>
 <p>«Это вообще музыка? А что в принципе такое „музыка“ и „творчество“? Каковы роли человека и инструмента? Как они теперь меняются? Заменят ли машины живых музыкантов? А если кто-то создал трек с помощью машины, как его потом живьём исполнять?»</p>
 <p>И тут вспоминаются Kraftwerk, ставшие первой массовой электронной группой. Они не убегали от таких вопросов, а наоборот: построили вокруг них свой образ «музыкантов-роботов», позже повлиявший на других вроде Daft Punk. Когда на альбоме с названием «The Man-Machine» через вокодер исполняется строка «We Are the Robots», это звучит как манифест.</p>
-<div class="yt" data-id="u_DZmgArjqU"><img src="https://i.ytimg.com/vi/u_DZmgArjqU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="u_DZmgArjqU"><img src="https://i.ytimg.com/vi/u_DZmgArjqU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>И про Kraftwerk у людей тоже возникали вопросы, связанные с «запрограммированностью» их музыки. «Чем они вообще заняты во время концертов? Нажимают „Play“, а сами дальше втихую пасьянсы раскладывают?» На самом деле нет — но, кажется, им самим хочется, чтобы люди так считали.</p>
 <p>Соединение человека с машиной — это ключевой и для киберпанка вопрос. Но роботы свойственны и фантастике в целом. А конкретно для киберпанка характернее что-нибудь вроде репликантов с подложенными воспоминаниями. Вдохновлялся ли кто-то подобным?</p>
 <p>Тут мне вспоминается британский музыкант Гэри Ньюман. Он создал группу Tubeway Army в 1977-м, на пике популярности панк-рока, но быстро свернул в электронную сторону. Образ стал роботизированным, на музыке сказалось творчество Филипа К. Дика. В итоге альбом «Replicas» и песня с него «Are „Friends“ Electric?» про андроида-проститутку стали одними из первых массовых успехов синтезаторной музыки в Британии.</p>
-<div class="yt" data-id="BEop9nuTSrg"><img src="https://i.ytimg.com/vi/BEop9nuTSrg/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="BEop9nuTSrg"><img src="https://i.ytimg.com/vi/BEop9nuTSrg/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Ньюмана сейчас нечасто вспоминают, а его поздние альбомы и вовсе мало кому нужны. Но отчасти им вдохновлялась затмившая его же синти-волна 80-х.</p>
 <hr />
@@ -334,12 +380,12 @@
 <p>Мир киберпанка неблагополучный. Его часто описывают словами «high tech, low life»: технологии-то развились, но людям не стало хорошо. Тут сломан социальный договор и происходит беспредел, на улицах — криминал, у корпораций — своя бесчеловечная мясорубка.</p>
 <p>Так что, пока люди танцевали под Pet Shop Boys, для киберпанка явно напрашивалась электроника, но <em>другая</em>. Жёсткая, грязная, мрачная, антиутопичная. Такая, которая уместно звучала бы в клубе, куда Нео в начале «Матрицы» зазывают знакомые. И такая в 80-х тоже развивалась, просто радиоротаций получала куда меньше. Со своими источниками вдохновения, вроде группы Suicide.</p>
 <p>Отчасти тут важно слово «индастриал». Хотя этот жанр и не напрямую «киберпанковый», он в каком-то смысле про «технологии и дискомфорт», так что пересечения ощутимые. Другая важная тут аббревиатура — EBM («electronic body music»). Вообще слова «электронная музыка для тела» можно было бы применить много к чему (изначально их сказал в интервью Ральф Хюттер из Kraftwerk), но аббревиатура стала означать что-то вроде «танцевального индастриала».</p>
-<div class="yt" data-id="AGHMS_zh0zM"><img src="https://i.ytimg.com/vi/AGHMS_zh0zM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="AGHMS_zh0zM"><img src="https://i.ytimg.com/vi/AGHMS_zh0zM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В 1987-м в Великобритании возникла песня Nitzer Ebb «Join in the Chant»: агрессивно, с кучей повторов строки, будто тебе в голову забивают гвоздь. Но так ритмично, что можно и потанцевать под это. И она стала нишевым клубным фаворитом. А кто-то теперь пишет в комментариях: «В юности думал, что вот так все клубы в будущем и будут звучать».</p>
 <p>Другие британцы, Clock DVA, отчасти вдохновлялись языком героев «Заводного апельсина», так что «DVA» в их названии — это, собственно, «два». У них не «долбёжка», а скорее, «атмосферный мрачняк».</p>
 <p>Возникло целых два важных «фронта»: в Бельгии — группа Front 242, а в Канаде ей вдохновился Билл Либ (экс-участник Skinny Puppy) и создал Front Line Assembly. Теперь альбом Front Line Assembly «Tactical Neural Implant» (1992) вылезает в обсуждениях «что такое киберпанк-музыка». В нём и EBM-звучание отполировано, и названия соответствуют жанру: «Bio-Mechanic», «Mindphaser», «имплант» тот же.</p>
-<div class="yt" data-id="RWjBPIbJMzY"><img src="https://i.ytimg.com/vi/RWjBPIbJMzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="RWjBPIbJMzY"><img src="https://i.ytimg.com/vi/RWjBPIbJMzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Подобную линию дальше продолжали и другие люди вроде KMFDM. А ещё жёстче и агрессивнее всё звучит у Atari Teenage Riot — её определяют обычно как «digital hardcore». Индастриал вроде Nine Inch Nails вроде бы в стороне от подобного, но когда на «Year Zero» Трент Резнор представляет антиутопическое будущее, это тоже ощущается где-то рядом.</p>
 <p>Ну и забавная мелочь. Ещё одна схожая американская индастриал-группа 1990-х взяла название Machines of Loving Grace в честь <a href="https://en.wikipedia.org/wiki/All_Watched_Over_by_Machines_of_Loving_Grace">стихотворения</a> хиппи-эпохи, которое словно и восхваляет будущую техноутопию, и иронизирует над этим. В 2024 году другой человек, сочиняя <a href="https://darioamodei.com/essay/machines-of-loving-grace">эссе</a> о возможной техноутопии благодаря ИИ, тоже назвал его «Machines of Loving Grace». Этим человеком был сооснователь Anthropic Дарио Амодей.</p>
@@ -350,7 +396,7 @@
 
 <p>Неудивительно, что он вызвал негатив. Утрируя: представим, что группа «Звери» вдруг записала бы альбом витч-хауса. Их основная аудитория спросила бы «что это за хрень», а поклонники витчухи сказали бы «наша культура не ваш костюм, гоните тряпками этих примазывающихся попсарей».</p>
 <p>Так и здесь: довольно попсовый панк записал альбом со словами вроде «нейромант», и думаю, что для одних это звучало как «чо вообще», а для других как «понатыкал тут словечек из субкультуры без понимания». И вот он вроде поёт про «шок для системы», но это какой-то карикатурный бунт от того, кто в реальности является <em>частью системы</em>, звездой MTV.</p>
-<div class="yt" data-id="lx2fZU5USus"><img src="https://i.ytimg.com/vi/lx2fZU5USus/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="lx2fZU5USus"><img src="https://i.ytimg.com/vi/lx2fZU5USus/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Почему тогда мне нравится? Во-первых, у Айдола был искренний и глубокий интерес к теме. Он не просто подумал «какую бы новую фишку мне использовать для альбома», как поп-звезда, готовая к коллаборации с кем угодно, лишь бы это было в тренде. Он действительно залип на киберпанке, читал все главные книги, а для промо альбома использовал интернет, e-mail, новые мультимедийные возможности — в то время из мейнстримовых звёзд никто так не делал.</p>
 <p>А во-вторых… Мне как раз нравится, что к теме он подошёл по-панковски: «А кто мне запретит?» Это альбом, игнорирующий иерархии и приличия: что хочу, то и делаю.</p>
@@ -365,7 +411,7 @@
 <p>Музыка FSOL для меня вообще интересна тем, что её сложно описывать жанрами, зато можно описывать атмосферой и ассоциациями. На той же странице RateYourMusic есть и «дескрипторы» альбома, которые куда меньше противоречат друг другу, чем жанровые обозначения: «<em>futuristic, urban, ominous, dark, nocturnal, apocalyptic, science fiction, eclectic, mechanical, surreal, sampling, cold, dense, aquatic, psychedelic, instrumental, atmospheric, dystopian, hypnotic, mysterious, rhythmic, lonely, cyberpunk, melancholic, ethereal, anxious, progressive, suspenseful, ritualistic, lush, hazy, occult, sombre, tribal, desolate</em>». Да, вот это всё, и можно без хлеба. Этот набор слов отлично соответствует киберпанку, про «Бегущего по лезвию» можно такие же дескрипторы писать. И получается, что никто не знает «что такое киберпанк-музыка», но вот это явно она.</p>
 <p>Двумя годами ранее они выпустили альбом «Lifeforms», который для меня лично звучит именно как «формы жизни». Словно электронную музыку собрали не «из битов и синтов», а «из жвал, щупалец и ложноножек». Не знаю, как это возможно, но у них получилось.</p>
 <p>А альбом «Dead Cities», особенно его заглавный трек, для меня что-то вроде мрачного брата-близнеца «Lifeforms». Там про живое и естественное, тут про полумёртвое и искусственное.</p>
-<div class="yt" data-id="1lTseaEvDSQ"><img src="https://i.ytimg.com/vi/1lTseaEvDSQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="1lTseaEvDSQ"><img src="https://i.ytimg.com/vi/1lTseaEvDSQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Трек начинается репликой «I've killed a man, a man who looked like me», это сэмпл из фильма «Deep Cover» (1992). Не смотрел его, но вроде бы эту фразу там произносит Лоуренс Фишберн. Оставалось три года до того, как выйдет «Матрица», и Фишберн окажется в киберпанк-каноне с ролью Морфеуса. В каком-то смысле Future Sound of London действительно оказались «звуками будущего», предвосхитив это.</p>
 <hr />
@@ -376,7 +422,7 @@
 <p>Так что, если бы не Deltron 3030, вряд ли появились бы Gorillaz в привычном нам виде: например, куплеты хита «Clint Eastwood» зачитывает именно Del the Funky Homosapien. А альбом «Deltron 3030» — это час его читки об антиутопическом мире 3030 года. Уже в первой песне встречаются слова «Neuromancer», «Matrix» и «Ghost in the Shell», так что источники вдохновения понятны.</p>
 <p>У альбома есть простенький сюжет, пересказать всё важное можно одним абзацем. Герой когда-то был меха-солдатом, но не любил повиноваться приказам. Оглядевшись, он замечает, что корпоративно-государственные элиты угнетают людей и технологически, и творчески (искусство хип-хопа подвергается гонениям). Он хочет противостоять на обоих фронтах, создавая вирус для разрушения привычных систем и участвуя в рэп-баттлах. В остальном всё типично для хип-хопа: скиты для атмосферы, певучие сэмплы, прославление себя и своего битмейкера.</p>
 <p>Группа осталась малозамеченной. Думаю, что Gorillaz помог яркий визуальный образ, а вот тут его не хватает. Таким песням можно было бы сделать яркие киберпанк-клипы, но на YouTube находится только живое выступление (интересное, но без фантастического колорита).</p>
-<div class="yt" data-id="s7FxVSDLonY"><img src="https://i.ytimg.com/vi/s7FxVSDLonY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="s7FxVSDLonY"><img src="https://i.ytimg.com/vi/s7FxVSDLonY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В итоге из визуального только обложка с <a href="https://en.wikipedia.org/wiki/Trylon_and_Perisphere">Перисферой</a> со Всемирной выставки 1939 года. Но какой-то фанат, делая самопальную <a href="https://www.youtube.com/watch?v=VMjnamS8sE4">караоке-версию</a> песни, использовал там кадры из фильмов «Матрица» и «Я, робот» — вот в каком-то таком контексте эта музыка и существует.</p>
 <hr />
@@ -390,12 +436,12 @@
 <p>А в XXI веке такую «более реалистичную» линию продолжил сериал «Мистер Робот». Там тоже «капитализм и хакеры», но вместо будущего с андроидами — мир настоящего. И это редкий случай, где «про хакеров» снимают не <a href="https://www.youtube.com/watch?v=Eme5A7qZ37k">в духе</a> «хакер взламывает Пентагон за минуту, пока ему делают минет». Тут поставили целью «показать инфобезопасность реалистично» и нашли опытных консультантов. В итоге у сериала появились фанаты среди реальных инфобезопасников, которые с лупой разглядывали каждый момент, когда в кадре есть экран — и оставались удовлетворены увиденным, а не кидались тапком в экран.</p>
 <p>На таком фоне неон, синтезаторы и слова вроде «киберпространство» приобрели ретро-оттенок. Зачастую ироничный и гипертрофированный, как в пародийном ретрофильме «Kung Fury», где персонаж по имени Hackerman ВЗЛАМЫВАЕТ ВРЕМЯ. Мол, понятно, что в наши дни такое «хакерство» всерьёз воспринимать невозможно, в истории оно осталось рядом с инструментом «кейтар» и причёской «маллет» — но мы любим эту забавную ерунду, на которой выросли, и теперь хотим постиронично выкрутить все ручки до упора.</p>
 <p>Всё это отразилось и на музыке. Возникли жанры вроде «вейпорвейва», намеренно эксплуатирующие ностальгию по прошлому (частично выдуманному). Обычно вейпорвейв слишком расслабленный, чтобы причислять его к киберпанку, но пересечения есть: например, музыку проекта 2814 называли «dreampunk» и описывали словами «словно ночная поездка по шоссе кибербудущего из снов».</p>
-<div class="yt" data-id="F9L4q-0Pi4E"><img src="https://i.ytimg.com/vi/F9L4q-0Pi4E/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="F9L4q-0Pi4E"><img src="https://i.ytimg.com/vi/F9L4q-0Pi4E/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>А ещё ближе тут ощущаются понятия вроде «synthwave» и, особенно, «darksynth». Сочетание слов «мрачно» и «синтезаторы» в тексте уже возникало, но теперь речь не про EBM. Имена, которые тут чаще всего связывают с понятием «киберпанк» — французы Perturbator и Carpenter Brut, американцы Dance with the Dead.</p>
 <p>Все они используют наследие 80-х, но делают суровее и современнее. И при этом, с моей точки зрения, звучат одновременно иронично и нет. Когда вижу, что у артиста с псевдонимом Perturbator есть релиз с названием «Sexualizer», ощущаю «Надеюсь, он это не серьёзно? Звучит китчем, как если бы артист „Терминатор“ выпустил трек „Пенетратор“». Но потом включаю сам трек и ощущаю, что вполне готов слушать его неиронично (возможно, благодаря тому, что там нет текста).</p>
 <p>Carpenter Brut из наследия 80-х вдохновляется не только музыкой, но и хоррорами, даже его псевдоним отсылает к режиссёру Джону Карпентеру. Слово «низкобюджетный» для него не ругательство, категория «Б» ему интересна. И его клип «Turbo Killer» (2016) ощущаю примерно таким «намеренным перебарщиванием», как фильм «Kung Fury» — собственно, с режиссёром этого фильма он сам потом ещё сошёлся.</p>
-<div class="yt" data-id="er416Ad3R1g"><img src="https://i.ytimg.com/vi/er416Ad3R1g/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="er416Ad3R1g"><img src="https://i.ytimg.com/vi/er416Ad3R1g/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Ну а меня лично из «мрачной электроники» ещё подкупает ритмичная музыка с несколько отрешённым женским вокалом: как будто бит зовёт на танцпол, а голос на виселицу, тут Эрос и Танатос одновременно. Сюда можно подтянуть многое от Client до АИГЕЛ. А ещё есть, например, Boy Harsher, про которых мало знаю — и подозреваю, что существует ещё целый ряд групп с таким сочетанием, которые не особо отличаются и которые можно заменить нейросетями так, что никто не заметит — а мне всё равно понравится, потому что тут просто само сочетание нажимает у меня на какую-то кнопку для дофамина.</p>
 <hr />
@@ -408,17 +454,17 @@
 <p>Однако всё же вижу случаи, о которых интересно поговорить. Для начала давайте вспомним, что «генерировать музыку» стали пробовать не сейчас в эпоху ИИ-чатботов, а куда раньше. Разных попыток было уже много: например, композиторы вроде Янниса Ксенакиса и Карлхайнца Штокхаузена экспериментировали в этом направлении ещё в середине XX века. Конечно, тогда речь была не про «Спой вот этот текст», а про вещи типа «Какую музыку можно сделать из синусоид?»</p>
 <p>А позже энтузиастом «генеративной музыки» стал Брайан Ино. Например, в 2017-м он выпустил альбом «Reflection» в двух версиях. Обычная состоит из единственного трека длиной почти в час. А вторая — это iOS-приложение на основе альбома, которое может бесконечно генерировать музыку. Мне нравится комментарий Ино:</p>
 <p>«Моей исходной задумкой с эмбиент-музыкой было создать бесконечную музыку, которая звучала бы столько, сколько захочется. При этом я хотел, чтобы она всегда развивалась по-разному, это „как сидеть у реки“: река всегда та же самая, но она всегда меняется. Но у аудиозаписей — хоть винила, хоть кассет, хоть дисков — ограниченная продолжительность, и на репите они звучат идентично каждый раз. Так что раньше я был ограничен этим (…) Но приложение Reflection лишено ограничений: оно создаёт бесконечную и бесконечно меняющуюся версию музыкального произведения».</p>
-<div class="yt" data-id="NKAtp6qMlSs"><img src="https://i.ytimg.com/vi/NKAtp6qMlSs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="NKAtp6qMlSs"><img src="https://i.ytimg.com/vi/NKAtp6qMlSs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Но с эмбиентом такое провернуть проще, а что тем временем происходило с созданием другой музыки? В 2016-м нейросети уже попадали в заголовки, но ещё не как «умные чатботы» с генерацией текста, а, например, благодаря победе над людьми в игре го. И из музыкального тогда возник проект «Нейронная оборона». ML-рисёрчеры Иван Ямщиков и Алексей Тихонов попробовали применить тогдашние методы, чтобы создавать новые песни в стилистике Егора Летова.</p>
 <p>Узнать его манеру там было легко, но легко было и упрекнуть проект «это просто копиист»: как уличные музыканты, которые старательно имитируют Цоя, но никогда не станут такими же яркими и индивидуальными. И Юрий Сапрыкин тогда изящно сформулировал своё отношение: «Возможно, машины и научились играть в го, но вот играть ГО не научились».</p>
 <p>А теперь, спустя 10 лет, Ямщиков снова выпустил запись, созданную с помощью нейросетей — теперь уже современных генеративных. У их совместного с Митей Пузыревым проекта «Горы» вышел EP «Жестокаин» (full disclosure: я тут предвзят, потому что учился с Митей в одном классе). Мне там особенно нравится трек «<a href="https://www.youtube.com/watch?v=tRN3o3zeNmY">Переучёт</a>». Но в контексте киберпанка, наверное, самым подходящим будет «Мясные машины», правда, почти весь текст уже содержится в названии.</p>
-<div class="yt" data-id="LVbZN2WN9pI"><img src="https://i.ytimg.com/vi/LVbZN2WN9pI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="LVbZN2WN9pI"><img src="https://i.ytimg.com/vi/LVbZN2WN9pI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>По-моему, интересно, что здесь не ограничились банальными промптами «сделай крутой рок-трек», а зашли куда дальше. Тексты писали вручную, потом песню исполняли живьём и подавали это нейросети на вход. Митя прокомментировал:</p>
 <p>«Мы старались алгоритм выталкивать из простых решений к более странным состояния равновесия. Он работает примерно как директор ВИА с долбанцой) То есть нужно давать на вход и музыку, и текст, и теги, чтобы у него была нетривиальная задача и достаточно каких-то странных фишек/зацепок для сохранения индивидуальности»</p>
 <p>А ещё в 2026-м любопытным для меня явлением стал «слопкор». Самый заметный пример — песня «Escape Velocity»:</p>
-<div class="yt" data-id="C3fxudvU-UU"><img src="https://i.ytimg.com/vi/C3fxudvU-UU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="C3fxudvU-UU"><img src="https://i.ytimg.com/vi/C3fxudvU-UU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Часто ИИ-музыку критикуют по причинам вроде «слоп», «неестественно», «перерабатывает чужое». А здесь это из бага делают фичу.</p>
 <p>LLM делают слоп? Так тут и названо «slopcore», если вам не нравится, зачем кликали тогда?</p>
@@ -427,7 +473,7 @@
 <p>В итоге получается какая-то песня-симулякр, идеальная вторичность.</p>
 <p>Дам чуть-чуть контекста. Например, «escape velocity» («вторая космическая скорость») из названия песни отсылает к идеям имморталистов вроде Обри ди Грея и Рэя Курцвейла. Их позиция в следующем: медицина уже сильно продлила срок человеческой жизни, но дальше ещё ускорится. И в итоге начнёт за год продлевать жизнь более чем на год. И кто доживёт до этого момента — те смогут дальше спокойно дожидаться, пока прогресс доберётся до полного бессмертия. Как вторая космическая позволяет оторваться от планеты, так longevity escape velocity поможет нам оторваться от смерти.</p>
 <p>«Escape Velocity» стала так популярна, что автор завёл специальный сайт claudia.gallery, чтобы любой мог натравить туда своего ИИ-агента и сделать собственный клип с той же героиней. И позже появился, например, французский слопкор от ИИ-певицы, которая поёт именно о том, что все «считают её пальцы» в поисках доказательств «это ИИ»:</p>
-<div class="yt" data-id="vyqWAF3s69E"><img src="https://i.ytimg.com/vi/vyqWAF3s69E/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="vyqWAF3s69E"><img src="https://i.ytimg.com/vi/vyqWAF3s69E/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>ИИ пережёвывает в песню человеческие идеи об ИИ… что может быть самореферентнее и киберпанковее?</p>
 <p>Думаю, вот что: скормить черновик этого поста Claude и сказать «сделай киберпанк-песню с учётом этого». Превратить весь этот пост в большой промпт. Что тогда получится?</p>
@@ -435,7 +481,7 @@
 <p>Наверное, для эксперимента «что на основе этого поста сделает ИИ» идеально было бы не давать в промпте вообще никаких конкретных вводных. Но некоторые пожелания у меня всё-таки возникли.</p>
 <p>Хотелось, чтобы вместо стандартного «куплет-припев» постепенно нарастало напряжение и была кульминация. Чтобы основным языком был английский, но модель могла использовать и другие (хоть русский, хоть арабский, хоть турецкий). Чтобы были и пение, и скоростная хип-хоп-читка с аллитерацией. Чтобы была мрачная электроника с женским вокалом. Чтобы в клипе использовалась ИИ-певица с claudia.gallery и в нём постоянно что-то происходило, а не просто статичные планы певицы.</p>
 <p>Основной в проекте была модель Opus 5.5, для музыки использовался сервис Suno, а для видеогенераций я дал Opus доступ к недорогой видеомодели MiniMax H3 Max Turbo и бюджет в $10. Результат получился таким:</p>
-<div class="yt" data-id="XQVRQJjFDvc"><img src="https://i.ytimg.com/vi/XQVRQJjFDvc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="XQVRQJjFDvc"><img src="https://i.ytimg.com/vi/XQVRQJjFDvc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>По-моему, звучит стандартно. Разве что любопытно, как легко переключается между стилями и языками: копирует других артистов, зато самых разных в пределах одной песни.</p>
 <p>Зато местами понравилось, как обыграны цитаты из этого поста. Строка «died for somebody's sins, but not mine» после Патти Смит и Билли Айдола получила ещё одно воплощение, а слова «Мясные машины» из текста Ивана Ямщикова — симметричный ответ.</p>
@@ -456,9 +502,9 @@
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <span></span>
-    <span class="pos">Draft · not on the record yet</span>
+    <span class="pos">Черновик · пока не на пластинке</span>
     <span></span>
   </nav>
 

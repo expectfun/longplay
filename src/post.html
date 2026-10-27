@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{title}} — Longplay</title>{{robots}}
+<title>{{title}} — Longplay</title>{{robots}}{{alternates}}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +62,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,9 +167,9 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>{{t_back}}</span>
     </a>
-    <span class="right">{{alt_link}}{{knob}}</span>
+    <span class="right">{{alt_link}}{{flip}}{{knob}}</span>
   </div>
 
   <header class="post-head">
@@ -186,7 +184,7 @@
 {{body}}
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="{{t_tracks}}">
     {{prev}}
     <span class="pos">{{position}}</span>
     {{next}}

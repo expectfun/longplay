@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Лин-Мануэль Миранда — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/lmm/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/lmm-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +64,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,15 +169,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../lmm-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../lmm-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -203,7 +248,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -224,7 +269,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -232,6 +277,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -240,8 +286,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -288,7 +334,7 @@
   <article>
 <p>Привет, Саша! По сути, мои подарочные тексты к твоим дням рождения превратились в ежегодную рубрику «музыкант, которым я впечатлился в уходящем году» :)</p>
 <p>Ещё давно в диснеевском мультфильме «Моана» мне так понравились песни (особенно одна, «How Far I'll Go»), что после просмотра полез в стриминг переслушать их. При этом не мог даже объяснить, чем именно понравилось. Чаще всего от диснеевских песен мне скучно: возникает ощущение работы по трафарету, когда можно заменить одного автора на другого, и никто не заметит. А тут всё вроде бы тоже укладывается в формулу — но цепляли и исполнение, и материал.</p>
-<div class="yt" data-id="cPAbx5kgCJo"><img src="https://i.ytimg.com/vi/cPAbx5kgCJo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="cPAbx5kgCJo"><img src="https://i.ytimg.com/vi/cPAbx5kgCJo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Тогда я даже не знал, что «How Far I'll Go» была номинирована на «Оскар», а на ютубе у неё под миллиард просмотров (то есть зацепила она вообще-то далеко не только меня). В стриминге тогда обнаружил, что российским пользователям песни «Моаны» доступны в блёклых версиях из русскоязычного дубляжа (порадовал там только Илья Лагутенко в роли гигантского краба). В итоге я про всё это просто забыл.</p>
 <p>А в этом году послушал мюзикл «Гамильтон», безумно впечатлился, захотел узнать «что ещё сделал Лин-Мануэль Миранда», открыл Википедию и обнаружил, что песни из «Моаны» сочинил он. В этот момент всё встало на свои места. Действительно, этого автора нельзя просто взять и заменить другим — другого такого в мире нет.</p>
@@ -296,16 +342,16 @@
 <p>Почему? Миранда поражает меня не только талантом, но и разностороннестью: он хорош одновременно в очень разном.</p>
 <p>Для начала просто скопипащу с его страницы в Википедии: «американский актёр, певец, автор песен, рэпер, постановщик, драматург, продюсер и кинорежиссёр».</p>
 <p>В случае с «Гамильтоном» он сам придумал и продумал идею, сам сочинил все песни, а затем в бродвейской постановке сам же исполнял главную роль. И получился один из главных мюзиклов XXI века, причём благодаря всем этим составляющим: и идее, и истории, и текстам, и мелодиям, и исполнительской харизме. Ещё на стадии черновика он практически в одиночку (с минимальным аккомпанементом) исполнял первую песню в Белом доме перед Обамой — и даже без мощи бродвейской постановки это уже производило впечатление.</p>
-<div class="yt" data-id="WNFf7nMIGnE"><img src="https://i.ytimg.com/vi/WNFf7nMIGnE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="WNFf7nMIGnE"><img src="https://i.ytimg.com/vi/WNFf7nMIGnE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Конечно, было бы неправильно приписывать все заслуги «Гамильтона» исключительно Миранде. Другие исполнители в бродвейской постановке тоже яркие, и у кого-то вокальные данные куда мощнее Миранды, а кто-то справляется с быстрым речитативом проворнее. Но даже там, где сияют другие артисты, ощущается его рука. Скажем, зная, что в постановке поучаствует техничный рэпер Дэвид Диггз, Миранда намеренно добавил в его роль пулемётные строчки, которые сам бы не осилил зачитать. Подсвечивать способности других — это тоже важная способность.</p>
 <p>Тут может создаться впечатление эгоманьяка, которому необходимо, чтобы всё вращалось вокруг него. Но стоит вспомнить ту же «Моану», где он был лишь автором песен в чужом мультфильме, подстраивался под заданные рамки и оставался в тени. Или «Звёздные войны: пробуждение силы», где для нужд фильма сделал вообще <a href="https://www.youtube.com/watch?v=JaaL5QoI3GM">песню</a> на несуществующем языке.</p>
 <p>Есть ещё и промежуточная ситуация с мультфильмом «Виво», где он озвучил главного героя (животное кинкажу): самого Миранду в кадре не видно, но он одним голосом тянет одеяло на себя, и узнать его тут легко.</p>
-<div class="yt" data-id="mAW1yvaZPzY"><img src="https://i.ytimg.com/vi/mAW1yvaZPzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="mAW1yvaZPzY"><img src="https://i.ytimg.com/vi/mAW1yvaZPzY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Ну хорошо, он многостаночник с узнаваемой манерой и может оказываться по обе стороны камеры, но мало ли у нас таких было? Вуди Аллен вот тоже горазд снять себя в своём фильме по своему сценарию, тоже совмещал Голливуд с Бродвеем, и его тоже узнаешь за версту. Но с Мирандой особенно интересно, что его разностороннесть не заканчивается на выполняемых ролях: он как сочинитель черпает из очень разных источников.</p>
 <p>Одна бросающаяся в глаза составляющая — хип-хоп. О «Гамильтоне» часто говорят как об экспериментальном привнесенении речитатива в мюзиклы. Но мне кажется, что для самого Миранды это не эксперимент, а совершенно естественный шаг. Он не «решил привнести хип-хоп» — он сам и есть хип-хоп. Если Валерия Гай-Германика для убедительности речитативных вставок в сериале «Бонус» привлекала рэпера Дуню, то Миранде не нужно никого привлекать, он сам кого хочешь проконсультирует.</p>
-<div class="yt" data-id="_ozDDHUsi6I"><img src="https://i.ytimg.com/vi/_ozDDHUsi6I/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="_ozDDHUsi6I"><img src="https://i.ytimg.com/vi/_ozDDHUsi6I/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Рифмы и панчи, флоу и биты — всё это он понимает отлично. Поскольку главная цель мюзикла — рассказать связную историю, тут не можешь слишком удариться в многосложные рифмы в ущерб нарративу, но даже в таких ограничивающих условиях он иногда рифмует строчки чуть ли не целиком:</p>
 <blockquote>
@@ -319,7 +365,7 @@ Hamilton's <strong>pace is relentless</strong>, he wastes no <strong>time</stron
 
 <p>А ещё интереснее, что песни у него не делятся строго на «певучие» и «речитативные» — одно может легко переходить в другое в любой момент. В обоих жанрах он как рыба в воде, и он даже не пытается разлить их по двум разным аквариумам, а сливает в единое море и свободно плавает по нему.</p>
 <p>И более того: двумя жанрами он не ограничивается, периодически заходя на ещё какие-то территории. Одна из моих любимых песен у него — «Wait for It», отходящая от общей канвы куда-то в сторону аренби. В итоге её даже перепевал Ашер — и, по-моему, у Ашера получилось заметно хуже оригинала. С моей точки зрения, тут Миранда пришёл на чужую поляну и даже на ней всех убрал.</p>
-<div class="yt" data-id="X04-9LE6EOA"><img src="https://i.ytimg.com/vi/X04-9LE6EOA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="X04-9LE6EOA"><img src="https://i.ytimg.com/vi/X04-9LE6EOA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>И вот что ещё: «Wait for It» хороша не только по звуку. Да, её вполне можно слушать отдельно от мюзикла как самодостаточное произведение, можно ставить на радио, перепевать, и она отлично работает в этом качестве. И мюзикл вроде как можно послушать без неё, там сюжетно ничего не происходит. Но по-настоящему сияет она для меня как раз в контексте мюзикла. В этой песне дают слово антагонисту, показывают мир его глазами — и если до этой песни он вызывал у меня негатив, то дальше хотелось ему сопереживать.</p>
 <p>Миранда вообще хорошо работает и на этом уровне. У него проработанные персонажи (которых не делятся на «хороших и плохих», даже главный герой не вполне героизируется). У него отлично с драматургией: он смог найти персонажа из школьного учебника истории (казалось бы, что может быть скучнее для молодёжи из тиктока) и подать его так, что теперь молодёжь снимает по этому тысячи тиктоков. У него разные песни мюзикла хорошо работают на перекличках друг с другом: где-то это простые репризы, но где-то не с первого прослушивания замечаешь, что слова «just you wait» тут встречаются то как бахвальство, то как угроза.</p>
@@ -342,7 +388,7 @@ To include women in the sequel»</p>
 <p>Ну, наверное, когда-то доберусь и до них, но спешки не ощущаю. Потому что при всей крутизне Миранды границы есть и у неё — и не думаю, что в «In the Heights» услышу что-то такое, чего в «Гамильтоне» совсем не было. Думаю, как Вуди Аллен всю жизнь снимает один фильм, так и он всю жизнь будет развивать свой бродвейско-речитативный гибрид. Это не обязательно плохо, на того же Вуди многие каждый год с удовольствием ходят, просто мне в своё время оказалось вполне достаточно «Манхэттена» и «Энни Холл».</p>
 <hr />
 <p>А напоследок вот что. Песня «Hurricane», возможно, и не самая лучшая у него, но есть причина, по которой она мне близка.</p>
-<div class="yt" data-id="RGubhKCjrJU"><img src="https://i.ytimg.com/vi/RGubhKCjrJU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="RGubhKCjrJU"><img src="https://i.ytimg.com/vi/RGubhKCjrJU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>То, что Гамильтон писал тексты, определило всю его жизнь. То, что Миранда пишет тексты песен, определило всю его жизнь. Поэтому, когда Миранда сел писать про Гамильтона, в этом сочинительстве он увидел близкую себе тему и подчеркивал её. И в «Hurrycane» есть слова о текстах-как-действиях: о текстах как о способе выбраться из нищеты, покорить возлюбленную, изменить историю целой страны. Интересно, что даже словосочетания тут строит так, чтобы сочинение теста в них получалось активным действием: «I wrote my way out», «I wrote financial systems into existence».</p>
 <p>И я как человек, который тоже всю жизнь пишет тексты, хочу сказать, что песня такими формулировками отлично передаёт мои ощущения. Всё так, текст может быть далеко не просто буквами, им можно много что делать.</p>
@@ -350,9 +396,9 @@ To include women in the sequel»</p>
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <a class="prev" href="../nf/">← A2 · NF</a>
-    <span class="pos">Side A · Track 3 of 7</span>
+    <span class="pos">Сторона A · трек 3 из 7</span>
     <a class="next" href="../eminem/">A4 · Эминем: 8 роль →</a>
   </nav>
 

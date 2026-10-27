@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600&display=swap" rel="stylesheet">
 <title>Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/en/">
 <script>
   // the theme knob's choice, before anything is drawn; none saved = follow the system
   try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -64,6 +66,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
   }
   header .knob { width: 52px; height: 46px; }   /* a size up, next to the big title */
+  header .right { display: inline-flex; align-items: center; gap: 18px; }
   header h1 {
     margin: 0; font: 600 clamp(2.2rem, 4.5vw, 3.4rem)/1.05 Literata, Georgia, serif;
     letter-spacing: -.01em;
@@ -200,13 +203,58 @@
 <body data-side="A">
 <header>
   <h1>Longplay</h1>
-  <style>
+  <span class="right"><a class="flip" data-lang="ru" href="en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -232,7 +280,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -253,7 +301,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -261,6 +309,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -269,8 +318,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -303,7 +352,7 @@
   });
 })();
 </script>
-
+</span>
 </header>
 
 <main>
@@ -314,9 +363,9 @@
         <small id="pvMeta"></small>
         <div class="pv-title" id="pvTitle"></div>
         <p id="pvTeaser"></p>
-        <a class="pv-read" id="pvRead">Read →</a>
+        <a class="pv-read" id="pvRead">Читать →</a>
       </div>
-      <button class="pv-close" id="pvClose" type="button" aria-label="Close">×</button>
+      <button class="pv-close" id="pvClose" type="button" aria-label="Закрыть">×</button>
     </div>
     <div class="deck" id="deck">
       <!-- static deck: plinth, platter, strobe dots, pivot base -->
@@ -338,7 +387,7 @@
         <circle cx="850" cy="130" r="56" fill="#141210" stroke="rgba(255,255,255,.08)"/>
         <circle cx="850" cy="130" r="40" fill="url(#metal)"/>
         <g id="armrest"></g>
-        <g id="soundBtn" class="deck-key" role="button" tabindex="0" aria-label="Sound" aria-pressed="true">
+        <g id="soundBtn" class="deck-key" role="button" tabindex="0" aria-label="Звук" aria-pressed="true">
           <rect x="772" y="690" width="62" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
           <path d="M 788,711 h 7 l 9,-8 v 28 l -9,-8 h -7 Z" fill="rgba(239,232,220,.6)"/>
           <g id="soundWaves" fill="none" stroke="rgba(239,232,220,.6)" stroke-width="2" stroke-linecap="round">
@@ -349,7 +398,7 @@
           </g>
           <circle id="soundLed" cx="824" cy="699" r="2.6" style="fill: var(--accent)"/>
         </g>
-        <g id="startBtn" class="deck-key" role="button" tabindex="0" aria-label="Stop and lift the needle">
+        <g id="startBtn" class="deck-key" role="button" tabindex="0" aria-label="Остановить и поднять иглу">
           <rect x="846" y="690" width="110" height="54" rx="10" fill="#211e1b" stroke="rgba(255,255,255,.1)"/>
           <text x="901" y="724" text-anchor="middle" fill="rgba(239,232,220,.6)" font-size="17" letter-spacing="3" font-family="system-ui">STOP</text>
         </g>
@@ -426,21 +475,22 @@
   </section>
 
   <aside class="sleeve">
-    <div class="sides" role="tablist" aria-label="Record side">
-      <button role="tab" id="tabA" aria-selected="true">Side A<small>year in music</small></button>
-      <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
+    <div class="sides" role="tablist" aria-label="Сторона пластинки">
+      <button role="tab" id="tabA" aria-selected="true">Сторона A<small>год в музыке</small></button>
+      <button role="tab" id="tabB" aria-selected="false">Сторона B<small>другие тексты</small></button>
     </div>
     <ol id="tracks"></ol>
-    <p class="note">Pick a title or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
+    <p class="note">Выберите название или опустите иглу на пластинку, чтобы послушать превью трека. Ширина дорожки зависит от времени чтения поста.</p>
   </aside>
 </main>
 
 <div class="curtain" id="curtain" aria-hidden="true"></div>
 <script>
-const IMG = 'images/';
+const IMG = 'images/';   // the English record lives one folder down, at en/
+const MIN = 'мин';
 const SIDES = {
  "A": {
-  "name": "year in music",
+  "name": "год в музыке",
   "tracks": [
    {
     "slug": "alyona",
@@ -508,7 +558,7 @@ const SIDES = {
   ]
  },
  "B": {
-  "name": "other writing",
+  "name": "другие тексты",
   "tracks": [
    {
     "slug": "software2020",
@@ -643,7 +693,7 @@ function drawTracklist() {
   side.tracks.map((t, i) => [t, i]).reverse().forEach(([t, i]) => {
     const li = document.createElement('li');
     const inner = `<span class="no">${state.side}${i + 1}</span>` +
-      `<span><span class="t"></span><span class="y">${t.year}</span></span><span class="len">${t.min} min</span>`;
+      `<span><span class="t"></span><span class="y">${t.year}</span></span><span class="len">${t.min} ${MIN}</span>`;
     li.innerHTML = t.page ? `<a class="trk" data-i="${i}" href="${t.page}">${inner}</a>` : `<button class="trk" data-i="${i}">${inner}</button>`;
     li.querySelector('.t').textContent = t.title;
     const b = li.querySelector('.trk');
@@ -987,6 +1037,11 @@ function leave(url, ms) {
   c.classList.add('on');
   setTimeout(() => { location.href = url; }, ms);
 }
+
+// RU · EN: open the other record with the needle on the same track
+document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', () => {
+  if (state.playing >= 0) a.href = a.getAttribute('href').split('#')[0] + '#' + state.side + (state.playing + 1);
+}));
 
 // arriving with #A6 (e.g. "Back to the record"): the needle is already on that track
 function restoreFromHash() {

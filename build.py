@@ -4,14 +4,42 @@ Usage: python3 build.py
 
 Side A is the music series by date, Side B everything else. Drafts (draft: true) get a page
 at their URL but stay off the record. slug-en is the English version of slug: it shares the
-track, but isn't a track of its own.
+track, but isn't a track of its own. The record is built twice: in Russian at index.html and in
+English at en/index.html, each linking to the posts in its own language.
 """
 import glob, html, json, os, re, subprocess, urllib.parse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'src')
-RESERVED = {'images', 'posts', 'src'}
+RESERVED = {'images', 'posts', 'src', 'en'}
 WORDS_PER_MIN = 175
+SITE = 'https://expectfun.github.io/longplay/'
+
+# interface text; the printing on the turntable itself (SIDE A, 7 TRACKS, STOP) stays English in both
+UI = {
+    'ru': {
+        'back': 'Назад к пластинке', 'tracks_nav': 'Другие треки',
+        'position': 'Сторона {side} · трек {n} из {total}', 'draft_position': 'Черновик · пока не на пластинке',
+        'draft': 'черновик', 'play': 'Включить видео', 'other_lang': 'Read in English',
+        'side': 'Сторона', 'sides': {'A': 'год в музыке', 'B': 'другие тексты'}, 'record_side': 'Сторона пластинки',
+        'read': 'Читать →', 'close': 'Закрыть', 'min': 'мин', 'sound': 'Звук', 'stop': 'Остановить и поднять иглу',
+        'note': 'Выберите название или опустите иглу на пластинку, чтобы послушать превью трека. '
+                'Ширина дорожки зависит от времени чтения поста.',
+        'knob': {'auto': 'авто', 'light': 'светлая', 'dark': 'тёмная', 'autoLong': 'авто, как в системе',
+                 'aria': 'Тема: {mode}. Нажмите, чтобы переключить.'},
+    },
+    'en': {
+        'back': 'Back to the record', 'tracks_nav': 'Other tracks',
+        'position': 'Side {side} · Track {n} of {total}', 'draft_position': 'Draft · not on the record yet',
+        'draft': 'draft', 'play': 'Play video', 'other_lang': 'Читать по-русски',
+        'side': 'Side', 'sides': {'A': 'year in music', 'B': 'other writing'}, 'record_side': 'Record side',
+        'read': 'Read →', 'close': 'Close', 'min': 'min', 'sound': 'Sound', 'stop': 'Stop and lift the needle',
+        'note': "Pick a title or place the needle on the record to preview a track. "
+                "Band width follows each post's reading time.",
+        'knob': {'auto': 'auto', 'light': 'light', 'dark': 'dark', 'autoLong': 'auto, follows the system',
+                 'aria': 'Theme: {mode}. Click to change.'},
+    },
+}
 
 
 def read_post(path):
@@ -60,15 +88,15 @@ def anchor_id(text):
     return t.replace(' ', '-')
 
 
-def vimeo_block(vid):
+def vimeo_block(vid, lang):
     return (f'<div class="yt vimeo" data-vimeo="{vid}"><span>Vimeo</span>'
-            f'<button type="button" aria-label="Play video"></button></div>')
+            f'<button type="button" aria-label="{UI[lang]["play"]}"></button></div>')
 
 
-def youtube_block(vid):
+def youtube_block(vid, lang):
     return (f'<div class="yt" data-id="{vid}">'
             f'<img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="" loading="lazy">'
-            f'<button type="button" aria-label="Play video"></button></div>')
+            f'<button type="button" aria-label="{UI[lang]["play"]}"></button></div>')
 
 
 def split_cover(md, cover):
@@ -85,7 +113,7 @@ def caption_html(cap):
     return re.sub(r'^<p>|</p>$', '', cap_html)
 
 
-def preprocess(md):
+def preprocess(md, lang):
     # image + italic caption line -> figure
     def fig(m):
         alt, src, cap = m.group(1), m.group(2), m.group(3)
@@ -96,9 +124,45 @@ def preprocess(md):
     md = re.sub(r'^!\[([^\]]*)\]\(([^)]+)\)[ \t]*(?:\n\*(.+)\*[ \t]*)?$', fig, md, flags=re.M)
     # bare YouTube URL on its own line -> click-to-load embed
     md = re.sub(r'^https://www\.youtube\.com/watch\?v=([\w-]{11})\S*[ \t]*$',
-                lambda m: youtube_block(m.group(1)), md, flags=re.M)
-    md = re.sub(r'^https://vimeo\.com/(\d+)\S*[ \t]*$', lambda m: vimeo_block(m.group(1)), md, flags=re.M)
+                lambda m: youtube_block(m.group(1), lang), md, flags=re.M)
+    md = re.sub(r'^https://vimeo\.com/(\d+)\S*[ \t]*$', lambda m: vimeo_block(m.group(1), lang), md, flags=re.M)
     return md
+
+
+def page_lang(meta):
+    """en for English versions (slug-en) and for unpaired posts with an English title, else ru."""
+    t = meta['title']
+    return 'en' if meta['slug'].endswith('-en') or (re.search(r'[A-Za-z]{3,}', t) and not re.search('[А-Яа-я]', t)) else 'ru'
+
+
+def in_lang(slug, lang, pairs):
+    """The version of a track's post in the given language, if it has one."""
+    return pairs[slug] if lang == 'en' and slug in pairs else slug
+
+
+def lang_switch(here, links):
+    """The language toggle: RU and EN on either side of a lever pointing at the current language.
+    The whole thing is one link to the same place in the other language (styles in src/flip.html)."""
+    there = 'en' if here == 'ru' else 'ru'
+    label = UI[here]['other_lang']
+    return (f'<a class="flip" data-lang="{here}" href="{links[there]}" hreflang="{there}" '
+            f'title="{label}" aria-label="{label}">'
+            '<span class="flip-l" lang="ru">RU</span>'
+            '<svg viewBox="0 0 24 26" aria-hidden="true">'
+            '<rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/>'
+            '<g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/>'
+            '<circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g>'
+            '<circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/>'
+            '</svg><span class="flip-l" lang="en">EN</span></a>')
+
+
+def alternates(urls):
+    """hreflang links, so search engines can offer each reader their language."""
+    return ''.join(f'\n<link rel="alternate" hreflang="{code}" href="{SITE}{path}">' for code, path in urls.items())
+
+
+def knob_text(lang):
+    return html.escape(json.dumps(UI[lang]['knob'], ensure_ascii=False))
 
 
 def fill(template, values):
@@ -127,8 +191,11 @@ def notice(meta, pairs):
     return f'<p class="notice">{text}</p>'
 
 
-def build_post(meta, body, sides, pairs):
+def build_post(meta, body, sides, pairs, posts):
     slug = meta['slug']
+    lang = page_lang(meta)
+    ui = UI[lang]
+    record = '../en/' if lang == 'en' else '../'
     track_slug = pairs[slug] if slug.endswith('-en') and slug in pairs else slug
     side, idx = next(((s, i) for s in 'AB' for i, m in enumerate(sides[s]) if m['slug'] == track_slug),
                      ('A' if meta['series'] == 'music' else 'B', None))
@@ -136,43 +203,43 @@ def build_post(meta, body, sides, pairs):
 
     body, cover_caption = split_cover(body, meta['cover'])
     body_html = subprocess.run(['pandoc', '-f', 'gfm', '-t', 'html', '--wrap=none'],
-                               input=preprocess(body),
+                               input=preprocess(body, lang),
                                capture_output=True, text=True, check=True).stdout
     # in-page links were written for Obsidian (#Heading%20text); point them at pandoc's heading ids
     body_html = re.sub(r'href="#([^"]+)"', lambda m: f'href="#{anchor_id(m.group(1))}"', body_html)
 
+    # previous and next stay in this page's language
     def nav(j, rel):
         if idx is None or not 0 <= j < len(tracks):
             return '<span></span>'
-        t = tracks[j]
+        t = posts[in_lang(tracks[j]['slug'], lang, pairs)][0]
         label = f'{side}{j + 1} · {html.escape(t["title"])}'
         text = f'← {label}' if rel == 'prev' else f'{label} →'
         return f'<a class="{rel}" href="../{t["slug"]}/">{text}</a>'
 
-    # RU · EN: the current language lit, the other one a link to the translation
-    alt_link = ''
+    alt_link, alt_urls = '', {lang: f'{slug}/'}
     if slug in pairs:
         other = pairs[slug]
-        here, there = ('en', 'ru') if slug.endswith('-en') else ('ru', 'en')
-        label = {'en': 'Read in English', 'ru': 'Читать по-русски'}[there]
-        parts = {here: f'<span class="on" lang="{here}" aria-current="page">{here.upper()}</span>',
-                 there: (f'<a href="../{other}/" lang="{there}" hreflang="{there}" title="{label}" '
-                         f'aria-label="{label}">{there.upper()}</a>')}
-        alt_link = f'<span class="lang">{parts["ru"]}<span aria-hidden="true">·</span>{parts["en"]}</span>'
-    is_en = slug.endswith('-en') or (re.search(r'[A-Za-z]{3,}', meta['title']) and not re.search('[А-Яа-я]', meta['title']))
+        alt_link = lang_switch(lang, {'ru': f'../{other}/', 'en': f'../{other}/'})
+        alt_urls['en' if lang == 'ru' else 'ru'] = f'{other}/'
     page = fill(TEMPLATES['post'], {
-        'lang': 'en' if is_en else 'ru',
+        'lang': lang,
+        'alternates': alternates(alt_urls) if len(alt_urls) > 1 else '',
+        't_back': ui['back'],
+        't_tracks': ui['tracks_nav'],
+        'knob_text': knob_text(lang),
         'side': side,
         'body_class': 'draft' if meta['draft'] else '',
         'robots': '\n<meta name="robots" content="noindex">' if meta['draft'] else '',
         'title': html.escape(meta['title']),
         'cover': meta['cover'],
         'cover_caption': f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '',
-        'year': 'draft' if meta['draft'] else meta.get('date', '')[:4],
+        'year': ui['draft'] if meta['draft'] else meta.get('date', '')[:4],
         'notice': notice(meta, pairs),
-        'position': 'Draft · not on the record yet' if idx is None else f'Side {side} · Track {idx + 1} of {len(tracks)}',
+        'position': (ui['draft_position'] if idx is None
+                     else ui['position'].format(side=side, n=idx + 1, total=len(tracks))),
         'alt_link': alt_link,
-        'back': '../' if idx is None else f'../#{side}{idx + 1}',
+        'back': record if idx is None else f'{record}#{side}{idx + 1}',
         'prev': nav(idx - 1 if idx is not None else -1, 'prev'),
         'next': nav(idx + 1 if idx is not None else -1, 'next'),
         'body': body_html,
@@ -181,20 +248,35 @@ def build_post(meta, body, sides, pairs):
     open(os.path.join(ROOT, slug, 'index.html'), 'w').write(page)
 
 
-def build_index(posts, sides):
+def build_index(posts, sides, pairs, lang):
+    """The record in one language: Russian at the root, English at en/, one level down."""
+    ui, root = UI[lang], '../' if lang == 'en' else ''
     def track(m):
-        words = len(re.findall(r'\w+', re.sub(r'\(([^)]*)\)|https?://\S+', '', posts[m['slug']][1])))
-        return {'slug': m['slug'], 'title': m['title'], 'year': m['date'][:4],
+        meta, body = posts[in_lang(m['slug'], lang, pairs)]
+        words = len(re.findall(r'\w+', re.sub(r'\(([^)]*)\)|https?://\S+', '', body)))
+        return {'slug': meta['slug'], 'title': meta['title'], 'year': m['date'][:4],
                 'min': max(1, round(words / WORDS_PER_MIN)),
-                'cover': m['cover'].replace('../images/', ''), 'page': m['slug'] + '/', 'teaser': m['teaser']}
-    data = {'A': {'name': 'year in music', 'tracks': [track(m) for m in sides['A']]},
-            'B': {'name': 'other writing', 'tracks': [track(m) for m in sides['B']]}}
-    page = fill(TEMPLATES['index'], {'sides': json.dumps(data, ensure_ascii=False, indent=1)})
-    open(os.path.join(ROOT, 'index.html'), 'w').write(page)
+                'cover': meta['cover'].replace('../images/', ''), 'page': f'{root}{meta["slug"]}/',
+                'teaser': meta.get('teaser', m['teaser'])}
+    data = {s: {'name': ui['sides'][s], 'tracks': [track(m) for m in sides[s]]} for s in 'AB'}
+    page = fill(TEMPLATES['index'], {
+        'sides': json.dumps(data, ensure_ascii=False, indent=1),
+        'lang': lang, 'root': root,
+        'alternates': alternates({'ru': '', 'en': 'en/'}),
+        'lang_switch': lang_switch(lang, {'ru': '../', 'en': 'en/'}),
+        'knob_text': knob_text(lang),
+        **{f't_{k}': ui[k] for k in ('side', 'record_side', 'read', 'close', 'min', 'sound', 'stop', 'note')},
+        't_side_a': ui['sides']['A'], 't_side_b': ui['sides']['B'],
+    })
+    out = os.path.join(ROOT, 'en') if lang == 'en' else ROOT
+    os.makedirs(out, exist_ok=True)
+    open(os.path.join(out, 'index.html'), 'w').write(page)
 
 
-KNOB = open(os.path.join(SRC, 'knob.html')).read()   # the theme knob, shared by both pages
-TEMPLATES = {name: open(os.path.join(SRC, name + '.html')).read().replace('{{knob}}', KNOB)
+# the theme knob and the language toggle's styles and script, shared by both pages
+PARTS = {name: open(os.path.join(SRC, name + '.html')).read() for name in ('knob', 'flip')}
+TEMPLATES = {name: open(os.path.join(SRC, name + '.html')).read()
+             .replace('{{knob}}', PARTS['knob']).replace('{{flip}}', PARTS['flip'])
              for name in ('index', 'post')}
 
 if __name__ == '__main__':
@@ -207,7 +289,8 @@ if __name__ == '__main__':
         if name not in posts and name not in RESERVED:
             print(f'note: {name}/ has no post in posts/ any more')
     for meta, body in posts.values():
-        build_post(meta, body, sides, pairs)
-    build_index(posts, sides)
-    print(f'built index + {len(posts)} posts:',
+        build_post(meta, body, sides, pairs, posts)
+    build_index(posts, sides, pairs, 'ru')
+    build_index(posts, sides, pairs, 'en')
+    print(f'built the record (ru, en) + {len(posts)} posts:',
           ', '.join(s + (' (draft)' if m['draft'] else '') for s, (m, _) in sorted(posts.items())))

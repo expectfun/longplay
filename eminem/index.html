@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Эминем: 8 роль — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/eminem/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/eminem-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +64,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,15 +169,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../eminem-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../eminem-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -203,7 +248,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -224,7 +269,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -232,6 +277,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -240,8 +286,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -296,7 +342,7 @@
 <h2 id="роль-1-задрот">Роль 1: задрот</h2>
 <p>Про начало карьеры есть общеизвестные биографические подробности: мрачный Детройт, нищета, буллинг, безотцовщина, конфликты с матерью и женой, копеечные подработки, чтобы прокормить дочь — и рэп-движуха, которая помогла из этого выбраться.</p>
 <p>Но есть менее известная часть. Эминем ворвался в инфополе в 1999-м, однако первым альбомом был «Infinite» (1996). Почему о нём сейчас почти не вспоминают? Что это было вообще?</p>
-<div class="yt" data-id="TyUWs246kAo"><img src="https://i.ytimg.com/vi/TyUWs246kAo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="TyUWs246kAo"><img src="https://i.ytimg.com/vi/TyUWs246kAo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Если включить его, быстро замечаешь, что уже тогда Эминем был очень техничным в отношении фонетики и флоу, тексты делал максимально созвучными:</p>
 <blockquote>
@@ -324,7 +370,7 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 <p>Как писал кто-то, «there have been more violent songs in rap, but few more disturbing». Герой сюсюкает с ребёнком, и это звучит страшнее, чем когда рэперы угрожают матом. Уличный хип-хоп жёсткий, но даже там обычно не впутывают в жесть маленьких детей. У Слима Шейди такого ограничения нет. Он отмороженнее отморозков.</p>
 <p>И ещё криповее от того, что герой называет ребёнка «Хей-Хей». А настоящую дочь Эминема зовут Хейли. И в песне использована запись её голоса. И Эминем не ладил с её мамой Ким. Будь я на месте настоящей Ким, после такой песни сбежал бы с Хейли на другой континент по фальшивому паспорту.</p>
 <p>И это лишь одна из песен «Slim Shady LP». Тексты альбома — это насилие, шутки за гранью, мат, нездоровый секс, психические проблемы, наркотики, суицид и оскорбления собственной мамы. Всё это выкручено на максималки, так что зачастую выглядит мультяшно и несерьёзно (шутовской хит «My Name Is»), но порой и пугающе реально (выстраданный монолог про нищету «Rock Bottom»). Если бы Тарантино снял мультипликационное кровавое гей-порно про нищего клоуна-убийцу под галлюциногенами, то даже это ощущалось бы менее запредельно, провокационно, эклектично.</p>
-<div class="yt" data-id="sNPnbI1arSE"><img src="https://i.ytimg.com/vi/sNPnbI1arSE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="sNPnbI1arSE"><img src="https://i.ytimg.com/vi/sNPnbI1arSE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p><em>(в этой видеоверсии текст очень смягчён, лучше слушать альбомную версию)</em></p>
 <p>Слим Шейди привлёк на порядки больше внимания, чем пресный «Infinite». Кто-то был в восторге — в том числе Доктор Дре, который помог успеху. А кто-то в ужасе — например, консервативные родители, заметившие, какую музыку полюбили их дети. Из ноунейма Эминем стал и героем, и злодеем. Его обвинили сразу во всём от гомофобии до провоцирования скулшутингов. Его мама решила отсудить у него миллионы за клевету в текстах.</p>
@@ -341,12 +387,12 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 
 <p>А ещё произошёл другой тектонический сдвиг. Типичной претензией к раннему Эминему было «Да это эпатажная жвачка для школьников, а по сути этому однодневке сказать нечего» (как сейчас говорят про какую-нибудь Инстасамку). И на MMLP появился убедительнейший ответ: песня «Stan».</p>
 <p>Снова хоррор-стори, но с отличиями от прежних. Тут и эпистолярный жанр, и отличный сторителлинг с нарастанием градуса от куплета к куплету, и идеально подошедший фрагмент песни Дайдо.</p>
-<div class="yt" data-id="gOMhN-hfMtY"><img src="https://i.ytimg.com/vi/gOMhN-hfMtY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="gOMhN-hfMtY"><img src="https://i.ytimg.com/vi/gOMhN-hfMtY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>А главное — в песне введён образ самого Эминема, отвечающего в конце. Благодаря этому становится ясно, что автор песни — не безумный маньяк, а адекватный человек, который был бы рад вовремя остановить чужое безумие. И песню восприняли уже не как «дешёвую пугалку для школьников», а как «драматическое произведение, поднимающее проблему нездорового фанатизма». Слово «stan» попало в словари, Эминем — в историю. Теперь «однодневкой» было уже не назвать.</p>
 <p>Ещё сильнее его статус зацементировал полуавтобиографический фильм «8 миля», где герой выглядел не возмутителем спокойствия, а человеком, который начинал в самых жёстких условиях и смог заслуженно добиться успеха.</p>
 <p>Песня «Lose Yourself» из этого фильма стала первым хип-хоп-треком, получившим «Оскар». Первым синглом Эминема с «бриллиантовым» статусом (продажи более 10 платиновых). И первым его хитом, который не оскорблял или ужасал, а воодушевлял.</p>
-<div class="yt" data-id="_Yhyp-_hX2s"><img src="https://i.ytimg.com/vi/_Yhyp-_hX2s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="_Yhyp-_hX2s"><img src="https://i.ytimg.com/vi/_Yhyp-_hX2s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Наверное, тут можно извлечь <em>мораль о том, что легко привлекать внимание людей оскорблениями и жестью, но в принципе возможно побеждать и конструктивным образом</em>.</p>
 <p>А ещё одним «конструктивным моментом» стало исполнение «Stan» живьём с Элтоном Джоном. Эминема постоянно обвиняли в гомофобии, он отвечал, что ничего против геев не имеет, просто воспитан детройтскими улицами, где гомофобным оскорблением на букву f ругались без привязки к ориентации. И выступление показывало, что реального конфликта с геями у него нет.</p>
@@ -364,7 +410,7 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 
 <p>Но с альбомом не получилось такой победы, как с зависимостью. Провалом тоже не назвать, о дважды платиновом статусе многие могут только мечтать. Но «Relapse» считается одним из самых слабых альбомов Эминема. А числа продаж больше не трансформировались в «держать мир за яйца». «Ну да, Эминем что-то там выпустил, ничего так, а теперь давайте перейдём к следующему».</p>
 <p>На «Relapse» есть хорошие песни. Но в свои лучшие моменты Эминем сочинял не просто хорошие песни, а песни на века. «Without Me» востребована и сейчас (спустя 20 лет), а кто вспоминает о существовании «We Made You» или «Crack a Bottle»? В историю ничего из «Relapse» не попало.</p>
-<div class="yt" data-id="RSdKmX2BH7o"><img src="https://i.ytimg.com/vi/RSdKmX2BH7o/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="RSdKmX2BH7o"><img src="https://i.ytimg.com/vi/RSdKmX2BH7o/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Предполагаю, что для Эминема это уже означало провал. Если перестал быть пупом земли — всё, Акелла промахнулся.</p>
 <p><em>Мораль: ну, видимо, don't do drugs</em></p>
@@ -372,17 +418,17 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 <h2 id="роль-5-бог">Роль 5: бог</h2>
 <p>В 2010-е Эминем вступал легендой в смысле былых заслуг, но неудачником в настоящем. Как снова доказать всем, что ты лучший? Эминем признал недостатки «Relapse», стал переделывать полуготовый «Relapse 2» и в итоге переименовал его в «Recovery», потому что от исходной задумки всё ушло далеко.</p>
 <p>И в 2010-м «Recovery» действительно отчасти получился «восстановлением». Сразу у двух клипов оттуда больше миллиарда просмотров на ютубе: снова получилось писать суперпесни, резонирующие в сердцах миллионов.</p>
-<div class="yt" data-id="j5-yKhDd64s"><img src="https://i.ytimg.com/vi/j5-yKhDd64s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="j5-yKhDd64s"><img src="https://i.ytimg.com/vi/j5-yKhDd64s/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Одна из них — «Not Afraid», духоподъёмный стадионный гимн о преодолении. Эминем, прошедший в жизни огонь и воду, теперь увидел свою миссию в том, чтобы помогать другим справляться со сложностями — и записал песню для этого.</p>
 <p>А «Love the Way You Lie» положила начало сотрудничеству с Рианной, которое через три года продолжилось ещё одним хитом «The Monster». Обеим этим песням Рианна обеспечила попсовость и прилипчивость; их обе ставили на рингтоны и включали на дискотеках. Хотя обе они, если вслушаться, довольно мрачные.</p>
 <p>«Love the Way You Lie» — про двух людей, которые не могут друг без друга и не могут друг с другом. Для Эминема, который дважды разводился с одной и той же женщиной, это знакомая территория.</p>
 <p>«The Monster» — и вовсе про ментальные проблемы и внутренних демонов Эминема. Человек, у которого многое не в порядке, рассказывает об этом — а человечество не особо заметило это, но полюбило песню как танцевальный хит.</p>
-<div class="yt" data-id="EHkozMIXZ8w"><img src="https://i.ytimg.com/vi/EHkozMIXZ8w/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="EHkozMIXZ8w"><img src="https://i.ytimg.com/vi/EHkozMIXZ8w/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В случае с «Monster» отдельно интересен клип. Эминем продирается через слои своего бессознательного — и в конце доходит до Слима Шейди. Который, конечно, монстр, но тексты сочиняет яркие, поэтому можно навестить его ради них.</p>
 <p>А главной песней 2010-х с точки зрения релевантности Эминема считаю «Rap God» (2013). Это песня, попавшая в книгу рекордов Гиннесса как хит с наибольшим количеством слов (их там 1560). Песня, лидирующая на сайте Genius по просмотрам среди всех англоязычных текстов. Песня с миллиардом просмотров у клипа. Песня с той-самой-скоростной-частью. Песня, после выхода которой слушатели постили её в соцсетях с приписками вроде «я кончила». Когда люди в караоке хотят проверить, насколько хорошо я зачитываю, они спрашивают меня: «а Rap God можешь?» (правильный ответ: не совсем, некоторые слоги проглатываю, но обычно слушатели не успевают заметить, что я их проглотил).</p>
-<div class="yt" data-id="XbGs_qK2PQA"><img src="https://i.ytimg.com/vi/XbGs_qK2PQA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="XbGs_qK2PQA"><img src="https://i.ytimg.com/vi/XbGs_qK2PQA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Хип-хоп во многом построен на самовосхвалении. Порой меня это раздражает (в том числе у Эминема): «Вам не о чем больше читать, кроме своей крутизны? Сколько можно одно и то же обмусоливать-то?»</p>
 <p>Но тем ценнее то, что получилось у «Rap God». Хип-хоп-песен в жанре «как мощны мои лапищи» прорва — а Эминему удалось в этом сверхконкурентном сегменте сделать главную песню. Получается, его лапищи самые мощные! Сделав громкую заявку на статус бога, получилось подкрепить её делом: редкий случай, когда замах на рубль, а удар на два. Тот, кого многие считали сбитым лётчиком, вернулся и показал, кто в хип-хопе god и GOAT (greatest of all time).</p>
@@ -407,7 +453,7 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 <p>Эминем попался в эту ловушку так же, как и все. При всём таланте на самом деле он не бог и не умеет ходить по воде, у него нет противоядия от гравитации. Но в его случае есть интересный нюанс: как уже цитировалось в этом тексте, «моё отличие в том, что у меня хватает яиц, чтобы прямо говорить на публику те вещи, которые вы не скажете». И оказывается, это не только про вещи вида «кого из Spice Girls хочу трахнуть».</p>
 <p>Многие музыканты переживают из-за потери актуальности, но стараются не подавать вида, об этом не принято говорить вслух. А уж среди рэперов с их токсичной гипермаскулинностью тем более не принято давать слабину. Уличный пёс может легко рассказать, как он тебя уроет, но переживания о потере актуальности для него слишком сложно проговорить. А вот для Эминема — нет.</p>
 <p>Поэтому первым синглом с «Revival» стала песня «Walk on Water»: ровно о том, как у него ничего не получается, и о переживаниях по этому поводу.</p>
-<div class="yt" data-id="ryr75N0nki0"><img src="https://i.ytimg.com/vi/ryr75N0nki0/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="ryr75N0nki0"><img src="https://i.ytimg.com/vi/ryr75N0nki0/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Тут нет ни суперскоростных куплетов, ни прогрессивных агиток, ни издевательских шуток, ни танцевальных битов — просто откровенный монолог, в котором Эминем сам критикует своё творчество похлеще иных критиков.</p>
 <p>Это не спасло альбом от неудачи: критики всё равно его раскритиковали. Но, по-моему, сама эта песня прекрасная. Оксимирон (тоже одновременно и мастер самовосхвалений, и любитель печально порефлексировать, а также, уточню на всякий случай, иноагент) твитил: «У Эминема охуительный трек! Чуть ли не первый за долгие годы, который не только технически крут, а тронул».</p>
@@ -431,7 +477,7 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 <p>Удачный злой альбом — это хорошо, но не панацея. Как замечено на самом этом альбоме, «что дальше — "Kamikaze 2" с критикой всех, кому не понравился "Kamikaze"?» Очевидно, что дальше надо было как-то иначе. А вот как именно?</p>
 <p>В 2020-м вышел «Music to Be Murdered By» — самый свежий на данный момент альбом. Какой он? Каким Эминем подошёл к юбилею? Гравитация победила-таки и получился один сплошной самоповтор? Или он нашёл-таки способ её обмануть и всех удивить?</p>
 <p>Ну, один трек многих удивил: совместный с Juice WRLD «Godzilla». После того, как Эминем изо всех сил хейтил новую школу, он внезапно записал песню с одним из лидеров этой школы. И отдельного драматизма ситуации добавило то, что Juice WRLD погиб в 21 год ещё до выхода песни. Многие ожидали, что могут появиться посмертные релизы, но никто не думал, что релиз окажется таким.</p>
-<div class="yt" data-id="r_0JjYUe5jo"><img src="https://i.ytimg.com/vi/r_0JjYUe5jo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="r_0JjYUe5jo"><img src="https://i.ytimg.com/vi/r_0JjYUe5jo/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>«Godzilla» набрала полмиллиарда просмотров. Она не то что бы стала песней на века, но показала, что Эминем по-прежнему может создавать хиты, у которых подростки будут разучивать скоростную часть наизусть. Что он не стал окончательно нерелевантным музыкантом из прошлого.</p>
 <p>А что остальной альбом? Мне лично очень нравятся отдельные песни с него, причём совершенно по-разному. «Darkness» — серьёзная мрачная история <a href="https://t.me/trifonov/524">с двойным сторителлингом</a>, протестующая против слишком свободной продажи оружия. «Those Kinda Nights» — наоборот, очень легкомысленный дуэт с Эдом Шираном о клубной жизни и случайном сексе, одновременно уморительный и возмутительный.</p>
@@ -449,9 +495,9 @@ My <strong>residence</strong> was <strong>hesitant</strong> to do some shit that
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <a class="prev" href="../lmm/">← A3 · Лин-Мануэль Миранда</a>
-    <span class="pos">Side A · Track 4 of 7</span>
+    <span class="pos">Сторона A · трек 4 из 7</span>
     <a class="next" href="../dugri/">A5 · Палестина/Израиль: музыка и боль →</a>
   </nav>
 

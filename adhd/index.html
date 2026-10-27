@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Хип-хоп и СДВГ — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/adhd/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/adhd-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +64,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,15 +169,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../adhd-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../adhd-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -203,7 +248,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -224,7 +269,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -232,6 +277,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -240,8 +286,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -300,11 +346,11 @@
 <h2 id="thats-how-it-starts">That's how it starts</h2>
 <p>Што могут рассказать о ментальных проблемах люди из хип-хопа, где типичный хит звучит как «у меня проблема — Lambo или Ferra»? Зачем изучать тему через них? Ну, для начала отмечу понятное: рэперы бывают разные, и некоторые зачитывают совсем не про Ламборгини.</p>
 <p>А ещё важнее, что <strong>главная тема в творчестве типичного рэпера — это он сам</strong>. Эти бесконечные автобиографии могут утомлять. Но когда хочется понять «как живётся с определённой ментальной особенностью», тут как раз очень полезно, когда человек описывает её в деталях. Даже если он сам не знает, как она «правильно» называется.</p>
-<div class="yt" data-id="gYMkEMCHtJ4"><img src="https://i.ytimg.com/vi/gYMkEMCHtJ4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="gYMkEMCHtJ4"><img src="https://i.ytimg.com/vi/gYMkEMCHtJ4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Про ментальное здоровье (в широком смысле слова) в хип-хопе зачитывали примерно с самого начала. Важный ранний хит «The Message» (1982) — песня о жизни в неблагополучном месте («кругом битое стекло и крысы, денег выбраться отсюда нет»). И уже там припев <em>«Don't push me, cause I'm close to the edge / I'm trying not to lose my head»</em> упоминает не просто сложности жизни, но и их влияние на психику.</p>
 <p>Очень подробно эту тему развила группа <strong>Geto Boys</strong> в своём главном хите «Mind Playing Tricks on Me» (1991). Он уже целиком о том, как жизнь в гетто вызывает ментальные сложности: бессонницу, тревогу, суицидальные мысли. И само название песни подчёркивает, что человек не вполне понимает и контролирует свой же мозг.</p>
-<div class="yt" data-id="IJtHdkyo0hc"><img src="https://i.ytimg.com/vi/IJtHdkyo0hc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="IJtHdkyo0hc"><img src="https://i.ytimg.com/vi/IJtHdkyo0hc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Затем, когда люди стали удалять больше внимания терапии, подобного стало только больше. Альбом британца <strong>Dave</strong> «Psychodrama» изображает терапевтическую сессию, <strong>Logic</strong> назвал хит «1-800-273-8255» по номеру линии предотвращения самоубийств, про рэпера <strong>NF</strong> с депрессией уже <a href="https://telegra.ph/NF-12-13">писал</a>.</p>
 <p>Дальше сосредоточусь на явлениях вроде СДВГ и ОКР, от которых зависит, на чём человек сосредотачивается. Думаю, что они сказываются на песнях, даже когда сама песня совсем о другом.</p>
@@ -317,11 +363,11 @@
 <p>Возможно, это многое объясняет и про Эминема, и не только.</p>
 <p>Люди с ОКР могут бесконечно намывать руки или расставлять предметы в доме симметричным образом. Они знают, что это бессмысленно. Но они НЕ могут этого НЕ делать.</p>
 <p>Я давно люблю рэперов, которые расставляют созвучия примерно с той же тщательностью. Эминем — далеко не единственный из них. Скажем, сколько <strong>Horus</strong> продумывает свои «страничках/спич/напичкан/дичь/притчей/типичны/лично/тепличных»?</p>
-<div class="yt" data-id="H6p9l4e9HHU"><img src="https://i.ytimg.com/vi/H6p9l4e9HHU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="H6p9l4e9HHU"><img src="https://i.ytimg.com/vi/H6p9l4e9HHU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Юный рэпер просто решает «в хип-хопе любят рифмы, буду накручивать их максимально»? Или же его мозг и так постоянно пытается расставлять слова наилучшим образом, поэтому он в хип-хопе и оказывается?</p>
 <p>Самые упорные ещё и добавляют самоограничения. <strong>Дядя Женя</strong> ухитрялся сочинять впечатляющие песни, вообще не используя в текстах букву «р». Считается, что это из-за картавости. Но думаю, что это было ещё и решением вроде довлатовского «никогда не начинать слова в предложении с одной буквы».</p>
-<div class="yt" data-id="emVLcD5qJro"><img src="https://i.ytimg.com/vi/emVLcD5qJro/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="emVLcD5qJro"><img src="https://i.ytimg.com/vi/emVLcD5qJro/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Дать самому себе ограничение — тоже интересный челлендж в духе ОКР. А можно ли сочинить удачный текст на баттл без мата? А что, если переплести свои лучшие мысли со строками Бродского? А получится ли составить всю песню из реплик разных персонажей так, чтобы они складывались в биографию героя? Что, зассал, не пацан?</p>
 <p>Некто скажет: «Всё это пустое жонглирование словами, которое может продолжаться бесконечно и лишено ценности. Словно сочинители сызмальства сутками старательно сортировали созвучия, сочетая самые-самые, скребли сусеки, стремились стать суперпрофи, совершенствовались, состязались — слушатели, со своей стороны, скисали со скуки... идея понятна, да? Так можно подбирать тексты километрами, и они быстро перестанут кого-либо вдохновлять».</p>
@@ -331,7 +377,7 @@
 <hr />
 <h2 id="attention-is-all-you-need">Attention is all you need</h2>
 <p>ОКР — не единственное подобное состояние, упомянутое в хип-хопе. СДВГ ещё в 2011-м стал названием песни у <a href="https://www.youtube.com/watch?v=QjlFqgRbICY">Кендрика Ламара</a>, в уходящем 2025-м — у фрешмена <a href="https://www.youtube.com/watch?v=fdpjNzyyVJU">Madk1d</a> (и вне хип-хопа — у французского мультиинструменталиста <a href="https://www.youtube.com/watch?v=TGIvO4eh190">Igorrr</a>). Но дальше всех зашёл <strong>Джойнер Лукас.</strong> Сначала он назвал по своему диагнозу весь дебютный альбом «ADHD» (2020). А теперь, в 2025-м, выпустил сиквел «ADHD 2». Вот главная песня с первого альбома:</p>
-<div class="yt" data-id="vpNUzNBw6FI"><img src="https://i.ytimg.com/vi/vpNUzNBw6FI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="vpNUzNBw6FI"><img src="https://i.ytimg.com/vi/vpNUzNBw6FI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Жанр тут подан интересно уже во вступлении: полторы минуты сплошного речитатива постепенно становятся напряжённее и доходят до «взрыва», кто ещё так делает? Но до собственно СДВГ дело доходит уже в основной части клипа, где даже видеоряд призван «показать мир глазами Джойнера». Герой снят вообще без монтажных склеек — но контекст постоянно переключается, а камера непрерывно двигается. Смотреть «<a href="https://www.youtube.com/watch?v=UEhd1ZFpf7Y">как это вообще снимали</a>» тоже интересно.</p>
 <p>Джойнер — это не какая-то «соевая снежинка», которой многие сказали бы «напридумывал себе диагнозов, нет чтобы мужиком быть». Во многом это как раз «мужицкий рэпер», заявляющий о своей крутизне. Но при этом так же прямо заявляющий: «У меня СДВГ, это не какая-то выдумка, это очень сказывается на моей жизни, и вы понятия не имеете, каково быть мной».</p>
@@ -390,7 +436,7 @@
 <p>Есть ли ещё рэперы, которые так делают? Такого даже у Эминема не помню.</p>
 <p>И этот подход ощущается тщательной игрой в «дженгу». Автор словно громоздит подходящие строки друг на друга, проверяя: сколько сумеет их водрузить, чтобы результат всё ещё был осмысленным монологом, а не рассыпался на набор случайных созвучий без содержания?</p>
 <p>Впечатление только усилилось, когда позже услышал песню:</p>
-<div class="yt" data-id="cbJvZOilfiM"><img src="https://i.ytimg.com/vi/cbJvZOilfiM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="cbJvZOilfiM"><img src="https://i.ytimg.com/vi/cbJvZOilfiM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <ul>
 <li>Сама она длится ДЕСЯТЬ МИНУТ.</li>
@@ -411,9 +457,9 @@
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <a class="prev" href="../sudan/">← A6 · Судан: песни незамеченных событий</a>
-    <span class="pos">Side A · Track 7 of 7</span>
+    <span class="pos">Сторона A · трек 7 из 7</span>
     <span></span>
   </nav>
 

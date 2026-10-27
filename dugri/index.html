@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Палестина/Израиль: музыка и боль — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/dugri/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/dugri-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +64,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,15 +169,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../dugri-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../dugri-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -203,7 +248,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -224,7 +269,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -232,6 +277,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -240,8 +286,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -311,7 +357,7 @@
 <p><strong>События: обстрелы сектора Газа (2008-2009, 2012, 2014, 2021)</strong></p>
 <p>В прошлогоднем <a href="https://telegra.ph/eminem-8-role-12-18">тексте</a> про Эминема я упоминал, что песня «Not Afraid» призвана помочь людям преодолевать жизненные сложности. А теперь узнал, что она помогла мальчику из сектора Газа.</p>
 <p>Он влюбился в эту песню, научился её <a href="https://www.instagram.com/p/CA0ztVXponr/">зачитывать</a>, начал сочинять сам. Взрослые из Палестины и Ирландии заметили потенциал и помогли. И в 2021 году вышел его клип о жизни под бомбёжками:</p>
-<div class="yt" data-id="l8qay1Al7Dc"><img src="https://i.ytimg.com/vi/l8qay1Al7Dc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="l8qay1Al7Dc"><img src="https://i.ytimg.com/vi/l8qay1Al7Dc/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Наткнувшись на клип этим летом, я сразу офигел от читки и рифм: «ОХ ЁЛКИ, ЭТОТ РЕБЁНОК ЗАЧИТЫВАЕТ ЛУЧШЕ МНОГИХ ВЗРОСЛЫХ РЭПЕРОВ».</p>
 <p>А содержание оказалось таким: «всё здание трясётся, словно одержимое», «чтобы сестрёнка заснула, я врал ей, что это звучат фейерверки», «кричу в стену, но ничего не меняется».</p>
@@ -338,7 +384,7 @@
 <p><strong>Песня: попурри</strong></p>
 <p><strong>События: предыстория (до 1948 года)</strong></p>
 <p>В Иордании собрали старые палестинские песни (около 1920-х годов) и записали мэшап в современных аранжировках:</p>
-<div class="yt" data-id="NKxf7B2owV8"><img src="https://i.ytimg.com/vi/NKxf7B2owV8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="NKxf7B2owV8"><img src="https://i.ytimg.com/vi/NKxf7B2owV8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p><em>В этом видео (и многих других в тексте) можно включить английские субтитры</em></p>
 <p>Кто-то возразит: «Какие "палестинские песни", если ещё не было палестинцев как народа? Было просто место Палестина, где жили арабы». Порой вообще говорят «арабы после образования Израиля придумали народ, чтобы страдать от его ущемления». Приводят <a href="https://en.wikipedia.org/wiki/There_was_no_such_thing_as_Palestinians">фразу</a> Голды Меир «there was no such thing as Palestinians».</p>
@@ -377,7 +423,7 @@
 <p>В Шестидневной войне 1967-го Израиль снова победил, оккупировав сектор Газа и Западный берег. Палестинцы назвали это «Накса» и ощутили себя <em>ещё более изгнанными</em>.</p>
 <p>Отдельно важен Аль-Кудс (арабское название Иерусалима). Город религиозно значим и для мусульман, и для иудеев. После 1948-го у евреев была западная часть, а у арабов восточная: какой-никакой компромисс. В 1967-м, когда Израиль оккупировал всё, выгонять арабов он не стал, но вызвал <strong>боль: враг контролирует наш священный город</strong>.</p>
 <p>Иерусалимская мечеть Аль-Акса так важна в исламе, что судьба города волнует весь арабский мир. И ключевую песню о нём спела ливанка Файруз, одна из главных арабских певиц в истории.</p>
-<div class="yt" data-id="hsrTUDS6El4"><img src="https://i.ytimg.com/vi/hsrTUDS6El4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="hsrTUDS6El4"><img src="https://i.ytimg.com/vi/hsrTUDS6El4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Этот девятиминутный эпик сочинили в 1967-м, сразу после оккупации. Так что песня — тоска по «утраченному важному» с надеждой снова это обрести.</p>
 <hr />
@@ -385,7 +431,7 @@
 <p><strong>Песня: «Красное знамя поднято» (من أجل فلسطين ,طلت الراية الحمرا)</strong></p>
 <p><strong>События: «освободительное движение» и мирный процесс (1967-2000)</strong></p>
 <p>По предыдущим песням заметно, что стереотип «арабы живут одним насилием» глупый. Но и представлять их всех зайчиками было бы неправильно. Возникали организации «для борьбы с оккупантами», и вот песня «Народного фронта освобождения Палестины»:</p>
-<div class="yt" data-id="QEIuiihOhSk"><img src="https://i.ytimg.com/vi/QEIuiihOhSk/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="QEIuiihOhSk"><img src="https://i.ytimg.com/vi/QEIuiihOhSk/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>НФОП были за марксизм-ленинизм (отсюда «красное знамя») и «демократическую Палестину», где арабы и евреи «смогли бы жить без дискриминации — и этнической, и классовой». Звучит красиво, но организация захватывала самолёты, и ряд стран признал её террористической.</p>
 <p>Сейчас она подзабыта, а на слуху ХАМАС (жестокая исламистская) и ФАТХ (не религиозная, со временем ушла от террора).</p>
@@ -401,7 +447,7 @@
 <p>В 2000-м начиналась новая интифада, а в израильском городе Лод зарождался палестинский хип-хоп: там араб Тамер Нафар вдохновлялся рэперами вроде Тупака.</p>
 <p>Из-за наркоторговли в Лоде израильская полиция доставала арабов. И песни Тупака очень подходили: «нас угнетают», «полиция к нам жестока», «но мы и сами друг друга мочим».</p>
 <p>Тамер создал группу DAM, и песня «Кто террорист?» стала хитом.</p>
-<div class="yt" data-id="P7fakEks8ak"><img src="https://i.ytimg.com/vi/P7fakEks8ak/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="P7fakEks8ak"><img src="https://i.ytimg.com/vi/P7fakEks8ak/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Это программное заявление: «Вы называете нас террористами, но сами вы террористы. Отняли нашу землю, убиваете нас, а мы не можем пойти в суд — там всё решаете тоже вы».</p>
 <p>Тут видна <strong>боль: палестинцы недовольны, что их называют террористами, но Израиль не признан государством-террористом</strong>. Статья «<a href="https://en.wikipedia.org/wiki/Israeli_war_crimes">Военные преступления Израиля</a>» в Википедии обширная, а суд в Гааге годами не брался за них.</p>
@@ -414,7 +460,7 @@
 <p><strong>События: блокада Газы (с 2007), рост поселений на Западном берегу</strong></p>
 <p>Палестинская диаспора есть по всему миру, и на стыке культур возникают интересные явления (вроде сериала «<a href="https://en.wikipedia.org/wiki/Mo_(TV_series)">Мо</a>»). Так получилось и с певицей/рэперкой Шедией Мансур из Лондона. Она ощущает себя палестинкой (первый же <a href="https://www.youtube.com/watch?v=21OXQ4m1-Bo&amp;pp=ygUXc2hhZGlhIG1hbnNvdXIga2VmZml5ZWg%3D">клип</a> был про куфию), но при этом ценит права женщин и свободу слова. Выступает в национальном платье, но без хиджаба.</p>
 <p>У неё много фитов с рэперами, покажу любимый. Омар Оффендум — сириец, выросший в США, тоже сочетает восточные ценности с западными.</p>
-<div class="yt" data-id="87rk2sd7TCs"><img src="https://i.ytimg.com/vi/87rk2sd7TCs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="87rk2sd7TCs"><img src="https://i.ytimg.com/vi/87rk2sd7TCs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p><em>Тут тоже можно включить английские субтитры</em></p>
 <p>Звучит интересно, напоминает российских артистов Drummatix и Horus. А содержание не сводится к «опять евреи виноваты».</p>
@@ -450,7 +496,7 @@
 <p>К незаконным поселениям добавились новые проблемы.</p>
 <p>Первая: выселения арабов в иерусалимском районе Шейх-Джарра, где вместо них заселялись евреи. Критики называют это планом «евреизировать» город.</p>
 <p>Юридически там всё сложно. Но для арабов это простая <strong>боль: враги выгоняют нас из нашего священного города</strong>. Молодой иерусалимский рэпер Daboor выпустил песню «<a href="https://www.youtube.com/watch?v=74H-dZP-4TY">Sheikh Jarrah</a>». И появилось меметичное видео, где на упрёк «вы крадёте мой дом» еврей отвечает «ну если не я, кто-то другой украдёт»:</p>
-<div class="yt" data-id="KNqozQ8uaV8"><img src="https://i.ytimg.com/vi/KNqozQ8uaV8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="KNqozQ8uaV8"><img src="https://i.ytimg.com/vi/KNqozQ8uaV8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Вторая тема: «уход вправо». Израиль и так держал курс «прижать арабов к ногтю», но в 2022-м это усугубили ультраправые министры Итамар Бен-Гвир и Бецалель Смотрич. Для понимания: у Бен-Гвира дома когда-то висел портрет еврея-террориста Баруха Гольдштейна, убившего 29 палестинцев.</p>
 <p>Тут понятная <strong>боль: у противника к власти пришли люди с людоедскими взглядами на нас</strong>.</p>
@@ -463,7 +509,7 @@
 <p>А во-вторых, радикалы вроде Бен-Гвира стали подниматься к этой мечети. Там священное место и для иудеев, но по договорённости с Иорданией им нельзя ходить туда когда вздумается. <strong>И хотя Бен-Гвир не заходил в саму мечеть, для мусульманина его действия — это боль.</strong></p>
 <p>ХАМАС резко критиковал это, а Египет и Иордания прямо называли опасной провокацией. При этом теракт 7 октября назывался «Operation Al-Aqsa Flood», упоминая Аль-Аксу. И получается <strong>такая боль: «израильтяне, вас предупреждали не совать пальцы в розетку, вы продолжили, вас ударило током, а теперь вы наказываете нас»</strong>.</p>
 <p>В 2021-м палестинским хитом стала песня «Inn Ann»:</p>
-<div class="yt" data-id="FKvKnuvXUSU"><img src="https://i.ytimg.com/vi/FKvKnuvXUSU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="FKvKnuvXUSU"><img src="https://i.ytimg.com/vi/FKvKnuvXUSU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Текст недопонимаю, просто ощущаю вайб уличного КАЧАЮЩЕГО хип-хопа. Но контекст даёт <a href="https://youtu.be/JJ6phWLBYOQ?si=pBrZo1h9UKJGP7GO&amp;t=491">интервью</a> с Shabjdeed. Он говорит, что к конфликту его поколение подходит по-новому, потому что выросло в менее кровавое время, чем интифады. И уже почти нашло общий язык с евреями.</p>
 <p>Это интервью вышло 20 сентября 2023-го. Вскоре тезис про общий язык разлетелся вдребезги.</p>
@@ -528,7 +574,7 @@
 <p>Когда в чужих странах тебя убивают и прогоняют, хочется иметь свою. И в 1897 году Теодор Герцль созвал первый сионистский конгресс для создания еврейского государства. Сионисты готовы были рассматривать разные локации (от Уганды до Аргентины), но решили вернуться-таки в регион Палестина.</p>
 <p>Когда Первая мировая ещё шла, Британия уже вовсю делила шкуру Османской империи. И в 1917-м подписала декларацию Бальфура, разрешив создать в Палестине «национальный дом для еврейского народа».</p>
 <p>Ещё не полноценное государство, но уже повод для радости. А в 1918-м появилась песня «Хава нагила» («Давайте возрадуемся»). Сложно выбрать конкретное исполнение из множества, поэтому взял то видео, где переведён (нехитрый) текст.</p>
-<div class="yt" data-id="YxP2cSa5aXE"><img src="https://i.ytimg.com/vi/YxP2cSa5aXE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="YxP2cSa5aXE"><img src="https://i.ytimg.com/vi/YxP2cSa5aXE/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>(Про еду тут ни слова, но вспоминается шутка, что любой еврейский праздник сводится к формуле «они хотели нас убить, у них не получилось, так давайте же поедим».)</p>
 <p>Евреи стали постепенно съезжаться в контролируемую Британией территорию Палестины, где уже жили арабы и немного евреев. Своего государства не было ни у кого, и сначала получалось уживаться, но постепенно возникали конфликты. В 1929-м произошёл погром в Хевроне, где убили десятки евреев. Хотя они в Палестину от погромов и бежали. Опять первая боль!</p>
@@ -545,7 +591,7 @@
 <p>Какое ещё государство может похвастаться, что прямо в день его возникновения на него напали сразу несколько других, а оно победило?</p>
 <p>Против Израиля выступила коалиция арабских стран. Но он не только отстоял свои земли по плану ООН, а ещё и присоединил новые. Как это возможно? Отчасти дело в том, что для арабских стран это не было вопросом жизни и смерти, а евреи стояли насмерть.</p>
 <p>Поэт Натан Альтерман в 1948-м сочинил стихотворение «Серебряное блюдо». Название подразумевает, что государство не приносят «на серебряном блюде» (аналог русского «на блюдечке с голубой каёмочкой»), за него приходится биться.</p>
-<div class="yt" data-id="9hmqoCqtxWw"><img src="https://i.ytimg.com/vi/9hmqoCqtxWw/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="9hmqoCqtxWw"><img src="https://i.ytimg.com/vi/9hmqoCqtxWw/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Прикрепляю исполнение Йорана Гаома. Он родился в 1939-м, и в момент возникновения Израиля был ребёнком в Иерусалиме. Позже сам служил в армии, как и подобает израильтянину (в стране с недружелюбными соседями призыв обязательный). Там в ансамбле «Нахаль» и началась его певческая деятельность.</p>
 <p>Тут получается <strong>боль: ты можешь быть мирным человеком, но твою страну вечно хотят уничтожить, и требуется быть готовым воевать просто для её существования</strong>. Другим как-то попроще живётся, у португальцев танки ржавеют от простоя.</p>
@@ -565,7 +611,7 @@
 <p>Эти картинки не очень корректны, а ещё у евреев тут <strong>боль: почему мы считаемся захватчиками, если это на нас нападали?</strong> К нам пришли агрессоры, получили по щам, потеряли часть земель (чтобы понимали на будущее). И мы в этом виноваты? Они хотели нас убить, у них не получилось, так давайте же что-нибудь присоединим.</p>
 <p>Присоединён по факту оказался и Восточный Иерусалим. Песня про город, представленная лишь месяцем ранее, резко стала актуальнее. Теперь она символизировала уже «полную победу». И Наоми Шефер дописала ещё один куплет.</p>
 <p>Первой исполнительницей песни <a href="https://www.youtube.com/watch?v=mjmMllp8hJg">стала</a> Шули Натан. Но тут прикреплю другое видео — и из-за английских субтитров, и потому что поёт легенда израильской музыки Офра Хаза:</p>
-<div class="yt" data-id="JH8gtdDA5x0"><img src="https://i.ytimg.com/vi/JH8gtdDA5x0/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="JH8gtdDA5x0"><img src="https://i.ytimg.com/vi/JH8gtdDA5x0/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Песня стала так важна для Израиля, что её называют «неофициальным гимном». Впрочем, и официальный гимн «<a href="https://www.youtube.com/watch?v=1DPqNHkm1bM">А-тиква</a>» важен, сейчас его <a href="https://twitter.com/persianjewess/status/1734284254765555982">поют вместе</a>.</p>
 <p>Но хотя вся спорная территория теперь контролировалась Израилем, проблемы не закончились. В 1973-м произошла война Судного дня с арабскими государствами, а в 1987-м вспыхнула интифада — восстание палестинцев. Мирного сосуществования не было.</p>
@@ -577,7 +623,7 @@
 <p>Но это теория, а все 90-е пытались ответить на практике. На тайных переговорах в Осло правительство Израиля и Организация Освобождения Палестины вели мирный диалог.</p>
 <p>В 1993-м подписали соглашение, предполагающее, что Израиль выведет армию с оккупированной в 1967-м земли, и будет создана Палестинская национальная администрация. Но это не означало «сразу передаём всё управление палестинцам» — предполагался долгий постепенный процесс.</p>
 <p>Тогда стала актуальнее «Песня мира». Сочинена она была ещё в 1969 году Яковом Ротблитом, который перед этим потерял ногу на Шестидневной войне. Её строчка «пойте о любви, а не войне» спорит с милитаристским дискурсом.</p>
-<div class="yt" data-id="Sz8O0OcAA3c"><img src="https://i.ytimg.com/vi/Sz8O0OcAA3c/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="Sz8O0OcAA3c"><img src="https://i.ytimg.com/vi/Sz8O0OcAA3c/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В 90-е песня получила новую жизнь. Но не все израильтяне радовались в белом платье, в венке ромашковом. Мирный процесс требовал от обеих сторон идти на уступки, и радикалы говорили «нельзя так помогать врагу». Усложнял ситуацию ещё и тайный характер переговоров: у правых израильтян была <strong>боль «мою страну сдают врагу, даже не спросив меня»</strong>.</p>
 <p>В сентябре 1995-го Ицхак Рабин (премьер-министр Израиля) и Ясир Арафат (глава ООП) подписали второе соглашение. А уже в ноябре Рабина после его публичного выступления застрелил ультраправый израильский радикал, настроенный против мирного процесса. В кармане Рабина лежал текст «Песни мира», и он оказался забрызган кровью.</p>
@@ -599,7 +645,7 @@
 <p>А Subliminal стал «сионистским рэпером», воспевающим Израиль. Он принялся носить Звезду Давида как украшение, назвал альбом «Свет Сиона», а в текстах упоминал проблемы из-за арабов. Его полюбили правые, причём вплоть до радикальных, что он осуждает: «Иногда кто-то говорит мне, что любит моё творчество и давно пора поубивать арабов. Но я ведь хочу не смерти арабам, а жизни евреям!»</p>
 <p>Думаю, это тоже <strong>боль евреев: ты просто хочешь блага своей стране, а тебя зачисляют в фашисты</strong>.</p>
 <p>Вот песня «Надежда», настрой такой: «не родился ещё сукин сын, что сможет остановить Израиль», «они говорят о мире, но сами стреляют и угнетают нас», но главное — «давайте продолжать жить, не теряйте надежды».</p>
-<div class="yt" data-id="hybBJ0InVSA"><img src="https://i.ytimg.com/vi/hybBJ0InVSA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="hybBJ0InVSA"><img src="https://i.ytimg.com/vi/hybBJ0InVSA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>После интифады Subliminal поумерил пыл и позже совместно с поп-артистами записывал песни вида «какой чудесный день». Наверное, можно назвать его «местным Бастой»: из «голоса улиц» стал «толстым котом». Но после 7 октября, когда текст «Надежды» снова стал актуален, он выложил на ютуб-канале недавнее <a href="https://www.youtube.com/watch?v=9gI-ttwZeoQ">концертное исполнение</a> — как можно видеть, отдача зала там мощная.</p>
 <hr />
@@ -627,7 +673,7 @@
 </blockquote>
 <p>Теперь своеобразно смотрятся, да. «Целое поколение требует мира» — это верхний левый (<em>ба-дум-тсс</em>) стикер. На иврите звучит очень складно, словно готовая строчка для хип-хоп-песни: «Дор шалем дореш шалом».</p>
 <p>Она и оказалась в хип-хоп-песне. Писатель Давид Гроссман однажды <a href="https://www.evrey.com/sitep/culture/arkhiv.php3?menu=250">заметил</a>, какую большую роль играют стикеры в жизни Израиля. Он стал собирать слоганы с них, а затем соединил их в стихотворный текст. А группа Hadag Nahash его исполнила:</p>
-<div class="yt" data-id="dH-GepDymiA"><img src="https://i.ytimg.com/vi/dH-GepDymiA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="dH-GepDymiA"><img src="https://i.ytimg.com/vi/dH-GepDymiA/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В видео нет субтитров, но текст этой песни <a href="https://www.teachmehebrew.com/the-sticker-song-by-hadag-nachash.html">разбирали</a> в интернете. И по нему можно буквально изучать спектр мнений в Израиле. Представлены все подряд — правые и левые, умеренные и радикальные, светские и религиозные.</p>
 <p>Музыка музыкой, а что происходило тем временем? Сектор Газа, ранее оккупированный Израилем, в 2005-м стал полностью палестинским. А ещё через пару лет властью там завладел ХАМАС. И стал оттуда обстреливать Израиль. Чем это всё закончилось, мы теперь видим. И в связи с этим появился новый стикер:</p>
@@ -639,7 +685,7 @@ href="https://twitter.com/MairavZ/status/1733853437127757840">https://twitter.co
 <p><strong>Песня: «</strong><a href="https://www.youtube.com/watch?v=jV1sjm9Lz_Q"><strong>Bassa Sababa</strong></a><strong>» («Облом / клёво», באסה סבבה)</strong></p>
 <p><strong>События: статус-кво до 7 октября</strong></p>
 <p>В палестинской музыке конфликт с Израилем — это главная тема, а вот в израильской о нём зачастую и не вспоминают. Скажем, в 2019-м в Газе шли протесты, но певица Netta тогда выпустила никак не связанный с этим хит «Bassa Sababa».</p>
-<div class="yt" data-id="jV1sjm9Lz_Q"><img src="https://i.ytimg.com/vi/jV1sjm9Lz_Q/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="jV1sjm9Lz_Q"><img src="https://i.ytimg.com/vi/jV1sjm9Lz_Q/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Тут ощущается связь Израиля с западным миром: дэнс-поп с наполовину английским текстом от победительницы Евровидения… кстати, а почему вообще Израиль участвует в Евровидении?</p>
 <p>Формальная причина — членство в европейском телерадиовещательном союзе. Но думаю, тут в целом важны социальные, культурные, политические связи. Одни евреи приехали в Израиль с Запада, другие остались на Западе. Неудивительно, что страна получилась «единственной демократией на Ближнем Востоке».</p>
@@ -667,7 +713,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p>И в-третьих, ХАМАС прямо заявили «это только начало, мы собираемся повторять 7 октября снова и снова». То есть сказали «мы намерены устроить геноцид».</p>
 <p>Израильтяне объединились в порыве «ХАМАС должен быть уничтожен». Неизбежные гражданские потери уже не останавливали. Настрой стал боевым: сплотимся и поддержим армию, которая должна и с Газой разобраться, и от других стран защитить.</p>
 <p>Настроения отразились и в музыке. Поначалу, отходя от шока, израильтяне вспомнили песню «Не надо больше». В 1970-м она вышла на дебютном альбоме 20-летнего певца Шломо Артци — а теперь, полвека спустя, он снова её <a href="https://www.youtube.com/watch?v=2r-wmQV8h04">исполнил</a>. Но затем появился новый хит. Дуэт «Несс и Стилла» выплеснул накопившееся — и тут уже не печальная рефлексия, а выход на тропу войны.</p>
-<div class="yt" data-id="1rk3n9V-aQs"><img src="https://i.ytimg.com/vi/1rk3n9V-aQs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="1rk3n9V-aQs"><img src="https://i.ytimg.com/vi/1rk3n9V-aQs/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Краткое содержание: крысы вылезли из нор, хотят «бесплатной Палестины» (ирония над лозунгом «Free Palestine»), но наша армия им устроит харбу-дарбу (выражение из арабского, означающее что-то вроде «месилово»). На YouTube есть подробный <a href="https://www.youtube.com/watch?v=1h5kqeD_69o">разбор</a> текста.</p>
 <p>Эта песня стала главным хитом. Впрочем, мне больше нравится другая новая, «<a href="https://www.youtube.com/watch?v=sfZOJYA7EOg">Ша-гер</a>». Там тоже боевой настрой, речитатив сочетается с пением, а мужской вокал с женским. Но кульминационная строчка не про убийства арабов, а про жизнь евреев: «Ам Исраэль хай» («Народ Израиля жив»). Этот лозунг давно популярен и сам по себе, и как название классической <a href="https://www.youtube.com/watch?v=wkLJgK0HfqI">песни</a> «поющего раввина» Шломо Карлебаха.</p>
@@ -716,7 +762,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p>Если мысленно заменить «left» и «right» на «Палестина» и «Израиль», то все спорят, надо быть справа или слева. А меня беспокоит вертикальная ось: сверху центризм, снизу радикализм, мы все летим вниз. <strong>Так что мой взгляд тут буквально перпендикулярен общему.</strong></p>
 <p>Как вернуться к чему-то умереннее? Вопрос сложный, но можно хотя бы задумываться перед постингом в интернете, не подливаешь ли масла в огонь и не расчеловечиваешь ли людей.</p>
 <p>Эту проблему радикализации в 2021-м озвучил мирный дуэт DUGRI из еврея и араба: «все умеренные голоса заглушают, и нам нечем дышать».</p>
-<div class="yt" data-id="XYP4X9AxLoY"><img src="https://i.ytimg.com/vi/XYP4X9AxLoY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="XYP4X9AxLoY"><img src="https://i.ytimg.com/vi/XYP4X9AxLoY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <hr />
 <h3 id="часть-2-гридлок">Часть 2: гридлок</h3>
@@ -728,7 +774,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p>А почему в Газе обстреливают Израиль? Отчасти из-за того, что блокада бесчеловечна. Разумеется, в ней будут ненавидеть «тюремщиков».</p>
 <p>Так возникает замкнутый цикл насилия. Образно говоря, Палестина хочет дать Израилю в морду, а он для защиты заламывает ей руки. Когда это длится поколениями и люди рождаются сразу с заломанными руками, конечно, они будут хотеть вырвать их и врезать заламывающему. И конечно, тогда он продолжит заламывать. У всех боль, и от этого дальше у всех боль.</p>
 <p>Всем было бы лучше без гридлока (кроме людей, делающих на нём карьеру — к сожалению, многие решения принимают как раз они). Но чтобы разъехаться, кому-то надо сначала «сдать назад». А любой стороне сложно это сделать: «Они поступают с нами ужасно, а мы подарим им возможность сделать ещё больше?!» Как ни удивительно, лучше всего это описывает мем-цитата Маргариты Симоньян:</p>
-<div class="yt" data-id="VilWvPZJ9f4"><img src="https://i.ytimg.com/vi/VilWvPZJ9f4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="VilWvPZJ9f4"><img src="https://i.ytimg.com/vi/VilWvPZJ9f4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>В идеале сдать назад надо сразу обеим сторонам, договорившись через нейтрального медиатора. Но в 90-е это не сработало. А прямо сейчас об этом никто и слушать не станет. Может ли это сработать в будущем?</p>
 <p>Честно говоря, понятия не имею. Ясно лишь, что это безумно сложно. Взаимных обид накопилось столько, что пытаться договориться — это строить карточный домик в сто этажей. И если домик рухнет, может похоронить многих под собой.</p>
@@ -736,7 +782,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p>Такие риски действительно есть. Но альтернативой предлагают «просто ехать вперёд тараном». И тут хочется спросить: а вы не замечаете, что за сто лет этот подход тоже не преодолел гридлок? И тоже много кого похоронил под собой? И хоронит вот прямо сейчас?</p>
 <p><strong>Поэтому сейчас, когда половина интернета призывает ехать тараном в одну сторону, а половина в другую, ощущаю это «двумя барашками на мосту, которые в итоге оба свалятся в воду». И смотрю перпендикулярно: может, тут всё-таки возможен другой путь?</strong></p>
 <p>Тем же вопросом задаётся совместная арабо-еврейская песня, с которой Израиль выступал на Евровидении-2009 в Москве:</p>
-<div class="yt" data-id="bBTQFOkFZw8"><img src="https://i.ytimg.com/vi/bBTQFOkFZw8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="bBTQFOkFZw8"><img src="https://i.ytimg.com/vi/bBTQFOkFZw8/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <hr />
 <h3 id="часть-3-кто-виноват">Часть 3: кто виноват</h3>
@@ -748,7 +794,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p>Споры «кто виноват» бессмысленные, потому что тут из исторической фактуры легко сделать любой нарратив (хоть деколонизаторский, хоть антитеррористический) с любым виноватым. Приведите любой аргумент любой стороны, и смогу убедительно возразить.</p>
 <p>Так что подобными спорами можно добиться только эскалации — то есть наихудшего сценария.</p>
 <p>К тому же правильный ответ на «кто виноват» в первых трёх секундах здесь:</p>
-<div class="yt" data-id="wNQRvVlCk2w"><img src="https://i.ytimg.com/vi/wNQRvVlCk2w/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="wNQRvVlCk2w"><img src="https://i.ytimg.com/vi/wNQRvVlCk2w/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>А вот в формате «что делать» вижу конструктив. Например, кто должен контролировать Газу после устранения ХАМАС, если палестинцы резко против варианта «израильтяне», и наоборот? Видел идею «арабская коалиция», звучит любопытно, и стоит обсуждать подобные компромиссы.</p>
 <p>Также с обеих сторон вижу тезис «я не фанат насилия, но что ещё делать, если они иначе не понимают». Поэтому считаю полезным такой диалог:</p>
@@ -760,7 +806,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 </blockquote>
 <p>По-моему, это полезно, потому что всем людям важно быть замеченными и понятыми, это способствует деэскалации.</p>
 <p>В Израиле есть звёздный смешанный брак: еврейский актёр Цахи Алеви и арабская телеведущая Люси Ахариш. И в 2020-м они записали дуэт:</p>
-<div class="yt" data-id="qILxNEVMJo4"><img src="https://i.ytimg.com/vi/qILxNEVMJo4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="qILxNEVMJo4"><img src="https://i.ytimg.com/vi/qILxNEVMJo4/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Ключевая строчка — «I want you to know that you're seen». Имели ли они в виду то же самое «людям важно быть замеченными»? Не знаю, но сам воспринимаю её так.</p>
 <hr />
@@ -768,7 +814,7 @@ href="https://twitter.com/Ostrov_A/status/1733113559498801247/photo/3">https://t
 <p><strong>Песня: U2 «</strong><a href="https://www.youtube.com/watch?v=7tQKxWCjZTU"><strong>The Cedars of Lebanon</strong></a><strong>»</strong></p>
 <p>Многие говорят: «Всё очень просто, что тут думать». Только у одних это «всё просто, мирная цивилизация против варварского террора», а у других «всё просто, угнетённый народ против колонизаторского угнетателя».</p>
 <p><strong>Тут тоже перпендикулярен: мне ближе не один из этих вариантов, а «всё непросто».</strong> И вспоминаю песню U2 «Кедры ливанские»:</p>
-<div class="yt" data-id="7tQKxWCjZTU"><img src="https://i.ytimg.com/vi/7tQKxWCjZTU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="7tQKxWCjZTU"><img src="https://i.ytimg.com/vi/7tQKxWCjZTU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Её герой — западный журналист в Ливане. И мои любимые строчки — о том, как он «втискивает сложные жизни в простой заголовок»:</p>
 <blockquote>
@@ -792,7 +838,7 @@ Squeezing complicated lives into a simple headline»</p>
 <p>Например, многие пеняют арабам: «Зря вы в 1940-х не согласились на разделение поровну, жили бы уже счастливо». Но они тогда посчитали разделение несправедливым. А кто может Объективно Оценить тут справедливость? Это же не просто «разрезать бутерброд пополам»: есть уйма факторов (от плотности населения до старых договорённостей), какие важнее?</p>
 <p>А евреям порой говорят: «Вы слишком цепляетесь за клочок земли в опасном регионе. Вам же в США небось весь Вайоминг отдадут, он всё равно квадратный и для смеха был придуман. И все заживут мирно». Но если людям важно жить на земле своих предков, как Объективно Оценить, «слишком» они цепляются или нет?</p>
 <p>А как ответить на ключевой вопрос «чья земля»? Тут люблю этот клип (к нему даже есть <a href="https://blog.ninapaley.com/2012/10/01/this-land-is-mine/">исторические пояснения</a>):</p>
-<div class="yt vimeo" data-vimeo="50531435"><span>Vimeo</span><button type="button" aria-label="Play video"></button></div>
+<div class="yt vimeo" data-vimeo="50531435"><span>Vimeo</span><button type="button" aria-label="Включить видео"></button></div>
 
 <p>По нему получается так:</p>
 <ol type="1">
@@ -825,7 +871,7 @@ Squeezing complicated lives into a simple headline»</p>
 <p>Я вижу в интернете миллион жалоб на всё это. <strong>И тут моя перпендикулярность такая: возможно, помимо простой ругани, найдём место конструктиву?</strong></p>
 <p>Например, много спорят про «геноцид», «апартеид» и «город-тюрьму». Эти слова не вполне подходят к ситуации. Но она настолько уникальная, что более подходящих у нас нет, а обозначать проблемы как-то надо. Так может, человечеству необходимы новые термины, и стоит заговорить об этом?</p>
 <p>А упоминаются ли все эти «внешние мировые силы» в музыке? Не особо, но миролюбивая песня 2001 года «Summit Meeting» названа по международной встрече в рамках «мирного процесса». Это первый в истории хип-хопа совместный арабо-еврейский трек. Израильский рэпер Sagol 59 позвал другого еврея Shanaan Street (из Hadag Nahash) и араба Тамера Нафара (из DAM), и каждый зачитал по куплету на своём языке.</p>
-<div class="yt" data-id="umFl-zHD2LM"><img src="https://i.ytimg.com/vi/umFl-zHD2LM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="umFl-zHD2LM"><img src="https://i.ytimg.com/vi/umFl-zHD2LM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <hr />
 <h3 id="часть-7-сходство">Часть 7: сходство</h3>
@@ -854,7 +900,7 @@ Squeezing complicated lives into a simple headline»</p>
 <p>А израильтяне так: «Мы маленькая еврейская страна среди кучи злых арабских. Зазеваешься — раздавят».</p>
 <p>Сходство усиливается языками семитской группы. В арабском и иврите почти идентичные приветствия: «ас-саляму алейкум» и «шолом алейхем» оба означают «мир вам». Непроизвольно думаешь: да как вообще мог возникнуть конфликт почти братских народов? (А потом кое-что вспоминаешь.)</p>
 <p>Эта перекличка приветствий давно обыграна в песне Noize MC (на всякий случай замечу, что иноагента) и Atlantida Project «Иордан».</p>
-<div class="yt" data-id="AOrH0sq-tKY"><img src="https://i.ytimg.com/vi/AOrH0sq-tKY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="AOrH0sq-tKY"><img src="https://i.ytimg.com/vi/AOrH0sq-tKY/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>«Все помирятся, шолом алейхем — ва'алейкум салам», поёт Александра Соколова, подразумевая «даже евреи с арабами». На момент записи она уже была больна раком, и вскоре её не стало. Но клип вспоминают, и в октябре под ним появился новый комментарий: «Эта песня когда-нибудь перестанет быть актуальной?💔».</p>
 <hr />
@@ -877,14 +923,14 @@ Squeezing complicated lives into a simple headline»</p>
 <p>Я согласен с определением «два травмированных народа», у обоих много боли. Неудивительно, что могут не слышать друга друга: сложно разделить чужую боль, когда испытываешь свою.</p>
 <p>И неудивительно, что вскипело в секторе Газа. Если обнести людей забором, они совсем перестают видеть второй нарратив, а это радикализирует.</p>
 <p>Как это исправить? Точно не знаю, но вспоминается финал рэп-баттла еврея (и тоже иноагента) Оксимирона с арабом Dizaster. Мирон там говорил, что баттлы при их внешней жёсткости могут способствовать миру. Когда люди грязно шутят друг про друга, они замечают своё сходство, а тогда меньше хочется убивать. Тут это с отметки 49:00:</p>
-<div class="yt" data-id="ldK9qvRBkMI"><img src="https://i.ytimg.com/vi/ldK9qvRBkMI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="ldK9qvRBkMI"><img src="https://i.ytimg.com/vi/ldK9qvRBkMI/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Это мой любимый раунд в баттл-рэпе. Вместо банальных шуток «про мамку» — серьёзное высказывание о мире. Но при этом точечно добавлена «грязь-грязь», чтобы зрители не заскучали, а смеялись. На предыдущем баттле Мирон проиграл Гнойному, перезанудствовав — и тут получилась крутая «работа над ошибками».</p>
 <p>Впрочем, сам Мирон уже ни в чём <a href="https://t.me/norimyxxxo/365">не видит</a> спасения. Вижу ли я?</p>
 <p>Не знаю насчёт «спасти», но думаю, что для хотя бы минимальной деэскалации полезно доносить боль обеих сторон. Сейчас про-палестинской стороне может казаться, что евреи просто так угнетают, а про-израильской — что арабы просто так убивают. И у людей с обеих сторон очень дополняется картина мира, если они по-настоящему понимают другую.</p>
 <p>Есть евреи, которые побывали в палестинских городах и ощутимо пересмотрели свои взгляды. Есть арабы, на которых повлияло знакомство с болью еврейского народа. А есть моя любимая песня, которая для такого эффекта и предназначена.</p>
 <p>В 2017-м американский рэпер Джойнер Лукас снял клип «<a href="https://www.youtube.com/watch?v=43gm3CJePn0">I'm Not Racist</a>», где два американца с разным цветом кожи предъявляют друг другу претензии, и в итоге понимают друг друга. А в Израиле еврей UR и араб SAZ, вдохновившись этим, сделали свой клип с взаимными претензиями двух народов. По-моему, получилось очень хорошо, и этот клип я в 2023-м пересматривал чаще всего.</p>
-<div class="yt" data-id="vuUxnfL9I_Y"><img src="https://i.ytimg.com/vi/vuUxnfL9I_Y/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="vuUxnfL9I_Y"><img src="https://i.ytimg.com/vi/vuUxnfL9I_Y/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>После 7 октября обоим участникам очень тяжко, но они не сдались, а продолжили вести «примирительную» деятельность.</p>
 <p>Считаю, что такое «объяснение болей» — лучшее, что мы сейчас можем делать. Собственно, поэтому я и написал оба других «взгляда». Если это кажется полезным — можно порепостить.</p>
@@ -894,9 +940,9 @@ Squeezing complicated lives into a simple headline»</p>
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <a class="prev" href="../eminem/">← A4 · Эминем: 8 роль</a>
-    <span class="pos">Side A · Track 5 of 7</span>
+    <span class="pos">Сторона A · трек 5 из 7</span>
     <a class="next" href="../sudan/">A6 · Судан: песни незамеченных событий →</a>
   </nav>
 

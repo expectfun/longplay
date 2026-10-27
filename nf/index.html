@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NF — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/nf/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/nf-en/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
@@ -62,8 +64,6 @@
   .topbar a:hover { color: var(--ink); }
   .back { display: inline-flex; align-items: center; gap: 10px; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
-  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
-  .lang .on { color: var(--accent); font-weight: 600; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
@@ -169,15 +169,60 @@
           <path d="M 29,4.5 L 28,19 L 23,23.5"/>
         </g>
       </svg>
-      <span>Back to the record</span>
+      <span>Назад к пластинке</span>
     </a>
-    <span class="right"><span class="lang"><span class="on" lang="ru" aria-current="page">RU</span><span aria-hidden="true">·</span><a href="../nf-en/" lang="en" hreflang="en" title="Read in English" aria-label="Read in English">EN</a></span><style>
+    <span class="right"><a class="flip" data-lang="ru" href="../nf-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.flip').forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
   /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
-  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
   .knob-label {
-    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
-    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
     opacity: 0; transition: opacity .25s;
   }
@@ -203,7 +248,7 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
       <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
@@ -224,7 +269,7 @@
       </g>
     </svg>
   </button>
-  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
 </span>
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
@@ -232,6 +277,7 @@
   const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
@@ -240,8 +286,8 @@
   function point(m) {
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
-    label.textContent = m;
-    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
@@ -290,26 +336,26 @@
 <p>Нейтан Фейерштейн — белый американский рэпер, чьи альбомы оказываются на вершине чарта Billboard. Он очень текстоцентричный: в эпоху, когда можно десять раз повторять «gucci gang», пишет длинные вдумчивые тексты, демонстрирующие богатый словарный запас. И настолько заморачивается над созвучиями, что тут явно сказывается его обсессивно-компульсивное расстройство. Исполняя эти тексты, он временами переходит на пулемётные скорости. А содержательно в них можно встретить как мрачное самокопание, так и самовосхваление. Во втором случае он хвастается мастерством, а не богатством, как многие рэперы: роскошь ему неинтересна, и став звездой, он продолжает носить простую одежду.</p>
 <p>Если в предыдущем абзаце заменить имя артиста на «Эминем», весь абзац по-прежнему останется верным. Неудивительно, что NF всю карьеру не убежать от сравнений с ним. А сам Эминем, похоже, проехался по Нейтану в строке «an effin' Recovery clone of me» (впрямую никого не назвал, но вряд ли строка случайно начинается с «an ef»). Но у меня от определения «это клон Эминема» бомбит. Да, громадное влияние тут видно невооружённым глазом, NF сам прямо говорит о нём в каждом интервью. Но сводить его музыку только к этому влиянию, по-моему, означает упускать важнейшее в ней и не замечать важные отличия.</p>
 <p>Из самых очевидных отличий: NF никогда не матерится. При этом многие его треки обрушиваются на зрителя горной лавиной, и в 2020-м делать такие боевики без мата — это словно боксировать со связанными руками (причём побеждать). «I can’t believe there’s someone that can rap so hard without cussing», пишут под его клипом «The Search», и у этого комментария 35 тысяч лайков. В то время как у Эминема с ходу вообще не вспоминаю песен, рядом с которыми в музыкальных сервисах не стоял бы значок «explicit», там это ключевая составляющая (цитируя его самого, «from the moment I heard rap was cussing, I was in»).</p>
-<div class="yt" data-id="fnlJw9H0xAM"><img src="https://i.ytimg.com/vi/fnlJw9H0xAM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="fnlJw9H0xAM"><img src="https://i.ytimg.com/vi/fnlJw9H0xAM/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>Второе важное отличие (заодно объясняющее отсутствие мата): NF — христианин, и для понимания его музыки это тоже важно. По-моему, неправильно называть её христианским хип-хопом, поскольку религия тут не в центре внимания — но она упоминается достаточно часто, чтобы Billboard включал NF в христианские чарты (где он по продажам оказывается важной фигурой). А Эминема, даже если убрать из его текстов весь мат, невозможно представить христианской звездой.</p>
 <p>Ещё можно обратить внимание на то, что биты заметно отличаются, а припевы Нейтан поёт сам. Но думаю, что это всё не главное, важнее другое. Да, у Эминема встречается самокопание с описанием внутренних демонов и названиями вроде «Darkness». Но, как говорится, «you merely adopted darkness, I was born in it, moulded by it». Для NF всепоглощающая безысходность — это не просто одна из тем, а то, в чём он проводит большинство времени и чему посвящено большинство его текстов. Его песни — пятьдесят оттенков мрачного, а клипы — пятьдесят оттенков блёклого. Pitchfork сравнивал прослушивание его альбома с чтением предсмертной записки.</p>
 <p>Но если Pitchfork почему-то делает вывод «альбом слабый», то я ощущаю наоборот. Бывают случаи, когда артист очевидно не очень совместим с окружающим миром, и ему явно от этого очень сложно — но одновременно это же позволяет возникать поразительным произведениям. Он становится оголённым нервом, принимающим на себя всю мировую скорбь и ретранслирующим её нам. Получается дискомфортная, но сильная музыка. Для меня NF — один из таких случаев.</p>
 <p>От других подобных случаев он отличается тем, что у него есть не только «всё плохо», но и «баттловое» начало. Будучи христианином, он не диссит всех впрямую, как Эминем, но вот самоутверждаться за счёт рэп-скиллов — это ему близко. И даже когда в тексте нет прямого самовосхваления, заметно, насколько для него важна техничная читка и проработанность текстов. Песни о том, как всё ужасно, он делает с тщательностью ювелира, и в этой тщательности явно видит прекрасное. Похоже, что это одна из немногих радующих его вещей в жизни, и музыка в буквальном смысле спасает его от смерти.</p>
 <p>Причём, возможно, не только его самого. Музыка NF находит резонанс в головах тех, кому по разным причинам плохо, и в комментариях нередко можно прочитать «наконец кто-то выразил мои ощущения словами, спасибо, от этого мне немного лучше». Этот резонанс заметнее всего у песни «Hate Myself», потому что на неё натыкаются люди, которые вводят в Гугл «I hate myself». Кто-то выложил ещё и часовую версию этой песни для тех, кому надоело нажимать «replay» на обычном ролике, и там в комментариях пишут «probly safe to assume everyone that came here wants to die».</p>
-<div class="yt" data-id="AhNqXJikNNU"><img src="https://i.ytimg.com/vi/AhNqXJikNNU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="AhNqXJikNNU"><img src="https://i.ytimg.com/vi/AhNqXJikNNU/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
 <p>По сути, Нейтан использует музыку как терапию. Собственно, один из его альбомов называется «Therapy Session», так что он и сам проводит эту параллель. Конечно, человеку с такими внутренними проблемами хочется посоветовать обратиться не только к фанатам, но и к реальным психотерапевтам, способным оказать более квалифицированную помощь. Но он сам это понимает и уже давно обратился.</p>
 <p>Главный недостаток музыки NF понятен: многие назовут её однообразной. Тот же Эминем бывает дурашливым, агрессивным, печальным, мотивирующим и много каким ещё. Нейтан существует в куда более узком спектре состояний, и в масштабе четырёх альбомов от ощущения самоповтора никуда не скрыться — поэтому, хотя артист мне нравится, я пока даже не послушал эти четыре альбома целиком.</p>
 <p>Тем не менее, здесь есть свои различия, и некоторые песни кажутся мне заметно выделяющимися на общем фоне. Две из них я уже привёл выше: первая пытается сшибить с ног напором, постоянно переключает передачи и лишена припева; вторая, наоборот, с мягким певучим припевом. По-моему, обе по-своему очень крутые, и теперь мне после пандемии хочется исполнить в караоке обе.</p>
 <p>А закончу третьей, которая отличается от них обеих: это редкий случай, когда песню NF можно осторожно назвать оптимистичной. Ну, по крайней мере, не пессимистичной. Так что к дню рождения, наверное, лучше других подходит!</p>
-<div class="yt" data-id="lxRwEPvL-mQ"><img src="https://i.ytimg.com/vi/lxRwEPvL-mQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Play video"></button></div>
+<div class="yt" data-id="lxRwEPvL-mQ"><img src="https://i.ytimg.com/vi/lxRwEPvL-mQ/hqdefault.jpg" alt="" loading="lazy"><button type="button" aria-label="Включить видео"></button></div>
 
   </article>
 
-  <nav class="tracks" aria-label="Other tracks">
+  <nav class="tracks" aria-label="Другие треки">
     <a class="prev" href="../alyona/">← A1 · Alyona Alyona</a>
-    <span class="pos">Side A · Track 2 of 7</span>
+    <span class="pos">Сторона A · трек 2 из 7</span>
     <a class="next" href="../lmm/">A3 · Лин-Мануэль Миранда →</a>
   </nav>
 

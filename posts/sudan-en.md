@@ -4,6 +4,7 @@ date: 2025-01-25
 series: music
 author: Eugene Trifonov
 cover: ../images/sudan-en/01.jpg
+teaser: "My friend enjoys the way I write about music, so every year, I write a blog post for his birthday. This time it turned out to be about more than just songs."
 original: https://telegra.ph/sudan-01-25
 ---
 
