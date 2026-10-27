@@ -12,8 +12,6 @@
 <script>
   // the theme knob's choice, before anything is drawn; none saved = follow the system
   try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
-  // cyber, chosen on a post that offers it, follows the reader to the other posts that do
-  try { if ('auto light dark'.includes('cyber') && localStorage.getItem('lp-cyber')) document.documentElement.dataset.theme = 'cyber'; } catch (e) {}
   // came here through a fade-out on another page: start dark and fade up
   try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
 </script>
@@ -50,61 +48,6 @@
   }
   body[data-side="B"] { --accent: #23897c; }
   :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
-  /* cyber: the knob's fourth position on posts with theme: cyber — neon on near-black, scanlines, a sign
-     that flickers on. Comes after the dark rules, which it has to win against (side B's teal included) */
-  :root[data-theme="cyber"] {
-    --bg: #07070d; --ink: #dde4f4; --muted: #8a90b6; --line: rgba(0, 234, 255, .2);
-    --accent: #ff2e88; --neon: #00eaff; --code: rgba(0, 234, 255, .08); --curtain: #030306; color-scheme: dark;
-  }
-  :root[data-theme="cyber"] body[data-side] { --accent: #ff2e88; }
-  :root[data-theme="cyber"] body {
-    font: 18px/1.7 "IBM Plex Sans", system-ui, sans-serif;
-    background:
-      radial-gradient(900px 480px at 50% -8%, rgba(255, 46, 136, .16), transparent 70%),
-      radial-gradient(700px 600px at 105% 40%, rgba(0, 234, 255, .07), transparent 70%),
-      var(--bg) fixed;
-  }
-  :root[data-theme="cyber"] body::before {
-    content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
-    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .028) 0 1px, transparent 1px 3px);
-  }
-  :root[data-theme="cyber"] ::selection { background: var(--accent); color: #07070d; }
-  :root[data-theme="cyber"] h1 {
-    font: 700 clamp(26px, 4.6vw, 40px)/1.2 Unbounded, system-ui, sans-serif; color: #fff;
-    text-shadow: -2px 0 rgba(0, 234, 255, .75), 2px 0 rgba(255, 46, 136, .75), 0 0 22px rgba(255, 46, 136, .5);
-    animation: neon-on 1.1s steps(1) .15s both;
-  }
-  @keyframes neon-on {
-    0% { opacity: .15; } 12% { opacity: 1; } 18% { opacity: .3; } 30% { opacity: 1; }
-    46% { opacity: .55; } 52%, 100% { opacity: 1; }
-  }
-  :root[data-theme="cyber"] .year, :root[data-theme="cyber"] .notice, :root[data-theme="cyber"] figcaption,
-  :root[data-theme="cyber"] .topbar, :root[data-theme="cyber"] nav.tracks {
-    font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
-  }
-  :root[data-theme="cyber"] .year { color: var(--neon); letter-spacing: .2em; text-transform: uppercase; font-size: 13px; }
-  :root[data-theme="cyber"] .topbar, :root[data-theme="cyber"] nav.tracks, :root[data-theme="cyber"] figcaption { font-size: 13px; }
-  :root[data-theme="cyber"] article h2, :root[data-theme="cyber"] article h3 {
-    font-family: Unbounded, system-ui, sans-serif; font-weight: 500; color: var(--neon);
-    text-shadow: 0 0 14px rgba(0, 234, 255, .45);
-  }
-  :root[data-theme="cyber"] article h2 { font-size: 1.25em; }
-  :root[data-theme="cyber"] article h3 { font-size: 1.05em; }
-  :root[data-theme="cyber"] article h2::before { content: "// "; color: var(--accent); text-shadow: 0 0 12px rgba(255, 46, 136, .6); }
-  :root[data-theme="cyber"] article a { text-decoration-color: var(--neon); }
-  :root[data-theme="cyber"] article a:hover { color: var(--neon); }
-  :root[data-theme="cyber"] article blockquote {
-    color: #c3c8e6; background: linear-gradient(90deg, rgba(255, 46, 136, .09), transparent 80%);
-    box-shadow: -8px 0 18px -10px var(--accent); padding-right: .6em;
-  }
-  :root[data-theme="cyber"] article hr {
-    width: 60%; height: 1px; border-radius: 0; opacity: .9;
-    background: linear-gradient(90deg, transparent, var(--neon), var(--accent), transparent);
-  }
-  :root[data-theme="cyber"] .hero img, :root[data-theme="cyber"] figure img, :root[data-theme="cyber"] .yt {
-    border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 234, 255, .3), 0 0 30px rgba(0, 234, 255, .12);
-  }
-  :root[data-theme="cyber"] nav.tracks .pos { text-shadow: 0 0 10px rgba(255, 46, 136, .6); }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -198,7 +141,6 @@
   @media (prefers-reduced-motion: reduce) {
     .back:hover .platter { animation: none; }
     html.arrive body::after { display: none; }
-    :root[data-theme="cyber"] h1 { animation: none; }
   }
   @media (max-width: 600px) {
     body { font-size: 18px; }
@@ -278,8 +220,7 @@
 })();
 </script>
 <style>
-  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark.
-     Posts with theme: cyber get a fourth position, cyber, and the marks spread out to make room */
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
   /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
      (and never covers the language toggle to its left) */
@@ -303,13 +244,7 @@
   }
   @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
   .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
-  .knob .mark-cyber { display: none; }
-  .knob[data-four] .mark-cyber { display: inline; }
-  .knob[data-four] .mark-auto { transform: translate(-1.4px, 2px); }
-  .knob[data-four] .mark-light { transform: translate(-5.2px, 1.4px); }
-  .knob[data-four] .mark-dark { transform: translate(-6.3px, -5.2px); }
-  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark,
-  .knob[data-mode="cyber"] .mark-cyber {
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
     color: var(--accent); opacity: 1;
   }
   /* the room lights: dim, switch, come back up */
@@ -317,9 +252,9 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto" data-modes="auto light dark" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;cyber&quot;: &quot;cyber&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
-      <!-- positions: auto (half-lit circle), light (sun), dark (moon), and on some posts cyber (a prompt, >_) -->
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
         <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
         <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
@@ -329,7 +264,6 @@
         <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
       </g>
       <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
-      <path class="mark mark-cyber" d="M 27.6,11.4 l 1.7,1.6 l -1.7,1.6 M 30.2,14.9 h 1.9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
       <g class="dial">
         <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
         <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
@@ -344,16 +278,13 @@
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
 (() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
-  const MODES = knob.dataset.modes.split(' ');
-  const ANGLE = MODES.length > 3 ? { auto: -66, light: -22, dark: 22, cyber: 66 } : { auto: -55, light: 0, dark: 55 };
-  if (MODES.length > 3) knob.dataset.four = '';
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
   const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
-  // cyber is kept apart from lp-theme, so the record and the other posts keep the reader's light or dark
   let mode = root.dataset.theme || 'auto', hideLabel;
 
   function point(m) {
@@ -364,11 +295,8 @@
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
-    try {
-      if (m === 'cyber') return localStorage.setItem('lp-cyber', '1');
-      localStorage.removeItem('lp-cyber');
-      if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m);
-    } catch (e) {}
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+    document.dispatchEvent(new Event('lp-knob'));   // heard by the cyber switch (src/cyber.html)
   }
 
   point(mode);
@@ -383,7 +311,8 @@
     const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
     if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
     // same colours either way (say, auto → light on a light system): just remember the choice
-    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+    // (a cyber post's switch, if on, is about to step aside, so the colours change after all)
+    if ((shown(mode) === shown(root.dataset.theme || 'auto') && !root.dataset.cyber) || reduced || !lights.animate) {
       apply(mode);
       if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
       return;
@@ -405,6 +334,7 @@
     <p class="year">2026</p>
     
   </header>
+
 
   <figure class="hero"><img src="../images/jagged-intelligence/01.jpg" alt=""><figcaption>Well, you can probably guess how that image was created</figcaption></figure>
 

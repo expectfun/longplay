@@ -9,12 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <script>
   // the theme knob's choice, before anything is drawn; none saved = follow the system
   try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
-  // cyber, chosen on a post that offers it, follows the reader to the other posts that do
-  try { if ('auto light dark cyber'.includes('cyber') && localStorage.getItem('lp-cyber')) document.documentElement.dataset.theme = 'cyber'; } catch (e) {}
   // came here through a fade-out on another page: start dark and fade up
   try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
 </script>
@@ -51,61 +48,6 @@
   }
   body[data-side="B"] { --accent: #23897c; }
   :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
-  /* cyber: the knob's fourth position on posts with theme: cyber — neon on near-black, scanlines, a sign
-     that flickers on. Comes after the dark rules, which it has to win against (side B's teal included) */
-  :root[data-theme="cyber"] {
-    --bg: #07070d; --ink: #dde4f4; --muted: #8a90b6; --line: rgba(0, 234, 255, .2);
-    --accent: #ff2e88; --neon: #00eaff; --code: rgba(0, 234, 255, .08); --curtain: #030306; color-scheme: dark;
-  }
-  :root[data-theme="cyber"] body[data-side] { --accent: #ff2e88; }
-  :root[data-theme="cyber"] body {
-    font: 18px/1.7 "IBM Plex Sans", system-ui, sans-serif;
-    background:
-      radial-gradient(900px 480px at 50% -8%, rgba(255, 46, 136, .16), transparent 70%),
-      radial-gradient(700px 600px at 105% 40%, rgba(0, 234, 255, .07), transparent 70%),
-      var(--bg) fixed;
-  }
-  :root[data-theme="cyber"] body::before {
-    content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
-    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .028) 0 1px, transparent 1px 3px);
-  }
-  :root[data-theme="cyber"] ::selection { background: var(--accent); color: #07070d; }
-  :root[data-theme="cyber"] h1 {
-    font: 700 clamp(26px, 4.6vw, 40px)/1.2 Unbounded, system-ui, sans-serif; color: #fff;
-    text-shadow: -2px 0 rgba(0, 234, 255, .75), 2px 0 rgba(255, 46, 136, .75), 0 0 22px rgba(255, 46, 136, .5);
-    animation: neon-on 1.1s steps(1) .15s both;
-  }
-  @keyframes neon-on {
-    0% { opacity: .15; } 12% { opacity: 1; } 18% { opacity: .3; } 30% { opacity: 1; }
-    46% { opacity: .55; } 52%, 100% { opacity: 1; }
-  }
-  :root[data-theme="cyber"] .year, :root[data-theme="cyber"] .notice, :root[data-theme="cyber"] figcaption,
-  :root[data-theme="cyber"] .topbar, :root[data-theme="cyber"] nav.tracks {
-    font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
-  }
-  :root[data-theme="cyber"] .year { color: var(--neon); letter-spacing: .2em; text-transform: uppercase; font-size: 13px; }
-  :root[data-theme="cyber"] .topbar, :root[data-theme="cyber"] nav.tracks, :root[data-theme="cyber"] figcaption { font-size: 13px; }
-  :root[data-theme="cyber"] article h2, :root[data-theme="cyber"] article h3 {
-    font-family: Unbounded, system-ui, sans-serif; font-weight: 500; color: var(--neon);
-    text-shadow: 0 0 14px rgba(0, 234, 255, .45);
-  }
-  :root[data-theme="cyber"] article h2 { font-size: 1.25em; }
-  :root[data-theme="cyber"] article h3 { font-size: 1.05em; }
-  :root[data-theme="cyber"] article h2::before { content: "// "; color: var(--accent); text-shadow: 0 0 12px rgba(255, 46, 136, .6); }
-  :root[data-theme="cyber"] article a { text-decoration-color: var(--neon); }
-  :root[data-theme="cyber"] article a:hover { color: var(--neon); }
-  :root[data-theme="cyber"] article blockquote {
-    color: #c3c8e6; background: linear-gradient(90deg, rgba(255, 46, 136, .09), transparent 80%);
-    box-shadow: -8px 0 18px -10px var(--accent); padding-right: .6em;
-  }
-  :root[data-theme="cyber"] article hr {
-    width: 60%; height: 1px; border-radius: 0; opacity: .9;
-    background: linear-gradient(90deg, transparent, var(--neon), var(--accent), transparent);
-  }
-  :root[data-theme="cyber"] .hero img, :root[data-theme="cyber"] figure img, :root[data-theme="cyber"] .yt {
-    border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 234, 255, .3), 0 0 30px rgba(0, 234, 255, .12);
-  }
-  :root[data-theme="cyber"] nav.tracks .pos { text-shadow: 0 0 10px rgba(255, 46, 136, .6); }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -199,7 +141,6 @@
   @media (prefers-reduced-motion: reduce) {
     .back:hover .platter { animation: none; }
     html.arrive body::after { display: none; }
-    :root[data-theme="cyber"] h1 { animation: none; }
   }
   @media (max-width: 600px) {
     body { font-size: 18px; }
@@ -208,7 +149,176 @@
     nav.tracks .next { text-align: center; }
     nav.tracks .pos { order: -1; }
   }
+</style><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<script>
+  // the cyber switch's choice, before anything is drawn: cyber or overdrive; off = chose the normal page;
+  // nothing saved = not asked yet, so the question under the title shows
+  try {
+    const c = localStorage.getItem('lp-cyber');
+    if (c === 'cyber' || c === 'overdrive') document.documentElement.dataset.cyber = c;
+    else if (c !== 'off') document.documentElement.classList.add('asking');
+  } catch (e) { document.documentElement.classList.add('asking'); }
+</script>
+<style>
+  /* ---------- the switch: a three-position slide switch, like the mode switch on an effect pedal ---------- */
+  .cswitch {
+    display: block; width: 44px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .cswitch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cswitch:focus-visible + .knob-label { opacity: 1; }
+  .cswitch svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .cswitch .thumb {
+    transform: translateX(var(--x, 0px)); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .cswitch[data-mode="cyber"] { --x: 9px; }
+  .cswitch[data-mode="overdrive"] { --x: 18px; }
+  .cswitch .mark { opacity: .4; transition: opacity .25s, color .25s; }
+  .cswitch[data-mode="off"] .mark-off { color: var(--accent); opacity: 1; }
+  .cswitch[data-mode="cyber"] .mark-cyber { color: #00eaff; opacity: 1; filter: drop-shadow(0 0 2px #00eaff); }
+  .cswitch[data-mode="overdrive"] .mark-overdrive { color: #ff2e88; opacity: 1; filter: drop-shadow(0 0 2px #ff2e88); }
+
+  /* ---------- the question on a first visit: how to read this post ---------- */
+  .cyber-ask { display: none; }
+  html.asking .cyber-ask {
+    display: block; max-width: var(--col); margin: 28px auto 0; padding: 0 20px; overflow: hidden;
+    font: 15px/1.45 system-ui, -apple-system, sans-serif;
+  }
+  .ca-box { border: 1px solid var(--line); border-radius: 8px; padding: 16px 16px 12px; }
+  .ca-q { margin: 0 0 12px; font-weight: 600; text-align: center; }
+  .ca-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ca-opts button {
+    display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 6px; cursor: pointer;
+    text-align: left; font: inherit; font-size: 14px; color: var(--muted); background: var(--bg);
+    border: 1px solid var(--line); transition: transform .15s, box-shadow .2s;
+  }
+  .ca-opts button:hover { transform: translateY(-1px); }
+  .ca-opts button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ca-opts b { font-size: 16px; color: var(--ink); }
+  .ca-opts b::first-letter { text-transform: uppercase; }   /* the switch's names, as headings */
+  /* the two cyber buttons are small samples of what they switch on */
+  .ca-opts [data-mode="cyber"], .ca-opts [data-mode="overdrive"] {
+    background: #07070d; color: #8a90b6; font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 12.5px;
+  }
+  .ca-opts [data-mode="cyber"] { border-color: rgba(0, 234, 255, .45); }
+  .ca-opts [data-mode="cyber"] b { color: #00eaff; font: 500 15px Unbounded, system-ui, sans-serif; }
+  .ca-opts [data-mode="overdrive"] {
+    border-color: #ff2e88; box-shadow: 0 0 16px -4px rgba(255, 46, 136, .6);
+    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px), #07070d;
+  }
+  .ca-opts [data-mode="overdrive"] b {
+    color: #fff; font: 700 15px Unbounded, system-ui, sans-serif;
+    text-shadow: -1.5px 0 rgba(0, 234, 255, .8), 1.5px 0 rgba(255, 46, 136, .8);
+  }
+  .ca-opts [data-mode="overdrive"]:hover { box-shadow: 0 0 22px -2px rgba(255, 46, 136, .8); }
+  .ca-later { margin: 10px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+
+  /* ---------- cyber: neon on near-black, scanlines; nothing moves ---------- */
+  /* after the light and dark rules, which it overrides whatever the knob says (side B's teal included) */
+  :root[data-cyber] {
+    --bg: #07070d; --ink: #dde4f4; --muted: #8a90b6; --line: rgba(0, 234, 255, .2);
+    --accent: #ff2e88; --neon: #00eaff; --code: rgba(0, 234, 255, .08); --curtain: #030306; color-scheme: dark;
+  }
+  :root[data-cyber] body[data-side] { --accent: #ff2e88; }
+  :root[data-cyber] body {
+    font: 18px/1.7 "IBM Plex Sans", system-ui, sans-serif;
+    background:
+      radial-gradient(900px 480px at 50% -8%, rgba(255, 46, 136, .16), transparent 70%),
+      radial-gradient(700px 600px at 105% 40%, rgba(0, 234, 255, .07), transparent 70%),
+      var(--bg) fixed;
+  }
+  :root[data-cyber] body::before {
+    content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .028) 0 1px, transparent 1px 3px);
+  }
+  :root[data-cyber] ::selection { background: var(--accent); color: #07070d; }
+  :root[data-cyber] h1 {
+    font: 700 clamp(26px, 4.6vw, 40px)/1.2 Unbounded, system-ui, sans-serif; color: #fff;
+    text-shadow: -2px 0 rgba(0, 234, 255, .75), 2px 0 rgba(255, 46, 136, .75), 0 0 22px rgba(255, 46, 136, .5);
+  }
+  :root[data-cyber] .year, :root[data-cyber] .notice, :root[data-cyber] figcaption,
+  :root[data-cyber] .topbar, :root[data-cyber] nav.tracks {
+    font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  :root[data-cyber] .year { color: var(--neon); letter-spacing: .2em; text-transform: uppercase; font-size: 13px; }
+  :root[data-cyber] .topbar, :root[data-cyber] nav.tracks, :root[data-cyber] figcaption { font-size: 13px; }
+  :root[data-cyber] article h2, :root[data-cyber] article h3 {
+    font-family: Unbounded, system-ui, sans-serif; font-weight: 500; color: var(--neon);
+    text-shadow: 0 0 14px rgba(0, 234, 255, .45);
+  }
+  :root[data-cyber] article h2 { font-size: 1.25em; }
+  :root[data-cyber] article h3 { font-size: 1.05em; }
+  :root[data-cyber] article h2::before { content: "// "; color: var(--accent); text-shadow: 0 0 12px rgba(255, 46, 136, .6); }
+  :root[data-cyber] article a { text-decoration-color: var(--neon); }
+  :root[data-cyber] article a:hover { color: var(--neon); }
+  :root[data-cyber] article blockquote {
+    color: #c3c8e6; background: linear-gradient(90deg, rgba(255, 46, 136, .09), transparent 80%);
+    box-shadow: -8px 0 18px -10px var(--accent); padding-right: .6em;
+  }
+  :root[data-cyber] article hr {
+    width: 60%; height: 1px; border-radius: 0; opacity: .9;
+    background: linear-gradient(90deg, transparent, var(--neon), var(--accent), transparent);
+  }
+  :root[data-cyber] .hero img, :root[data-cyber] figure img, :root[data-cyber] .yt {
+    border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 234, 255, .3), 0 0 30px rgba(0, 234, 255, .12);
+  }
+  :root[data-cyber] nav.tracks .pos { text-shadow: 0 0 10px rgba(255, 46, 136, .6); }
+
+  /* ---------- overdrive: the same look, moving — always away from the words themselves ---------- */
+  /* digital rain in the margins (drawn by the script) and a slow refresh band rolling down the screen */
+  .od { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .od canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .od-band {
+    position: fixed; left: 0; right: 0; top: -140px; height: 140px; z-index: 40; pointer-events: none;
+    background: linear-gradient(transparent, rgba(0, 234, 255, .04) 60%, rgba(255, 255, 255, .05), transparent);
+    animation: band 9s linear infinite;
+  }
+  @keyframes band { to { transform: translateY(calc(100vh + 140px)); } }
+  /* the title flickers on like a neon sign, and again now and then */
+  :root[data-cyber="overdrive"] h1.flicker { animation: neon-on 1.1s steps(1); }
+  @keyframes neon-on {
+    0% { opacity: .15; } 12% { opacity: 1; } 18% { opacity: .3; } 30% { opacity: 1; }
+    46% { opacity: .55; } 52%, 100% { opacity: 1; }
+  }
+  /* each section heading glitches once as it scrolls into view */
+  :root[data-cyber="overdrive"] article h2.glitch { animation: glitch .6s steps(1); }
+  @keyframes glitch {
+    0% { transform: translateX(-5px) skewX(-14deg); clip-path: inset(0 0 55% 0); text-shadow: 3px 0 #ff2e88, -3px 0 #00eaff; }
+    14% { transform: translateX(6px); clip-path: inset(48% 0 0 0); }
+    28% { transform: translateX(-2px) skewX(10deg); clip-path: inset(18% 0 34% 0); }
+    42% { transform: none; clip-path: none; opacity: .35; }
+    56% { transform: translateX(3px); clip-path: inset(62% 0 4% 0); opacity: 1; text-shadow: -3px 0 #ff2e88, 3px 0 #00eaff; }
+    70%, 100% { transform: none; clip-path: none; }
+  }
+  /* the dividers hum */
+  :root[data-cyber="overdrive"] article hr { animation: hum 3.4s ease-in-out infinite; }
+  @keyframes hum { 50% { opacity: .5; box-shadow: 0 0 12px rgba(0, 234, 255, .7); } }
+  :root[data-cyber="overdrive"] article a:hover { text-shadow: 0 0 10px rgba(0, 234, 255, .7); }
+
+  /* switching into overdrive: a CRT powering on, a white line that opens into the picture */
+  .crt { display: none; position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+  .crt.on { display: block; }
+  .crt i { position: absolute; left: 0; right: 0; height: 50%; background: #000; }
+  .crt i:first-child { top: 0; transform-origin: top; }
+  .crt i:nth-child(2) { bottom: 0; transform-origin: bottom; }
+  .crt.on i { animation: crt-open .45s cubic-bezier(.6, 0, .3, 1) .28s both; }
+  .crt b {
+    position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: #fff;
+    box-shadow: 0 0 18px 4px rgba(0, 234, 255, .8);
+  }
+  .crt.on b { animation: crt-line .75s ease-out both; }
+  @keyframes crt-open { to { transform: scaleY(0); } }
+  @keyframes crt-line {
+    0% { transform: scaleX(0); } 35% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1) scaleY(40); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .ca-opts { grid-template-columns: 1fr; }
+    /* room for the switch in the top bar: the back link keeps its turntable, its words go to screen readers only */
+    .topbar .back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
 </style>
+
 </head>
 <body data-side="B" class="">
   <div class="topbar">
@@ -278,9 +388,24 @@
   }));
 })();
 </script>
+<span class="knob-wrap">
+  <button class="cswitch" id="cswitch" type="button" data-mode="off" data-text="{&quot;off&quot;: &quot;обычный&quot;, &quot;cyber&quot;: &quot;кибер&quot;, &quot;overdrive&quot;: &quot;овердрайв&quot;, &quot;aria&quot;: &quot;Киберпанк-режим: {mode}. Нажмите, чтобы переключить.&quot;}">
+    <svg viewBox="0 0 36 30" aria-hidden="true">
+      <!-- positions: off (a plain circle), cyber (a prompt, >_), overdrive (a bolt) -->
+      <circle class="mark mark-off" cx="9" cy="6.5" r="2" fill="none" stroke="currentColor" stroke-width="1"/>
+      <path class="mark mark-cyber" d="M 15.9,4.6 l 1.7,1.6 l -1.7,1.6 M 18.4,8.2 h 2" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="mark mark-overdrive" d="M 28.2,3.6 L 25.6,7 H 27.4 L 26.4,9.6 L 29.2,5.9 H 27.4 Z" fill="currentColor"/>
+      <rect x="3" y="14" width="30" height="12" rx="6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+      <g class="thumb">
+        <rect x="4.5" y="15.5" width="9" height="9" rx="4.5" fill="#3a342e" stroke="#fff" stroke-opacity=".2" stroke-width=".6"/>
+        <path d="M 9,17.6 V 22.4" stroke="#fff" stroke-opacity=".7" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="cswitchLabel" aria-hidden="true"></span>
+</span>
 <style>
-  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark.
-     Posts with theme: cyber get a fourth position, cyber, and the marks spread out to make room */
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
   /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
      (and never covers the language toggle to its left) */
@@ -304,13 +429,7 @@
   }
   @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
   .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
-  .knob .mark-cyber { display: none; }
-  .knob[data-four] .mark-cyber { display: inline; }
-  .knob[data-four] .mark-auto { transform: translate(-1.4px, 2px); }
-  .knob[data-four] .mark-light { transform: translate(-5.2px, 1.4px); }
-  .knob[data-four] .mark-dark { transform: translate(-6.3px, -5.2px); }
-  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark,
-  .knob[data-mode="cyber"] .mark-cyber {
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
     color: var(--accent); opacity: 1;
   }
   /* the room lights: dim, switch, come back up */
@@ -318,9 +437,9 @@
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto" data-modes="auto light dark cyber" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;cyber&quot;: &quot;кибер&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
-      <!-- positions: auto (half-lit circle), light (sun), dark (moon), and on some posts cyber (a prompt, >_) -->
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
       <g class="mark mark-auto">
         <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
         <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
@@ -330,7 +449,6 @@
         <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
       </g>
       <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
-      <path class="mark mark-cyber" d="M 27.6,11.4 l 1.7,1.6 l -1.7,1.6 M 30.2,14.9 h 1.9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
       <g class="dial">
         <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
         <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
@@ -345,16 +463,13 @@
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
 (() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
   const root = document.documentElement, knob = document.getElementById('knob');
-  const MODES = knob.dataset.modes.split(' ');
-  const ANGLE = MODES.length > 3 ? { auto: -66, light: -22, dark: 22, cyber: 66 } : { auto: -55, light: 0, dark: 55 };
-  if (MODES.length > 3) knob.dataset.four = '';
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
   const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
-  // cyber is kept apart from lp-theme, so the record and the other posts keep the reader's light or dark
   let mode = root.dataset.theme || 'auto', hideLabel;
 
   function point(m) {
@@ -365,11 +480,8 @@
   }
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
-    try {
-      if (m === 'cyber') return localStorage.setItem('lp-cyber', '1');
-      localStorage.removeItem('lp-cyber');
-      if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m);
-    } catch (e) {}
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+    document.dispatchEvent(new Event('lp-knob'));   // heard by the cyber switch (src/cyber.html)
   }
 
   point(mode);
@@ -384,7 +496,8 @@
     const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
     if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
     // same colours either way (say, auto → light on a light system): just remember the choice
-    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+    // (a cyber post's switch, if on, is about to step aside, so the colours change after all)
+    if ((shown(mode) === shown(root.dataset.theme || 'auto') && !root.dataset.cyber) || reduced || !lights.animate) {
       apply(mode);
       if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
       return;
@@ -406,6 +519,18 @@
     <p class="year">2020</p>
     
   </header>
+<section class="cyber-ask" id="cyberAsk" aria-labelledby="cyberAskQ">
+  <div class="ca-box">
+    <p class="ca-q" id="cyberAskQ">Как читать этот пост?</p>
+    <div class="ca-opts">
+      <button type="button" data-mode="off"><b>обычный</b><span>как все посты на сайте</span></button>
+      <button type="button" data-mode="cyber"><b>кибер</b><span>неон на чёрном, ничего не движется</span></button>
+      <button type="button" data-mode="overdrive"><b>овердрайв</b><span>цифровой дождь, глитчи, мерцание: страница движется</span></button>
+    </div>
+    <p class="ca-later">Выбор запомнится. Поменять его можно переключателем вверху справа.</p>
+  </div>
+</section>
+
 
   <figure class="hero"><img src="../images/cyberpunk2020/cover.jpg" alt=""></figure>
 
@@ -529,6 +654,156 @@
       box.replaceChildren(f);
     }, { once: true });
   });
+</script><div class="crt" id="crt" aria-hidden="true"><i></i><i></i><b></b></div>
+<script>
+(() => {
+  const MODES = ['off', 'cyber', 'overdrive'];
+  const root = document.documentElement, sw = document.getElementById('cswitch');
+  const label = document.getElementById('cswitchLabel'), ask = document.getElementById('cyberAsk');
+  const lights = document.getElementById('lights'), crt = document.getElementById('crt');
+  const TEXT = JSON.parse(sw.dataset.text);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let mode = root.dataset.cyber || 'off', hideLabel, stopOverdrive = null;
+
+  function point(m) {
+    sw.dataset.mode = m;
+    label.textContent = TEXT[m];
+    sw.setAttribute('aria-label', TEXT.aria.replace('{mode}', TEXT[m]));
+  }
+  function store(m) { try { localStorage.setItem('lp-cyber', m); } catch (e) {} }
+  function apply(m) {
+    if (m === 'off') delete root.dataset.cyber; else root.dataset.cyber = m;
+    if (m === 'overdrive' && !stopOverdrive) stopOverdrive = overdrive();
+    if (m !== 'overdrive' && stopOverdrive) { stopOverdrive(); stopOverdrive = null; }
+  }
+
+  // into overdrive the screen powers on; between normal and cyber the room lights dim, as with the knob;
+  // cyber ↔ overdrive keeps the colours and just starts or stops the motion
+  function set(m) {
+    const from = mode;
+    mode = m;
+    point(m);
+    store(m);
+    if (m === 'overdrive' && !reduced) {
+      crt.classList.remove('on'); void crt.offsetWidth; crt.classList.add('on');
+      clearTimeout(crt.timer);
+      crt.timer = setTimeout(() => crt.classList.remove('on'), 800);
+      return apply(m);
+    }
+    if ((from === 'off') === (m === 'off') || reduced || !lights.animate) return apply(m);
+    lights.getAnimations().forEach(a => a.cancel());
+    lights.animate([{ opacity: 0 }, { opacity: .9 }], { duration: 160, easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(mode);   // the latest choice, if clicks came quicker than the fade
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  }
+
+  point(mode);
+  apply(mode);
+  sw.addEventListener('click', () => {
+    set(MODES[(MODES.indexOf(mode) + 1) % MODES.length]);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+    fold();
+  });
+  // turning the theme knob means "show me these colours", so the switch steps aside (applied either way:
+  // the knob's dim cancels a fade of ours that might still be waiting to apply)
+  document.addEventListener('lp-knob', () => {
+    if (mode !== 'off') { mode = 'off'; point('off'); store('off'); }
+    apply('off');
+  });
+
+  // the question: an answer folds it away; scrolling past it counts as "normal"
+  function fold() {
+    if (!root.classList.contains('asking')) return;
+    const r = ask.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight || reduced || !ask.animate) return root.classList.remove('asking');
+    ask.animate([{ height: r.height + 'px', opacity: 1 }, { height: 0, opacity: 0 }],
+                { duration: 350, easing: 'ease-in-out' }).onfinish = () => root.classList.remove('asking');
+  }
+  ask.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    set(b.dataset.mode);
+    fold();
+    sw.focus({ preventScroll: true });
+  }));
+  if (root.classList.contains('asking')) {
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting && e.boundingClientRect.bottom < 0) { store('off'); io.disconnect(); }
+    });
+    io.observe(ask);
+  }
+
+  function replay(el, cls) {
+    el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+    el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+  }
+
+  // overdrive's moving parts; returns the function that stops them all
+  function overdrive() {
+    const layer = document.createElement('div');
+    layer.className = 'od';
+    layer.setAttribute('aria-hidden', 'true');
+    layer.innerHTML = '<canvas></canvas><span class="od-band"></span>';
+    document.body.append(layer);
+    const stopRain = rain(layer.firstChild);
+
+    const seen = new WeakSet();
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting && !seen.has(e.target)) { seen.add(e.target); replay(e.target, 'glitch'); }
+    }), { rootMargin: '0px 0px -15% 0px' });
+    document.querySelectorAll('article h2').forEach(h => io.observe(h));
+
+    const h1 = document.querySelector('h1');
+    let timer;
+    replay(h1, 'flicker');
+    (function later() { timer = setTimeout(() => { replay(h1, 'flicker'); later(); }, 9000 + Math.random() * 12000); })();
+
+    return () => { stopRain(); io.disconnect(); clearTimeout(timer); layer.remove(); };
+  }
+
+  // falling glyphs, only beside the text column and fading out toward it; none on a phone, which has no margins
+  function rain(canvas) {
+    const ctx = canvas.getContext('2d'), SIZE = 16, FADE = 140;
+    const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎ0123456789ЖЯЮФЦ$#%<>/';
+    const article = document.querySelector('article');
+    let w, h, left, right, drops, speeds, raf, last = 0;
+    function size() {
+      const dpr = devicePixelRatio || 1, a = article.getBoundingClientRect();
+      w = innerWidth; h = innerHeight; left = a.left + 20; right = a.right - 20;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.font = `${SIZE - 2}px "JetBrains Mono", ui-monospace, monospace`;
+      ctx.textAlign = 'center';
+      const cols = Math.ceil(w / SIZE);
+      drops = Array.from({ length: cols }, () => (Math.random() * 2 - 1) * h / SIZE);   // some already falling
+      speeds = Array.from({ length: cols }, () => .5 + Math.random() * .6);
+    }
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (t - last < 55) return;
+      last = t;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = 'rgba(0, 0, 0, .09)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+      drops.forEach((d, i) => {
+        const x = i * SIZE + SIZE / 2, gap = x < left ? left - x : x > right ? x - right : 0;
+        if (gap < 12) return;
+        const y = d * SIZE, k = Math.min(1, gap / FADE);
+        ctx.fillStyle = i % 7 === 3 ? `rgba(255, 46, 136, ${.5 * k})` : `rgba(0, 234, 255, ${.42 * k})`;
+        ctx.fillText(GLYPHS[Math.random() * GLYPHS.length | 0], x, y);
+        drops[i] = y > h && Math.random() > .97 ? 0 : d + speeds[i];
+      });
+    }
+    size();
+    addEventListener('resize', size);
+    raf = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(raf); removeEventListener('resize', size); };
+  }
+})();
 </script>
+
 </body>
 </html>
