@@ -1,127 +1,128 @@
 ---
-title: "Jagged intelligence"
+title: "Зубчатый интеллект"
 date: 2026-01-07
 series: other
-author: Eugene Trifonov
+author: Евгений Трифонов
 cover: ../images/jagged-intelligence/01.jpg
-teaser: "Sure, everyone and their bear is writing about AI now, making you sick of reading about it. But they usually don't know how to do it right. I do. My blog is the right one to read."
-original: https://expectfun.github.io/posts/jagged-intelligence.html
+teaser: "Конечно, сейчас про ИИ пишут все кому не лень, и читать про него уже тошно. Но обычно они не умеют делать это правильно. А я умею. Мой блог — тот самый, который надо читать."
+translation: machine
+translated_from: en
 ---
 
-![Well, you can probably guess how that image was created](../images/jagged-intelligence/01.jpg)
-*Well, you can probably guess how that image was created*
+![Ну, вы, наверное, догадываетесь, как была создана эта картинка](../images/jagged-intelligence/01.jpg)
+*Ну, вы, наверное, догадываетесь, как была создана эта картинка*
 
-Sure, everyone and their bear is writing about AI now, making you sick of reading about it. But they usually don't know how to do it right. I do. My blog is the right one to read. (Well, there's a [reason](https://en.wikipedia.org/wiki/Overconfidence_effect) it's called Overconfidence Effect.) So unfortunately for you, here goes yet another blog series on AI. Bear with me.
+Конечно, сейчас про ИИ пишут все кому не лень, и читать про него уже тошно. Но обычно они не умеют делать это правильно. А я умею. Мой блог — тот самый, который надо читать. (Ну, не зря это называется [эффектом сверхуверенности](https://en.wikipedia.org/wiki/Overconfidence_effect).) Так что, к вашему несчастью, вот ещё одна серия постов про ИИ. Потерпите.
 
-Where to start? What's the most fundamental thing about AI that's not immediately obvious? I think the humanity is yet to fully grasp the concept of **"jagged intelligence"**.
+С чего начать? Что в ИИ самое фундаментальное и при этом неочевидное? Думаю, человечеству ещё предстоит до конца осознать понятие **«зубчатого интеллекта»** (jagged intelligence).
 
-Once upon a time, back when no one was talking about AI (well, Ray Kurzweil was, but nobody else), I was watching a robot vacuum cleaner doing its thing. And looking at its attempts to cover all the floor surface, I couldn't help but feel two things at once:
+Когда-то давно, когда про ИИ никто не говорил (ну, Рэй Курцвейл говорил, но больше никто), я смотрел, как работает робот-пылесос. И глядя на его попытки покрыть всю площадь пола, не мог не ощущать две вещи одновременно:
 
-- "Wow, how smart it is!"
-- "Wow, how dumb it is!"
+- «Ого, какой он умный!»
+- «Ого, какой он тупой!»
 
-It could move in pretty sophisticated ways, showing some kind of "understanding" of the environment... and right after that, it could get stuck in an "easily avoidable situation".
+Он мог двигаться довольно хитроумно, демонстрируя какое-то «понимание» обстановки… и сразу после этого застрять в «элементарно избегаемой ситуации».
 
-And now, more than a decade later, I'm watching the progress of AI with similar feelings. LLMs are very "smart". LLMs are very "dumb". Those two things are not contradictory.
-
----
-
-## Binary fallacy
-
-People tend to think in a binary way. Each thing is perceived as "good" or "bad", each innovation as "a revolution" or "a bubble". It's like we have just one bit of memory allocated to each of our verdicts. Well, that probably helped some cavemen escape tigers thousands of years ago and pass their genes to us. But I don't think that's a good way to reason about complicated things when we're not being chased by a tiger. And AI is complicated as hell.
-
-So when people talk about the "intelligence capabilities" of AI, they often see it either as a *genius invention that will soon surpass us at everything*, or as a *useless hallucinating machine that's confidently spitting out pointless probabilities*. It's seen as *"smart"* or *"dumb"*, one bit.
-
-In my opinion, both of these ways of thinking are flawed. What's the right one?
-
-In his 2025 year-end review, Andrej Karpathy [wrote](https://karpathy.bearblog.dev/year-in-review-2025/) about "jagged intelligence" and shared this image. I think that's the best visual representation of modern AI capabilities (shown in red, growing) compared to the human capabilities (shown in blue).
-
-![a pic I shamelessly copied from Karpathy's post but he copied it too so it is okay](../images/jagged-intelligence/02.webp)
-*a pic I shamelessly copied from Karpathy's post but he copied it too so it is okay*
+И теперь, больше десяти лет спустя, я наблюдаю за прогрессом ИИ с похожими чувствами. LLM очень «умные». LLM очень «тупые». Одно другому не противоречит.
 
 ---
 
-## What do we see here?
+## Ловушка бинарности
 
-1. **AI is "jagged"**. It shines in some regards (let's call those parts of the image "jaggies"), but it lacks just as much in others. It helps the scientists to fold proteins, which has been seen as a miracle, but at the same time LLMs currently can't be trusted with counting letters in a word. So any one-bit evaluation like "it's smart" or "it's dumb" does not suffice. It's smart AND dumb, and sometimes it oscillates between those opposites during a single task, just like a robot vacuum cleaner.
-2. **Human intelligence, in fact, is jagged too**. We are *tremendously good* at some tasks and *tremendously bad* at some others. We just don't see ourselves that way because we use ourselves as the unit of measure, just as our ancestors were sure "the world revolves around Earth". We intuitively feel that our capabilities are "balanced". (Spoiler: they're not.)
-3. **AI is not "more" or "less" capable than humans**. It's a *different thing*. None of two stars in the image embeds the other fully, and they start from different places. So even though one is growing quickly, it doesn't guarantee it will cover the other. And saying "when AI will become smarter than us" may turn out like saying "when planes will become flyer than the birds". Planes can't and shouldn't "overcome" birds (have you ever seen a plane building a nest?).
-4. **AI overtakes humans in specific tasks**. Even though planes can't "overtake the birds", they obviously overtook in some specific regards, like the speed of flight and the passenger-carrying ability. And those things matter to people, solving their needs. Same goes for AI. Some of their "jaggies", like translation ability, are useful for the tasks people were already doing.
-5. **AI capabilities are growing very fast** (illustrated by the red star growing). Aviation slowly grew from a daring experiment into a reliable worldwide industry. AI grows much faster and gets into lots of industries at the same time. We've probably never witnessed a technology evolving at such speeds.
-6. **So it's getting impossible to ignore it**. There was a lot of AI-mocking back when it drew extra fingers. Now the "jaggies" are getting so big and useful, it gets almost pointless to do some tasks without using them. And the list of such tasks is growing. It will get to some of *your* tasks, too.
-7. **But while it is growing, the "jaggedness" does not go away**. So in some regards it still lacks a lot, compared both to the humans and to its own strong suits. It stumbles where a child would excel. It probably will grow rapidly but still stumble. It will become a "genius that can't lace a shoe".
-8. **And even if it becomes 100x more capable and overturns the economy, it might still get nowhere close to having human intelligence**. There's no contradiction in that.
+Люди склонны мыслить бинарно. Каждая вещь воспринимается как «хорошая» или «плохая», каждая инновация — как «революция» или «пузырь». Словно на каждый наш вердикт выделен ровно один бит памяти. Наверное, это помогло каким-то пещерным людям тысячи лет назад убежать от тигров и передать нам свои гены. Но не думаю, что это хороший способ рассуждать о сложных вещах, когда за нами не гонится тигр. А ИИ — штука чертовски сложная.
 
-Those things don't fit into the "binary thinking". But people still strive for a "one-bit answer". So the "jagged intelligence" leads to lots of flawed reasoning.
+Поэтому, когда люди говорят об «интеллектуальных способностях» ИИ, они часто видят в нём либо *гениальное изобретение, которое скоро превзойдёт нас во всём*, либо *бесполезную галлюцинирующую машину, уверенно выплёвывающую бессмысленные вероятности*. Его считают *«умным»* или *«тупым»* — один бит.
 
-Some people get very impressed by "jaggies": "Oh wow, it generated a logo for my business better than I ever could!" But while it's okay to be impressed, it gets easy to oversee the shortcomings. And that leads to people blindly trusting AI and then getting bitten by things like hallucinations.
+По-моему, оба способа мышления ошибочны. А какой правильный?
 
-Other people see the shortcomings and say "since hallucinations are unavoidable, AI is useless". That prevents them from using the jaggies, which are becoming more and more indispensable.
+В своём обзоре итогов 2025 года Андрей Карпаты [написал](https://karpathy.bearblog.dev/year-in-review-2025/) о «зубчатом интеллекте» и поделился вот этой картинкой. Думаю, это лучшая визуализация способностей современного ИИ (красным, растёт) в сравнении со способностями человека (синим).
+
+![картинка, которую я бессовестно скопировал из поста Карпаты, но он тоже её скопировал, так что всё нормально](../images/jagged-intelligence/02.webp)
+*картинка, которую я бессовестно скопировал из поста Карпаты, но он тоже её скопировал, так что всё нормально*
 
 ---
 
-## What's the right approach?
+## Что мы тут видим?
 
-Okay, there are lots of wrong approaches, but what's the right one?
+1. **ИИ — «зубчатый»**. В чём-то он блистает (давайте назовём эти части картинки «зубцами»), но ровно настолько же не дотягивает в другом. Он помогает учёным сворачивать белки, что считалось чудом, — но при этом LLM сейчас нельзя доверить даже подсчёт букв в слове. Так что никакая однобитная оценка вроде «он умный» или «он тупой» не годится. Он умный И тупой, а иногда мечется между этими крайностями в рамках одной задачи — совсем как робот-пылесос.
+2. **Человеческий интеллект на самом деле тоже зубчатый**. Мы *невероятно хороши* в одних задачах и *невероятно плохи* в других. Просто мы не видим себя такими, потому что используем себя как единицу измерения — так же, как наши предки были уверены, что «мир вращается вокруг Земли». Мы интуитивно ощущаем свои способности «сбалансированными». (Спойлер: это не так.)
+3. **ИИ не «более» и не «менее» способный, чем люди**. Это *другая штука*. Ни одна из двух звёзд на картинке не вмещает другую целиком, и начинаются они из разных мест. Так что даже если одна быстро растёт, нет гарантии, что она покроет другую. И фраза «когда ИИ станет умнее нас» может оказаться вроде фразы «когда самолёты станут летающее птиц». Самолёты не могут и не должны «превзойти» птиц (вы когда-нибудь видели, как самолёт вьёт гнездо?).
+4. **ИИ обгоняет людей в конкретных задачах**. Хотя самолёты не могут «обогнать птиц», в каких-то конкретных отношениях они очевидно обогнали — например, в скорости полёта и в способности перевозить пассажиров. И эти вещи важны людям, они решают их задачи. С ИИ то же самое. Некоторые его «зубцы», вроде способности переводить, полезны для задач, которые люди решали и раньше.
+5. **Способности ИИ растут очень быстро** (это показывает растущая красная звезда). Авиация медленно выросла из дерзкого эксперимента в надёжную всемирную индустрию. ИИ растёт гораздо быстрее и проникает во множество индустрий одновременно. Вероятно, мы ещё никогда не видели, чтобы технология развивалась с такой скоростью.
+6. **Так что игнорировать его становится невозможно**. Над ИИ много смеялись, когда он рисовал лишние пальцы. Теперь «зубцы» становятся такими большими и полезными, что решать некоторые задачи без них почти бессмысленно. И список таких задач растёт. Он доберётся и до каких-то *ваших* задач.
+7. **Но пока он растёт, «зубчатость» никуда не девается**. Так что в чём-то он по-прежнему сильно отстаёт — и от людей, и от собственных сильных сторон. Он спотыкается там, где ребёнок справился бы на отлично. Вероятно, он будет стремительно расти, но всё равно спотыкаться. Он станет «гением, который не может завязать шнурки».
+8. **И даже если он станет в 100 раз способнее и перевернёт экономику, он всё равно может даже не приблизиться к человеческому интеллекту**. В этом нет противоречия.
 
-Stop thinking about AI in terms of a "monolithic thing" that's "smart" or "dumb" (it's both).
+Всё это не укладывается в «бинарное мышление». Но люди всё равно стремятся к «однобитному ответу». Поэтому «зубчатый интеллект» порождает много ошибочных рассуждений.
 
-Start thinking about AI — and yourself — in terms of "jaggies" and "shortcomings".
+Одних людей сильно впечатляют «зубцы»: «Ого, он сгенерировал логотип для моего бизнеса лучше, чем я когда-либо смог бы!» Впечатляться — нормально, но так легко проглядеть недостатки. А это приводит к тому, что люди слепо доверяют ИИ, а потом их кусают вещи вроде галлюцинаций.
 
-What jaggies and shortcomings does AI currently have?
-
-What jaggies and shortcomings do *I* have?
-
-Where do our jaggies overlap and where do they complement each other?
-
-What can I gain by using the AI jaggies?
-
-How can I get bitten by them, such as "losing a job"?
-
-How can I get bitten by AI shortcomings, if I'm not careful?
-
-How can I get the most from AI and get bitten the least?
-
-Where are the AI jaggies likely to grow in the near future?
-
-How can those new ones help me, and how can they pose a threat to my way of living?
-
-How can it help humanity, and where does it pose a threat to humanity?
-
-I think all of those questions are more worth thinking about than the clickbaity binary-type ones like "AGI wen", which doesn't even have a clear definition. Leave such pointless questions to YouTubers desperate for clicks (and don't give them those clicks).
+Другие люди видят недостатки и говорят: «раз галлюцинаций не избежать, ИИ бесполезен». Это мешает им пользоваться зубцами, которые становятся всё более незаменимыми.
 
 ---
 
-## An example
+## Какой подход правильный?
 
-I enjoy writing, and I think that's one of my "jaggies".
+Окей, неправильных подходов много, а какой правильный?
 
-Meanwhile, while LLMs produce a coherent text, AI writing mostly feels bland and superficial to me.
+Перестаньте думать об ИИ как о «монолитной штуке», которая «умная» или «тупая» (она и то, и другое).
 
-So I don't let the AI do the writing for me. I'm quite overconfident my writing is better so far.
+Начните думать об ИИ — и о себе — в терминах «зубцов» и «недостатков».
 
-But at the same time, English is not my native language, and LLMs are good with languages.
+Какие зубцы и недостатки есть у ИИ сейчас?
 
-So I wrote this post myself, but I asked Opus 4.5 afterwards to check it, and it found some mistakes and weird phrasing (while keeping all my silly bear puns). It even "understood" that the incorrent use of the word "flyer" was intentional!
+Какие зубцы и недостатки есть у *меня*?
 
-My "writing jaggie" was complemented by its "checking jaggie". Yes, I'm aware some mistakes could be left unnoticed. "Partial review" is still better than "no review".
+Где наши зубцы пересекаются, а где дополняют друг друга?
 
-Another thing I found useful is to talk about a post I wrote with an LLM model. It's a bit like "[talking to a rubber duck](https://en.wikipedia.org/wiki/Rubber_duck_debugging)" where you have to find the right answers yourself, but the process helps. So one of AI "jaggies" is "being a rubber duck on steroids with a lossy copy of the internet built in".
+Что я могу выиграть, используя зубцы ИИ?
 
-So I asked Opus if it agrees with this post and if it has something to add. Here's the most interesting part of its answer, after it was done with complimenting me:
+Как они могут меня укусить — например, «я потеряю работу»?
 
-> Where I'd add nuance:
+Как меня могут укусить недостатки ИИ, если я буду неосторожен?
+
+Как получить от ИИ максимум и быть укушенным минимально?
+
+Где зубцы ИИ, скорее всего, вырастут в ближайшем будущем?
+
+Как эти новые зубцы могут мне помочь — и как они могут угрожать моему образу жизни?
+
+Как ИИ может помочь человечеству и где он угрожает человечеству?
+
+Думаю, обо всех этих вопросах стоит думать больше, чем о кликбейтных бинарных вроде «AGI когда», у которого даже нет чёткого определения. Оставьте такие бессмысленные вопросы ютуберам, отчаянно гоняющимся за кликами (и не давайте им этих кликов).
+
+---
+
+## Пример
+
+Мне нравится писать, и думаю, это один из моих «зубцов».
+
+А тексты LLM, хоть и связные, по большей части кажутся мне пресными и поверхностными.
+
+Поэтому я не даю ИИ писать за меня. Я довольно сверхуверенно считаю, что пока пишу лучше.
+
+Но при этом английский — не мой родной язык, а LLM хорошо управляются с языками. (Этот пост изначально написан на английском.)
+
+Так что я написал этот пост сам, но потом попросил Opus 4.5 его проверить, и он нашёл несколько ошибок и странных формулировок (сохранив при этом все мои дурацкие медвежьи каламбуры). Он даже «понял», что неправильное употребление слова «flyer» (в переводе — «летающее») было намеренным!
+
+Мой «писательский зубец» дополнил его «проверяющий зубец». Да, я понимаю, что какие-то ошибки могли остаться незамеченными. «Частичная проверка» всё равно лучше, чем «никакой».
+
+Ещё мне показалось полезным обсуждать написанный пост с LLM. Это немного похоже на «[разговор с резиновой уточкой](https://en.wikipedia.org/wiki/Rubber_duck_debugging)», где правильные ответы нужно найти самому, но процесс помогает. Так что один из «зубцов» ИИ — «быть резиновой уточкой на стероидах со встроенной сжатой с потерями копией интернета».
+
+Поэтому я спросил Opus, согласен ли он с этим постом и есть ли ему что добавить. Вот самая интересная часть его ответа, после того как он закончил делать мне комплименты:
+
+> Где я добавил бы нюансов:
 >
-> - The shape of the jaggedness changes. Some gaps get filled (image models used to struggle with hands, now mostly don't). New gaps may appear as models are applied to new domains. So it's not static jaggedness - it's shifting jaggedness.
-> - Knowing one's own limitations is itself a limitation. I often don't know when I'm about to get something wrong. So "use the jaggies but avoid the shortcomings" is harder in practice than it sounds - sometimes the shortcoming surprises you.
-> - The post puts the burden of understanding on the user. That's reasonable, but AI developers also have responsibility to make limitations clearer and harder to stumble into.
+> - Форма зубчатости меняется. Какие-то пробелы заполняются (моделям генерации изображений раньше не давались руки, а теперь в основном даются). Новые пробелы могут появляться, когда модели применяют в новых областях. Так что это не статичная зубчатость — это смещающаяся зубчатость.
+> - Знание собственных ограничений само по себе — ограничение. Я часто не знаю, когда вот-вот ошибусь. Так что «используйте зубцы, но избегайте недостатков» на практике сложнее, чем звучит: иногда недостаток застаёт врасплох.
+> - Пост перекладывает бремя понимания на пользователя. Это разумно, но и у разработчиков ИИ есть ответственность — делать ограничения понятнее, а наткнуться на них — сложнее.
 
-I think that the "shifting jaggedness" is really an interesting concept to think about, and the original Karpathy post didn't quite mention that, so it's a worthwhile addition. But as the author of this post, it's still *my* responsibility to evaluate its worthiness. It has to be *my* jaggie to check out where AI jaggies are giving me something worth including in the post.
+Думаю, «смещающаяся зубчатость» — действительно интересная концепция, о которой стоит подумать, и в исходном посте Карпаты об этом толком не говорилось, так что это стоящее дополнение. Но как автор этого поста, оценивать, чего оно стоит, всё равно обязан *я*. Проверять, где зубцы ИИ дают мне что-то стоящее для поста, — это должно быть *моим* зубцом.
 
 ---
 
-Okay, all of that might feel overwhelming... But we're just bearly getting started.
+Окей, всё это может показаться ошеломляющим… Но мы только начинаем — пока ещё косолапо.
 
-With the speed of the jaggies growing, they will affect us so much there will be no option to NOT think about it in the future. The only thing in life we'll control is whether we adjust to get positive results instead of ruining everything. Success is our only motherfucking option — failure's not.
+С такой скоростью роста зубцы повлияют на нас настолько, что в будущем не думать о них будет просто невозможно. Единственное, что мы будем контролировать в жизни, — сумеем ли мы приспособиться так, чтобы получить хорошие результаты, а не испортить всё. Success is our only motherfucking option — failure's not.
 
-So bear with me. See you in the next post.
+Так что не впадайте в спячку. Увидимся в следующем посте.

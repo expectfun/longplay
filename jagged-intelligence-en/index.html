@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jagged intelligence — Longplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .lang { display: inline-flex; gap: 7px; font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+  .lang .on { color: var(--accent); font-weight: 600; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="B" class="">
+  <div class="topbar">
+    <a class="back" href="../#B3">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><span class="lang"><a href="../jagged-intelligence/" lang="ru" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски">RU</a><span aria-hidden="true">·</span><span class="on" lang="en" aria-current="page">EN</span></span><style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats left of the knob, out of the layout so it never pushes the top bar around */
+  .knob-label {
+    position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 4px; padding: 2px 6px;
+    border-radius: 6px; background: var(--bg); white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true">auto</span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = m;
+    knob.setAttribute('aria-label', `Theme: ${m === 'auto' ? 'auto, follows the system' : m}. Click to change.`);
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>Jagged intelligence</h1>
+    <p class="year">2026</p>
+    
+  </header>
+
+  <figure class="hero"><img src="../images/jagged-intelligence/01.jpg" alt=""><figcaption>Well, you can probably guess how that image was created</figcaption></figure>
+
+  <article>
+<p>Sure, everyone and their bear is writing about AI now, making you sick of reading about it. But they usually don't know how to do it right. I do. My blog is the right one to read. (Well, there's a <a href="https://en.wikipedia.org/wiki/Overconfidence_effect">reason</a> it's called Overconfidence Effect.) So unfortunately for you, here goes yet another blog series on AI. Bear with me.</p>
+<p>Where to start? What's the most fundamental thing about AI that's not immediately obvious? I think the humanity is yet to fully grasp the concept of <strong>"jagged intelligence"</strong>.</p>
+<p>Once upon a time, back when no one was talking about AI (well, Ray Kurzweil was, but nobody else), I was watching a robot vacuum cleaner doing its thing. And looking at its attempts to cover all the floor surface, I couldn't help but feel two things at once:</p>
+<ul>
+<li>"Wow, how smart it is!"</li>
+<li>"Wow, how dumb it is!"</li>
+</ul>
+<p>It could move in pretty sophisticated ways, showing some kind of "understanding" of the environment... and right after that, it could get stuck in an "easily avoidable situation".</p>
+<p>And now, more than a decade later, I'm watching the progress of AI with similar feelings. LLMs are very "smart". LLMs are very "dumb". Those two things are not contradictory.</p>
+<hr />
+<h2 id="binary-fallacy">Binary fallacy</h2>
+<p>People tend to think in a binary way. Each thing is perceived as "good" or "bad", each innovation as "a revolution" or "a bubble". It's like we have just one bit of memory allocated to each of our verdicts. Well, that probably helped some cavemen escape tigers thousands of years ago and pass their genes to us. But I don't think that's a good way to reason about complicated things when we're not being chased by a tiger. And AI is complicated as hell.</p>
+<p>So when people talk about the "intelligence capabilities" of AI, they often see it either as a <em>genius invention that will soon surpass us at everything</em>, or as a <em>useless hallucinating machine that's confidently spitting out pointless probabilities</em>. It's seen as <em>"smart"</em> or <em>"dumb"</em>, one bit.</p>
+<p>In my opinion, both of these ways of thinking are flawed. What's the right one?</p>
+<p>In his 2025 year-end review, Andrej Karpathy <a href="https://karpathy.bearblog.dev/year-in-review-2025/">wrote</a> about "jagged intelligence" and shared this image. I think that's the best visual representation of modern AI capabilities (shown in red, growing) compared to the human capabilities (shown in blue).</p>
+<figure><img src="../images/jagged-intelligence/02.webp" alt="a pic I shamelessly copied from Karpathy&#x27;s post but he copied it too so it is okay" loading="lazy"><figcaption>a pic I shamelessly copied from Karpathy's post but he copied it too
+so it is okay</figcaption></figure>
+
+<hr />
+<h2 id="what-do-we-see-here">What do we see here?</h2>
+<ol type="1">
+<li><strong>AI is "jagged"</strong>. It shines in some regards (let's call those parts of the image "jaggies"), but it lacks just as much in others. It helps the scientists to fold proteins, which has been seen as a miracle, but at the same time LLMs currently can't be trusted with counting letters in a word. So any one-bit evaluation like "it's smart" or "it's dumb" does not suffice. It's smart AND dumb, and sometimes it oscillates between those opposites during a single task, just like a robot vacuum cleaner.</li>
+<li><strong>Human intelligence, in fact, is jagged too</strong>. We are <em>tremendously good</em> at some tasks and <em>tremendously bad</em> at some others. We just don't see ourselves that way because we use ourselves as the unit of measure, just as our ancestors were sure "the world revolves around Earth". We intuitively feel that our capabilities are "balanced". (Spoiler: they're not.)</li>
+<li><strong>AI is not "more" or "less" capable than humans</strong>. It's a <em>different thing</em>. None of two stars in the image embeds the other fully, and they start from different places. So even though one is growing quickly, it doesn't guarantee it will cover the other. And saying "when AI will become smarter than us" may turn out like saying "when planes will become flyer than the birds". Planes can't and shouldn't "overcome" birds (have you ever seen a plane building a nest?).</li>
+<li><strong>AI overtakes humans in specific tasks</strong>. Even though planes can't "overtake the birds", they obviously overtook in some specific regards, like the speed of flight and the passenger-carrying ability. And those things matter to people, solving their needs. Same goes for AI. Some of their "jaggies", like translation ability, are useful for the tasks people were already doing.</li>
+<li><strong>AI capabilities are growing very fast</strong> (illustrated by the red star growing). Aviation slowly grew from a daring experiment into a reliable worldwide industry. AI grows much faster and gets into lots of industries at the same time. We've probably never witnessed a technology evolving at such speeds.</li>
+<li><strong>So it's getting impossible to ignore it</strong>. There was a lot of AI-mocking back when it drew extra fingers. Now the "jaggies" are getting so big and useful, it gets almost pointless to do some tasks without using them. And the list of such tasks is growing. It will get to some of <em>your</em> tasks, too.</li>
+<li><strong>But while it is growing, the "jaggedness" does not go away</strong>. So in some regards it still lacks a lot, compared both to the humans and to its own strong suits. It stumbles where a child would excel. It probably will grow rapidly but still stumble. It will become a "genius that can't lace a shoe".</li>
+<li><strong>And even if it becomes 100x more capable and overturns the economy, it might still get nowhere close to having human intelligence</strong>. There's no contradiction in that.</li>
+</ol>
+<p>Those things don't fit into the "binary thinking". But people still strive for a "one-bit answer". So the "jagged intelligence" leads to lots of flawed reasoning.</p>
+<p>Some people get very impressed by "jaggies": "Oh wow, it generated a logo for my business better than I ever could!" But while it's okay to be impressed, it gets easy to oversee the shortcomings. And that leads to people blindly trusting AI and then getting bitten by things like hallucinations.</p>
+<p>Other people see the shortcomings and say "since hallucinations are unavoidable, AI is useless". That prevents them from using the jaggies, which are becoming more and more indispensable.</p>
+<hr />
+<h2 id="whats-the-right-approach">What's the right approach?</h2>
+<p>Okay, there are lots of wrong approaches, but what's the right one?</p>
+<p>Stop thinking about AI in terms of a "monolithic thing" that's "smart" or "dumb" (it's both).</p>
+<p>Start thinking about AI — and yourself — in terms of "jaggies" and "shortcomings".</p>
+<p>What jaggies and shortcomings does AI currently have?</p>
+<p>What jaggies and shortcomings do <em>I</em> have?</p>
+<p>Where do our jaggies overlap and where do they complement each other?</p>
+<p>What can I gain by using the AI jaggies?</p>
+<p>How can I get bitten by them, such as "losing a job"?</p>
+<p>How can I get bitten by AI shortcomings, if I'm not careful?</p>
+<p>How can I get the most from AI and get bitten the least?</p>
+<p>Where are the AI jaggies likely to grow in the near future?</p>
+<p>How can those new ones help me, and how can they pose a threat to my way of living?</p>
+<p>How can it help humanity, and where does it pose a threat to humanity?</p>
+<p>I think all of those questions are more worth thinking about than the clickbaity binary-type ones like "AGI wen", which doesn't even have a clear definition. Leave such pointless questions to YouTubers desperate for clicks (and don't give them those clicks).</p>
+<hr />
+<h2 id="an-example">An example</h2>
+<p>I enjoy writing, and I think that's one of my "jaggies".</p>
+<p>Meanwhile, while LLMs produce a coherent text, AI writing mostly feels bland and superficial to me.</p>
+<p>So I don't let the AI do the writing for me. I'm quite overconfident my writing is better so far.</p>
+<p>But at the same time, English is not my native language, and LLMs are good with languages.</p>
+<p>So I wrote this post myself, but I asked Opus 4.5 afterwards to check it, and it found some mistakes and weird phrasing (while keeping all my silly bear puns). It even "understood" that the incorrent use of the word "flyer" was intentional!</p>
+<p>My "writing jaggie" was complemented by its "checking jaggie". Yes, I'm aware some mistakes could be left unnoticed. "Partial review" is still better than "no review".</p>
+<p>Another thing I found useful is to talk about a post I wrote with an LLM model. It's a bit like "<a href="https://en.wikipedia.org/wiki/Rubber_duck_debugging">talking to a rubber duck</a>" where you have to find the right answers yourself, but the process helps. So one of AI "jaggies" is "being a rubber duck on steroids with a lossy copy of the internet built in".</p>
+<p>So I asked Opus if it agrees with this post and if it has something to add. Here's the most interesting part of its answer, after it was done with complimenting me:</p>
+<blockquote>
+<p>Where I'd add nuance:</p>
+<ul>
+<li>The shape of the jaggedness changes. Some gaps get filled (image models used to struggle with hands, now mostly don't). New gaps may appear as models are applied to new domains. So it's not static jaggedness - it's shifting jaggedness.</li>
+<li>Knowing one's own limitations is itself a limitation. I often don't know when I'm about to get something wrong. So "use the jaggies but avoid the shortcomings" is harder in practice than it sounds - sometimes the shortcoming surprises you.</li>
+<li>The post puts the burden of understanding on the user. That's reasonable, but AI developers also have responsibility to make limitations clearer and harder to stumble into.</li>
+</ul>
+</blockquote>
+<p>I think that the "shifting jaggedness" is really an interesting concept to think about, and the original Karpathy post didn't quite mention that, so it's a worthwhile addition. But as the author of this post, it's still <em>my</em> responsibility to evaluate its worthiness. It has to be <em>my</em> jaggie to check out where AI jaggies are giving me something worth including in the post.</p>
+<hr />
+<p>Okay, all of that might feel overwhelming... But we're just bearly getting started.</p>
+<p>With the speed of the jaggies growing, they will affect us so much there will be no option to NOT think about it in the future. The only thing in life we'll control is whether we adjust to get positive results instead of ruining everything. Success is our only motherfucking option — failure's not.</p>
+<p>So bear with me. See you in the next post.</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <a class="prev" href="../cyberpunk2020/">← B2 · Киберпанк 2020: как развивался жанр с появления до наших дней</a>
+    <span class="pos">Side B · Track 3 of 3</span>
+    <span></span>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>

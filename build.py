@@ -107,6 +107,22 @@ def fill(template, values):
     return template
 
 
+def notice(meta, pairs):
+    """The line under a translation's title. translated_from: en marks a Russian translation of an
+    English original, and stays after review, linking to the original; translation: machine adds
+    that nobody has reviewed it yet."""
+    machine = meta.get('translation') == 'machine'
+    if meta.get('translated_from') == 'en' and meta['slug'] in pairs:
+        link = f'<a href="../{pairs[meta["slug"]]}/" lang="en" hreflang="en">читать оригинал</a>'
+        text = (f'Машинный перевод с английского, автор его ещё не вычитал. Оригинал написан на английском: {link}.'
+                if machine else f'Перевод с английского. Оригинал написан на английском: {link}.')
+    elif machine:
+        text = 'Machine-translated, not yet reviewed by the author.'
+    else:
+        return ''
+    return f'<p class="notice">{text}</p>'
+
+
 def build_post(meta, body, sides, pairs):
     slug = meta['slug']
     track_slug = pairs[slug] if slug.endswith('-en') and slug in pairs else slug
@@ -149,8 +165,7 @@ def build_post(meta, body, sides, pairs):
         'cover': meta['cover'],
         'cover_caption': f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '',
         'year': 'draft' if meta['draft'] else meta.get('date', '')[:4],
-        'notice': ('<p class="notice">Machine-translated, not yet reviewed by the author.</p>'
-                   if meta.get('translation') == 'machine' else ''),
+        'notice': notice(meta, pairs),
         'position': 'Draft · not on the record yet' if idx is None else f'Side {side} · Track {idx + 1} of {len(tracks)}',
         'alt_link': alt_link,
         'back': '../' if idx is None else f'../#{side}{idx + 1}',
