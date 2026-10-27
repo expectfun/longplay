@@ -3,6 +3,7 @@ title: "What Does Cyberpunk Sound Like?"
 draft: true
 series: music
 theme: cyber
+rain: "HAPPY BIRTHDAY SASHA | С ДНЁМ РОЖДЕНИЯ САША | お誕生日おめでとう サーシャ | 生日快乐 萨沙 | 생일 축하해 사샤 | عيد ميلاد سعيد يا ساشا | יום הולדת שמח סשה | ΧΡΟΝΙΑ ΠΟΛΛΑ ΣΑΣΑ"
 author: Eugene Trifonov
 cover: ../images/cybersound/01.jpg
 teaser: "This year, cyberpunk feels like the right topic for my music post. Back in school I read William Gibson's novel «Neuromancer», and ever since I've been waiting for someone to adapt it."

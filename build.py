@@ -189,7 +189,9 @@ def cyber_parts(meta, lang):
     t = UI[lang]['cyber']
     text = {'cyber_text': html.escape(json.dumps({k: t[k] for k in ('off', 'cyber', 'overdrive', 'aria')},
                                                  ensure_ascii=False)),
-            **{f't_{k}': html.escape(v) for k, v in t.items()}}
+            **{f't_{k}': html.escape(v) for k, v in t.items()},
+            # rain: messages hidden in overdrive's digital rain, separated by |
+            'cyber_rain': html.escape(meta.get('rain', ''))}
     return {f'cyber_{n}': fill(PARTS['cyber'][n], text) for n in names}
 
 

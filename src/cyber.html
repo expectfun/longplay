@@ -172,7 +172,7 @@
 </style>
 <!-- part: switch -->
 <span class="knob-wrap">
-  <button class="cswitch" id="cswitch" type="button" data-mode="off" data-text="{{cyber_text}}">
+  <button class="cswitch" id="cswitch" type="button" data-mode="off" data-text="{{cyber_text}}" data-rain="{{cyber_rain}}">
     <svg viewBox="0 0 36 30" aria-hidden="true">
       <!-- positions: off (a plain circle), cyber (a prompt, >_), overdrive (a bolt) -->
       <circle class="mark mark-off" cx="9" cy="6.5" r="2" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -309,12 +309,26 @@
     return () => { stopRain(); io.disconnect(); clearTimeout(timer); layer.remove(); };
   }
 
-  // falling glyphs, only beside the text column and fading out toward it; none on a phone, which has no margins
+  // falling glyphs, only beside the text column and fading out toward it; none on a phone, which has no margins.
+  // Now and then a column spells out one of the post's hidden messages (rain: in the front matter) from the
+  // top down, with stray glyphs slipped in between its letters, so it reads as noise unless you know the script.
+  // The noise mixes in the same scripts, so a message's letters don't stand out either.
   function rain(canvas) {
-    const ctx = canvas.getContext('2d'), SIZE = 16, FADE = 140;
-    const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎ0123456789ЖЯЮФЦ$#%<>/';
+    const ctx = canvas.getContext('2d'), SIZE = 16, FADE = 140, MESSAGE_ODDS = .05, STRAY_ODDS = .22;
+    const KANA = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+    const NOISE = [...KANA + KANA + KANA + '0123456789$#%<>/' + 'ЖЯЮФЦДЛШРНА' + 'AHYSTBRDP' + 'שמחדסהוי'
+                   + 'سعيدلام' + '생일축하사' + '日生快乐おめで' + 'ΣΑΠΟΛΧΡ'];
+    const MESSAGES = (sw.dataset.rain || '').split('|').map(m => [...m.trim()]).filter(m => m.length);
     const article = document.querySelector('article');
-    let w, h, left, right, drops, speeds, raf, last = 0;
+    const noise = () => NOISE[Math.random() * NOISE.length | 0];
+    let w, h, left, right, drops, speeds, queues, raf, last = 0;
+
+    function start(i, fresh) {   // a column (re)starts at the top: as noise, or carrying a message
+      const message = MESSAGES.length && Math.random() < MESSAGE_ODDS;
+      queues[i] = message ? [...MESSAGES[Math.random() * MESSAGES.length | 0]] : null;
+      speeds[i] = message ? .5 + Math.random() * .15 : .5 + Math.random() * .6;   // messages fall a touch slower
+      drops[i] = fresh ? (Math.random() * 2 - 1) * h / SIZE : 0;                 // on first draw, some already falling
+    }
     function size() {
       const dpr = devicePixelRatio || 1, a = article.getBoundingClientRect();
       w = innerWidth; h = innerHeight; left = a.left + 20; right = a.right - 20;
@@ -323,8 +337,9 @@
       ctx.font = `${SIZE - 2}px "JetBrains Mono", ui-monospace, monospace`;
       ctx.textAlign = 'center';
       const cols = Math.ceil(w / SIZE);
-      drops = Array.from({ length: cols }, () => (Math.random() * 2 - 1) * h / SIZE);   // some already falling
-      speeds = Array.from({ length: cols }, () => .5 + Math.random() * .6);
+      drops = []; speeds = []; queues = [];
+      for (let i = 0; i < cols; i++) start(i, true);
+      queues.fill(null);   // a message cut off at the top would only be noise
     }
     function frame(t) {
       raf = requestAnimationFrame(frame);
@@ -337,10 +352,16 @@
       drops.forEach((d, i) => {
         const x = i * SIZE + SIZE / 2, gap = x < left ? left - x : x > right ? x - right : 0;
         if (gap < 12) return;
-        const y = d * SIZE, k = Math.min(1, gap / FADE);
+        const row = Math.floor(d), next = d + speeds[i];
+        if (row * SIZE > h) { if (Math.random() > .97) start(i); else drops[i] = next; return; }
+        drops[i] = next;
+        if (row < 0 || Math.floor(next) === row) return;   // one glyph per row, drawn as the drop leaves it
+        const q = queues[i];
+        const glyph = q && q.length ? (Math.random() < STRAY_ODDS ? noise() : q.shift()) : noise();
+        if (glyph === ' ') return;   // a space between words stays a dark cell
+        const k = Math.min(1, gap / FADE);
         ctx.fillStyle = i % 7 === 3 ? `rgba(255, 46, 136, ${.5 * k})` : `rgba(0, 234, 255, ${.42 * k})`;
-        ctx.fillText(GLYPHS[Math.random() * GLYPHS.length | 0], x, y);
-        drops[i] = y > h && Math.random() > .97 ? 0 : d + speeds[i];
+        ctx.fillText(glyph, x, (row + 1) * SIZE);
       });
     }
     size();
