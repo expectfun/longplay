@@ -5,13 +5,14 @@ series: other
 theme: cyber
 author: Eugene Trifonov
 cover: ../images/cyberpunk2020/cover.jpg
-teaser: "This blog usually features posts about our conferences, but nothing IT-related is alien to us, and this Friday, while the whole world is talking about Cyberpunk 2077, I wanted to take a break."
+teaser: "Cyberpunk 2077 has sparked a new wave of interest in the genre as a whole. What has happened to it over its entire existence, how is it connected to IT, and why haven't there been any big cyberpunk works for so long?"
+note: "First published in 2020 in [the JUG Ru Group blog on Habr](https://habr.com/ru/companies/jugru/articles/532578/), while I worked at the company. They run [conferences for developers](https://jugru.org/), worth a look."
 translation: machine
 ---
 
 ![](../images/cyberpunk2020/cover.jpg)
 
-This blog usually features posts about [our conferences](https://jugru.org/), but nothing IT-related is alien to us, and this Friday, while the whole world is talking about **Cyberpunk 2077**, I wanted to take a break.
+This Friday, the whole world is talking about **Cyberpunk 2077**.
 
 The game's release has sparked a new wave of interest in the cyberpunk genre as a whole, so I wanted to reflect: what has happened to the genre over its entire existence? How is it connected to IT, and how has the development of IT affected it? Why haven't there been any big cyberpunk works for so long?
 

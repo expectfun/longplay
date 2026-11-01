@@ -208,7 +208,9 @@ def fill(template, values):
 def notice(meta, pairs):
     """The line under a translation's title. translated_from: en marks a Russian translation of an
     English original, and stays after review, linking to the original; translation: machine adds
-    that nobody has reviewed it yet, and sensitive: true makes that a fuller warning."""
+    that nobody has reviewed it yet, and sensitive: true makes that a fuller warning. A note: in the
+    front matter (Markdown) follows as a line of its own, e.g. where a post was first published."""
+    note = f'\n    <p class="notice">{caption_html(meta["note"])}</p>' if meta.get('note') else ''
     machine = meta.get('translation') == 'machine'
     if meta.get('translated_from') == 'en' and meta['slug'] in pairs:
         link = f'<a href="../{pairs[meta["slug"]]}/" lang="en" hreflang="en">читать оригинал</a>'
@@ -221,8 +223,8 @@ def notice(meta, pairs):
     elif machine:
         text = 'Machine-translated, not yet reviewed by the author.'
     else:
-        return ''
-    return f'<p class="notice">{text}</p>'
+        return note.lstrip()
+    return f'<p class="notice">{text}</p>' + note
 
 
 def build_post(meta, body, sides, pairs, posts):
