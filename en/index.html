@@ -166,7 +166,8 @@
 
   /* ---------- sleeve / tracklist ---------- */
   .sleeve { flex: 0 1 380px; min-width: 280px; }
-  .sides { display: flex; gap: 22px; margin: 2px 0 12px; }
+  .sleeve-head { display: flex; flex-wrap: wrap; align-items: flex-start; column-gap: 22px; margin: 2px 0 12px; }
+  .sides { display: flex; gap: 22px; }
   .sides button {
     border: 0; border-radius: 0; background: none; padding: 4px 0 6px; cursor: pointer; text-align: left;
     font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
@@ -174,7 +175,14 @@
   }
   .sides button:hover { background: none; color: var(--ink); }
   .sides button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); cursor: default; }
-  .sides small { display: block; margin-top: 2px; font-size: .68rem; letter-spacing: .08em; opacity: .75; text-transform: none; }
+  /* the liner notes: the same two lines as a side, but a link, not a switch: right edge, no underline */
+  .liner {
+    margin-left: auto; padding: 4px 0 6px; text-decoration: none;
+    font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  }
+  .liner:hover { color: var(--ink); }
+  .liner:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sides small, .liner small { display: block; margin-top: 2px; font-size: .68rem; letter-spacing: .08em; opacity: .75; text-transform: none; }
   .deck-key { cursor: pointer; outline: none; }
   .deck-key:focus-visible rect { stroke: var(--accent); stroke-width: 2; }
   .deck-key:hover rect { fill: #29251f; }
@@ -481,9 +489,12 @@
   </section>
 
   <aside class="sleeve">
-    <div class="sides" role="tablist" aria-label="Record side">
-      <button role="tab" id="tabA" aria-selected="true">Side A<small>year in music</small></button>
-      <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
+    <div class="sleeve-head">
+      <div class="sides" role="tablist" aria-label="Record side">
+        <button role="tab" id="tabA" aria-selected="true">Side A<small>year in music</small></button>
+        <button role="tab" id="tabB" aria-selected="false">Side B<small>other writing</small></button>
+      </div>
+      <a class="liner" id="liner" href="../about-en/">Liner notes →<small>about the project</small></a>
     </div>
     <ol id="tracks"></ol>
     <p class="note">Pick a title or place the needle on the record to preview a track. Band width follows each post's reading time.</p>
@@ -1026,6 +1037,12 @@ function hidePreview() { $('preview').classList.remove('on'); }
 // closing the card only clears the view: the record keeps playing, and clicking the track brings the card back
 $('pvClose').addEventListener('click', ev => { ev.stopPropagation(); hidePreview(); });
 addEventListener('keydown', ev => { if (ev.key === 'Escape') hidePreview(); });
+
+$('liner').addEventListener('click', ev => {
+  if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+  ev.preventDefault();
+  leave($('liner').getAttribute('href'), 650);
+});
 
 $('pvRead').addEventListener('click', ev => {
   if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;

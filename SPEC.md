@@ -37,6 +37,7 @@ Status: **draft**. Sections are split into *Settled* (decided, build on it) and 
   | `series` | `music` or `other`: internal id only; display names are open (Open §2) |
   | `parts` | Optional: original URLs of a multi-part post (`dugri`) |
   | `draft` | Optional: `true` for unpublished posts (`cybersound`) |
+  | `page` | Optional: `true` for site pages that aren't tracks (`about`) |
 
 - Markdown conventions the site must render:
   - **YouTube embeds:** a YouTube URL alone on a line. There are many; music posts depend on them.
@@ -104,6 +105,7 @@ Interaction sketch (any format):
   - When idle, the raised tonearm hovers over the newest track's band, as if cued up and waiting. It re-cues after a side flip.
   - Later: once a side grows to about 12–15 tracks, the bands get thin. The archive could then continue on "Vol. 2" (a second record) rather than squeezing more onto one side.
 - **Index controls:** the side switch is a pair of tabs ("Side A · year in music", "Side B · other writing") heading the tracklist; switching flips the record. Sound on/off is a speaker key on the turntable base, next to STOP. Both are part of the existing layout, so nothing shifts.
+- **About page (settled):** "Вкладыш / о проекте" ("Liner notes / about the project"), a link at the right end of the side tabs' row. It pairs a metaphor with a literal sub-label, like the tabs, but is styled as a link (muted, no underline, an arrow) so it doesn't read as a third side. It leads to a real page, `/about/` and `/about-en/`, rather than a pop-up, so it can be linked to and indexed.
 - **Mobile:** the disc fills the width, with the tracklist below it as a normal list.
 - `prefers-reduced-motion` turns the animations off.
 

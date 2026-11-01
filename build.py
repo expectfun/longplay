@@ -3,7 +3,8 @@
 Usage: python3 build.py
 
 Side A is the music series by date, Side B everything else. Drafts (draft: true) get a page
-at their URL but stay off the record. slug-en is the English version of slug: it shares the
+at their URL but stay off the record. Pages (page: true, like about) are site pages rather than
+tracks: off the record, with no year, cover or track bar. slug-en is the English version of slug: it shares the
 track, but isn't a track of its own. The record is built twice: in Russian at index.html and in
 English at en/index.html, each linking to the posts in its own language.
 """
@@ -21,6 +22,7 @@ UI = {
         'back': 'Назад к пластинке', 'tracks_nav': 'Другие треки',
         'position': 'Сторона {side} · трек {n} из {total}', 'draft_position': 'Черновик · пока не на пластинке',
         'draft': 'черновик', 'play': 'Включить видео', 'other_lang': 'Read in English',
+        'liner': 'Вкладыш', 'liner_sub': 'о проекте',
         'side': 'Сторона', 'sides': {'A': 'год в музыке', 'B': 'другие тексты'}, 'record_side': 'Сторона пластинки',
         'read': 'Читать →', 'close': 'Закрыть', 'min': 'мин', 'sound': 'Звук', 'stop': 'Остановить и поднять иглу',
         'note': 'Выберите название или опустите иглу на пластинку, чтобы послушать превью трека. '
@@ -38,6 +40,7 @@ UI = {
         'back': 'Back to the record', 'tracks_nav': 'Other tracks',
         'position': 'Side {side} · Track {n} of {total}', 'draft_position': 'Draft · not on the record yet',
         'draft': 'draft', 'play': 'Play video', 'other_lang': 'Читать по-русски',
+        'liner': 'Liner notes', 'liner_sub': 'about the project',
         'side': 'Side', 'sides': {'A': 'year in music', 'B': 'other writing'}, 'record_side': 'Record side',
         'read': 'Read →', 'close': 'Close', 'min': 'min', 'sound': 'Sound', 'stop': 'Stop and lift the needle',
         'note': "Pick a title or place the needle on the record to preview a track. "
@@ -64,6 +67,7 @@ def read_post(path):
             meta[k] = v.strip().strip('"')
     meta['slug'] = os.path.basename(path)[:-3]
     meta['draft'] = meta.get('draft') == 'true'
+    meta['page'] = meta.get('page') == 'true'
     return meta, body
 
 
@@ -87,7 +91,7 @@ def translations(slugs):
 
 def tracklist(posts, pairs):
     """The published tracks on each side, oldest first: their numbers never change."""
-    metas = [m for m, _ in posts.values() if not m['draft'] and not (m['slug'].endswith('-en') and m['slug'] in pairs)]
+    metas = [m for m, _ in posts.values() if not m['draft'] and not m['page'] and not (m['slug'].endswith('-en') and m['slug'] in pairs)]
     by_date = lambda m: m.get('date', '')
     return {'A': sorted([m for m in metas if m['series'] == 'music'], key=by_date),
             'B': sorted([m for m in metas if m['series'] == 'other'], key=by_date)}
@@ -228,10 +232,10 @@ def build_post(meta, body, sides, pairs, posts):
     record = '../en/' if lang == 'en' else '../'
     track_slug = pairs[slug] if slug.endswith('-en') and slug in pairs else slug
     side, idx = next(((s, i) for s in 'AB' for i, m in enumerate(sides[s]) if m['slug'] == track_slug),
-                     ('A' if meta['series'] == 'music' else 'B', None))
+                     ('B' if meta.get('series') == 'other' else 'A', None))
     tracks = sides[side]
 
-    body, cover_caption = split_cover(body, meta['cover'])
+    body, cover_caption = split_cover(body, meta['cover']) if 'cover' in meta else (body, '')
     body_html = subprocess.run(['pandoc', '-f', 'gfm', '-t', 'html', '--wrap=none'],
                                input=preprocess(body, lang),
                                capture_output=True, text=True, check=True).stdout
@@ -256,23 +260,26 @@ def build_post(meta, body, sides, pairs, posts):
         'lang': lang,
         'alternates': alternates(alt_urls) if len(alt_urls) > 1 else '',
         't_back': ui['back'],
-        't_tracks': ui['tracks_nav'],
         'knob_text': knob_text(lang),
         **cyber_parts(meta, lang),
         'side': side,
         'body_class': 'draft' if meta['draft'] else '',
         'robots': '\n<meta name="robots" content="noindex">' if meta['draft'] else '',
         'title': html.escape(meta['title']),
-        'cover': meta['cover'],
-        'cover_caption': f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '',
-        'year': ui['draft'] if meta['draft'] else meta.get('date', '')[:4],
+        'hero': '' if 'cover' not in meta else
+                f'  <figure class="hero"><img src="{meta["cover"]}" alt="">'
+                + (f'<figcaption>{caption_html(cover_caption)}</figcaption>' if cover_caption else '') + '</figure>\n',
+        # a page's subtitle sits where a post has its year: «Вкладыш» over «о проекте»
+        'year': (ui['liner_sub'] if meta['page'] else ui['draft'] if meta['draft'] else meta.get('date', '')[:4]),
         'notice': notice(meta, pairs),
-        'position': (ui['draft_position'] if idx is None
-                     else ui['position'].format(side=side, n=idx + 1, total=len(tracks))),
+        'tracks': '' if meta['page'] else
+                  f'  <nav class="tracks" aria-label="{ui["tracks_nav"]}">\n'
+                  f'    {nav(idx - 1 if idx is not None else -1, "prev")}\n'
+                  f'    <span class="pos">{ui["draft_position"] if idx is None else ui["position"].format(side=side, n=idx + 1, total=len(tracks))}</span>\n'
+                  f'    {nav(idx + 1 if idx is not None else -1, "next")}\n'
+                  '  </nav>\n',
         'alt_link': alt_link,
         'back': record if idx is None else f'{record}#{side}{idx + 1}',
-        'prev': nav(idx - 1 if idx is not None else -1, 'prev'),
-        'next': nav(idx + 1 if idx is not None else -1, 'next'),
         'body': body_html,
     })
     os.makedirs(os.path.join(ROOT, slug), exist_ok=True)
@@ -298,6 +305,8 @@ def build_index(posts, sides, pairs, lang):
         'knob_text': knob_text(lang),
         **{f't_{k}': ui[k] for k in ('side', 'record_side', 'read', 'close', 'min', 'sound', 'stop', 'note')},
         't_side_a': ui['sides']['A'], 't_side_b': ui['sides']['B'],
+        't_liner': ui['liner'], 't_liner_sub': ui['liner_sub'],
+        'liner_href': f'{root}about-en/' if lang == 'en' else 'about/',
     })
     out = os.path.join(ROOT, 'en') if lang == 'en' else ROOT
     os.makedirs(out, exist_ok=True)
@@ -326,4 +335,4 @@ if __name__ == '__main__':
     build_index(posts, sides, pairs, 'ru')
     build_index(posts, sides, pairs, 'en')
     print(f'built the record (ru, en) + {len(posts)} posts:',
-          ', '.join(s + (' (draft)' if m['draft'] else '') for s, (m, _) in sorted(posts.items())))
+          ', '.join(s + (' (draft)' if m['draft'] else ' (page)' if m['page'] else '') for s, (m, _) in sorted(posts.items())))
