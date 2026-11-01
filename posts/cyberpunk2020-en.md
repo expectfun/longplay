@@ -6,7 +6,7 @@ theme: cyber
 author: Eugene Trifonov
 cover: ../images/cyberpunk2020/cover.jpg
 teaser: "Cyberpunk 2077 has sparked a new wave of interest in the genre as a whole. What has happened to it over its entire existence, how is it connected to IT, and why haven't there been any big cyberpunk works for so long?"
-note: "First published in 2020 in [the JUG Ru Group blog on Habr](https://habr.com/ru/companies/jugru/articles/532578/), while I worked at the company. They run [conferences for developers](https://jugru.org/), worth a look."
+note: "This post originally appeared in the blog of JUG Ru Group, the company I worked at back then. They run [conferences for developers](https://jugru.org/), I recommend them."
 translation: machine
 ---
 

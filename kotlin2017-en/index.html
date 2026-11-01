@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>“It Will Most Likely Snowball”: Andrey Breslav and Anton Keks on Kotlin — Longplay</title>
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/kotlin2017-en/">
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/kotlin2017/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="B" class="">
+  <div class="topbar">
+    <a class="back" href="../en/#B1">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Back to the record</span>
+    </a>
+    <span class="right"><a class="flip" data-lang="en" href="../kotlin2017/" hreflang="ru" title="Читать по-русски" aria-label="Читать по-русски"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const flips = document.querySelectorAll('.flip');
+  flips.forEach(a => { a.dataset.here = a.dataset.lang; });
+  // back via the browser's back button restores the page as it was left: put the lever back
+  addEventListener('pageshow', e => { if (e.persisted) flips.forEach(a => { a.dataset.lang = a.dataset.here; }); });
+  flips.forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
+  .knob-label {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+    color: var(--accent); opacity: 1;
+  }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+
+  function point(m) {
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+    document.dispatchEvent(new Event('lp-knob'));   // heard by the cyber switch (src/cyber.html)
+  }
+
+  point(mode);
+  knob.addEventListener('click', () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    point(mode);
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    // (a cyber post's switch, if on, is about to step aside, so the colours change after all)
+    if ((shown(mode) === shown(root.dataset.theme || 'auto') && !root.dataset.cyber) || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>“It Will Most Likely Snowball”: Andrey Breslav and Anton Keks on Kotlin</h1>
+    <p class="year">2017</p>
+    <p class="notice">Machine-translated, not yet reviewed by the author.</p>
+    <p class="notice">This interview originally appeared in the blog of JUG Ru Group, the
+company I worked at back then. They run <a
+href="https://jugru.org/">conferences for developers</a>, I recommend
+them.</p>
+  </header>
+
+
+  <figure class="hero"><img src="../images/kotlin2017/cover.jpg" alt=""></figure>
+
+  <article>
+<p>In the year since Kotlin 1.0 was released, the language has made breakthroughs on many fronts, from support in Gradle and Spring to the publication of the book “Kotlin in Action”. The number of Kotlin lines on GitHub has more than quadrupled, passing 10 million. And now version 1.1 is out, adding compilation to JavaScript, which looks like a bold bid for a new share of the market. Does all this mean that Kotlin's time has truly come, and that we should all be actively using the language in production?</p>
+<p><strong>Andrey Breslav</strong> (JetBrains) and <strong>Anton Keks</strong> (Codeborne) know a lot about Kotlin (and both will soon give talks about it at <a href="https://jpoint.ru/">JPoint</a>), but they look at it from different sides: while Anton develops in the language, Andrey works on the language itself. We thought it would be interesting to talk about the present and future of Kotlin with both of them at once, to get the full picture. We started with questions about its rapid growth and then managed to discuss much more:</p>
+<ul>
+<li>Interaction with developers and how the language evolves</li>
+<li>Compilation to JS, the Kotlin Native project and multiplatform in general</li>
+<li>Imperfections</li>
+<li>Kotlin puzzlers</li>
+<li>Expectations and ambitions</li>
+</ul>
+<p><strong>JUG.ru: To start with, tell us how exactly you're connected to Kotlin.</strong></p>
+<figure><img src="../images/kotlin2017/01.png" alt="Andrey Breslav" loading="lazy"><figcaption>Andrey Breslav</figcaption></figure>
+
+<p><strong>Andrey Breslav:</strong> For me it's very simple: I lead the whole project, all of the language design and all of the management.</p>
+<figure><img src="../images/kotlin2017/02.png" alt="Anton Keks" loading="lazy"><figcaption>Anton Keks</figcaption></figure>
+
+<p><strong>Anton Keks:</strong> I've done one production project in Kotlin, I'm now slowly going to move another very large project to it, and I'm moving a lot of my personal open-source projects from Java to Kotlin to get a better feel for the language.</p>
+<p>The one I've already done in production is a plugin for IDEA, so it was easier to convince the client to use Kotlin. I started it last year: as soon as 1.0 came out, we started writing in it.</p>
+<p>For me, as an experienced developer, the experience was very positive, while a less experienced developer on that project had a hard time learning a new language. So for me it was more fun, and for the other person it was more of an obstacle to getting the work done quickly. But I think we got the hang of it quickly, and since then I've come to love the language more. Before that I was a bit sceptical, because it seemed to me that Java 8 had already covered many of the use cases. But it turned out that Kotlin is still much nicer than Java 8. So now I'm doing my best to promote the language in the projects I'm involved in.</p>
+<p><strong>JUG.ru: From the outside, it looks like 2016 was a breakthrough year for Kotlin. How do you see it?</strong></p>
+<p><strong>Andrey:</strong> 2016 really was a breakthrough year, at the very least because the release came out. Naturally, the community started taking the project seriously, and adoption began. We're very happy with the dynamics we see: large companies use Kotlin in serious projects; lots of learning materials are appearing from different people; people from the community write books that we didn't sponsor in any way, and they're popular.</p>
+<p>You can see that, say, the Android developer community or the Spring community paid very close attention to Kotlin's arrival, and people started using it. The next version of Spring will already include some Kotlin extensions, and among Android developers it's simply a very popular tool. So in both markets we were mainly counting on, we have a very good result: server-side development is doing very well, and so is Android development.</p>
+<p><strong>JUG.ru: Demand for a language is also measured by things like the number of job openings. How is Kotlin doing there?</strong></p>
+<p><strong>Andrey:</strong> I've seen very few purely Kotlin vacancies, but there are more and more of the “we need a Java and/or Kotlin developer” kind. Obviously, if people have an actively developed project, either on the backend or on Android, and someone on the team adds Kotlin to it, then the vacancies there become not just Java, but Kotlin as well. If people are used to hiring fairly serious specialists, for whom picking up a cool new technology isn't hard, then it's no barrier for them, and they do it without any trouble.</p>
+<p><strong>Anton:</strong> As an employer, I can add that there's a trend towards full stack development. At our company all developers are full stack, so hiring someone who only knows Kotlin or only Java is a bad idea. It's better to hire people who know how to program in general, who understand how object-oriented programming works and how functional programming works. Learning Kotlin's syntax afterwards is fairly easy, especially if you have experience with Java on the JVM. Many of our people write in Ruby or in Java, and for those who've seen both, starting to write in Kotlin doesn't take long.</p>
+<p><strong>Andrey:</strong> I agree with Anton that it's better to hire good programmers, and for such people the language is mostly not an obstacle.</p>
+<p><strong>JUG.ru: Anton, what has changed for you as a developer in the year you've been using Kotlin?</strong></p>
+<p><strong>Anton:</strong> When Kotlin 1.0 came out, it was raw, or at least the IDE was. IDEA still lagged far behind what it could do for Java. For example, there were loads of bugs in the debugger, and in the compiler too… On the first project we ran into quite a lot, especially problems with the debugger. And while IDEA's inspections are great for Java, in Kotlin it didn't find the same kinds of flaws. But gradually it got much better.</p>
+<p>I think version 1.0 was the trigger for many, including us, to start writing real projects, and thanks to that some things were polished at a much faster pace. At this point there are almost no features missing from the IDE compared to Java. I think the support has reached a very good level.</p>
+<p><strong>JUG.ru: And is it easy enough to find the information you need? Stack Overflow has a couple of thousand answers tagged “Kotlin” and nearly a million tagged “Java”. Isn't that a problem?</strong></p>
+<p><strong>Anton:</strong> I'd say it's not a problem. In fact, there are few problems specific to Kotlin, and its documentation usually helps you find the answers. Very often, when you're developing an Android or web application, the questions are about the platform or the API, not the programming language. So of the million Java answers, probably 90% apply to Kotlin too; I don't see a problem. An unexpected feature in IDEA also helps: if you paste Java code from somewhere on the internet into a Kotlin class, it's automatically converted to Kotlin.</p>
+<figure><img src="../images/kotlin2017/03.jpg" alt="" loading="lazy"></figure>
+
+<h2 id="interaction-with-developers-and-the-evolution-of-the-language">Interaction with developers and the evolution of the language</h2>
+<p><strong>JUG.ru: Kotlin recently got an official <a href="https://talkingkotlin.com">podcast</a>, and before that the language development process was made more open as <a href="https://github.com/Kotlin/KEEP">KEEP</a>. Andrey, are these part of a general plan to “reach out to developers more”, or separate initiatives?</strong></p>
+<p><strong>Andrey:</strong> I can't boast that we have some big, detailed plan; the world changes too fast to make plans like that. But of course we have a general direction towards communicating with users as much as possible, and we invest a lot of resources in it.</p>
+<p>We have a public <a href="https://slack.kotlinlang.org">Slack</a>, whose audience is now approaching 6,000 people. Engineers from our team show up there fairly regularly and answer questions, and the community talks among itself very actively. On the Stack Overflow question: if it turns out you can't find the answer to a question in public sources, you can go to Slack and get answers there very quickly, including a fairly detailed consultation from the person who wrote that functionality. There's also the podcast, various publications we try to produce ourselves, and we recently opened a user group support programme to make it easier for people to organise Kotlin meetups. That's one direction.</p>
+<p>The other direction, KEEP, is no longer about organising the community as such, but about language design: the Kotlin Enhancement &amp; Evolution Process, how we're going to evolve Kotlin. KEEP is still in a relatively early stage. That was the first try: within the scope of 1.1 we tried to publish our design decisions, so that people from the community could give us feedback, discuss things with us, tell us their impressions, suggest something. It works pretty well, although of course the load on the design team increases, and now we're reorganising things a bit. That is, we'll still publish everything, we'll just do it a bit differently so there's less load. But the idea is that we try to work on the language design as openly as possible, so that as many people as possible look at it as early as possible and tell us what they think. That's in the best traditions of open-source projects, and we like those traditions very much.</p>
+<p><strong>JUG.ru: Anton, does this openness of the company help you in your work?</strong></p>
+<p><strong>Anton:</strong> Not in the sense that it helps a lot. I'll say again that in terms of understanding, everything is good enough without having to personally bother anyone. You can always look at the source code of the libraries. But it's very nice that the language designers are easy to reach, at conferences, for example. Perhaps because I'm not far from St. Petersburg, it's fairly easy to meet someone and talk. Of course, there's nothing like that with any other language I've written in; usually it's harder to get through to a language's authors. And I think that's a big plus.</p>
+<p><strong>JUG.ru: Speaking of “easy to reach when you're near St. Petersburg”, we're curious: does this lead to more interest in Kotlin in Russia compared with other countries?</strong></p>
+<p><strong>Andrey:</strong> We really do see a great deal of attention to Kotlin in Russia. We have fewer actual users in the country than in America or China, but that reflects the population. It's hard for me to compare with other languages, since I don't have good geographic data on them, but I can say for sure that we feel a lot of attention from the Russian community. On the one hand, there are loads of people who do things and put their heart into it, not just read. On the other hand, here's a surprising fact, and I don't know what explains it: the very rare people who, in our various channels, express their opinion harshly and inappropriately, get personal and are rude in all sorts of other ways, have so far turned out to be Russian in 100% of cases.</p>
+<p><strong>Anton:</strong> I can guess that it's easy for a Russian to be rude to another Russian. A Russian is unlikely to be rude to an Englishman or an American.</p>
+<p><strong>Andrey:</strong> An interesting theory, I hadn't thought of it. Possibly.</p>
+<p><strong>JUG.ru: Back to KEEP: Anton, do you take part in it or not?</strong></p>
+<p><strong>Anton:</strong> So far I mostly just read the KEEPs. You have to spend a lot of time getting into the context there. It's a pity I didn't take an active part in working out the 1.1 features, coroutines and so on, but maybe at some point I'll find more time for it.</p>
+<p><strong>Andrey:</strong> Yes, getting into all the details of the design of some tricky language feature is a very heavy load. As someone who, in various circumstances, has dug into the design of other languages (Java in particular) and taken part in the process, I understand that you have to load a lot of very specific context into your head. But of course there are people who can and want to do it, and we try to give them that opportunity.</p>
+<p>A big question for us is how to organise the design process so that, on the one hand, it's open, and on the other, it doesn't get slowed down by that. We have a lot of verbal communication, because we're in the same office or can call each other, and if we moved all design communication into writing, it would simply slow down several times over. We don't want to slow everything down that much, so instead we periodically dump our current vision, publish it, collect comments and then rework it. So far this hasn't worked as effectively as we'd like, but we'll improve the process and make it possible for outside people to really get involved.</p>
+<p><strong>Anton:</strong> Actually, I'd say it's good that you keep communication more efficient within your office, because a successful programming language needs a dictatorship to some extent. You can see now how slowly Java develops because many decisions are very scary to make; those wretched lambdas were chewed over for so many years… I think that sometimes, if there are two alternatives, you just need to pick one and implement it.</p>
+<p>Kotlin has been fine on this so far, and I think that's how it should continue. Not wait for too many comments on some things, perhaps.</p>
+<p><strong>Andrey:</strong> I completely agree. On the one hand, we try to gather as much input as possible; above all we're interested in use cases: how people write code in different contexts. But at the same time, we really don't want to get blocked on questions.</p>
+<p>For example, with coroutines the situation is this: in 1.1 we've released them in experimental mode. We have a fully working implementation, there are libraries from us and from other people, but we understand that the feature is too big to cover completely in any finite time. So we're releasing the existing design with experimental status, so that lots of people use it, we get feedback, and if necessary we fix things.</p>
+<p>Such a feedback loop with the community is, I think, absolutely necessary so as not to lose touch with reality. At the same time, it's not at all necessary to do it as super-conservatively as is customary in the Java team. They have their own reasons for doing it that way, but fortunately we don't have that need, and we try to keep moving, not slow down, not be stuck in “analysis paralysis” and the need to satisfy everyone in the world.</p>
+<p><strong>Anton:</strong> At the same time, Kotlin perhaps hasn't been around long enough to run into some of the problems that make the Java community so slow and conservative. We don't yet know how well Kotlin code will stand the test of time, whether code compiled with 1.0 will still work well in five years, whether today's source code will still compile in five years.</p>
+<p><strong>Andrey:</strong> As for compiled code, I'm largely confident that it will all work as well as any other Java program, because Kotlin itself has fairly limited influence there. But as for how source code will compile, that depends on us, and we have many questions about how best to do it; we'll try different strategies.</p>
+<p>We had a very good experiment before the 1.0 release, when we were changing the language but already had a few hundred users, and we didn't want to break all their code. We made migration tools: that's not very common in other communities, where a programming language changes incompatibly but the tooling provides the migration. It was a fairly positive experience; there wasn't any moaning or particularly great suffering, which is very nice. For us it's an encouraging sign: if it suddenly turns out that something is very important to change, we can do it without losing our audience and without turning into Python 3.</p>
+<p>But it's a very difficult balancing act: how to evolve the language so that, on the one hand, there's no stagnation, no horrible legacy that everyone is fed up with, and on the other, people are fine using it and don't suffer through migrations. There are different approaches: Java is super-conservative, Scala breaks binary compatibility in every release, Swift breaks source compatibility in every release, and they all have some results. We keep an eye on all of them and think, “How could we do this better?” So far we're behaving very conservatively and breaking very little: nothing at all binary-wise, and at the source level very, very carefully.</p>
+<p><strong>Anton:</strong> In that sense, automatic migration is a very nice thing. Even Java 9 is now starting to take some steps in that direction, improving the deprecated annotation, but as I understand it, they still have a way to go to reach Kotlin?</p>
+<p><strong>Andrey:</strong> Yes, we've developed a serious universal mechanism that not only we but also library authors can use, and so far it's simply a mega-success. A person really can write a deprecated annotation, and the IDE will automatically migrate everything for them, and it's all great. Well, for a wide class of cases. Some things won't work, of course, but a great deal can be migrated.</p>
+<p><strong>JUG.ru: Since JetBrains does both the language and the tooling, does that give you a trump card compared with Java?</strong></p>
+<p><strong>Andrey:</strong> Well, in principle, absolutely nothing stops Oracle from contacting us and saying, “Guys, we're making this thing, could you add support for it in the IDE?”, and of course we'd do it; there's no problem with that. The other thing is the language authors' mindset, their approach. It's simply a different mode of language evolution. Today it evolves 100% compatibly. As for deprecating various APIs, they're now simply forced to take steps that are painful for them. They hesitated for a very long time with Java 9, and now they're doing something to make it more or less convenient. And of course all the tooling there is will rush to help them, because there are millions of Java programmers, it has to be made convenient for them, and there's simply no alternative.</p>
+<p>But it's easier for us in the sense that the cycle of interaction between the tooling and the language is shorter. We can make a decision very quickly, implement it very quickly and see how it works: it takes days, not months. In that sense, of course, we have an advantage.</p>
+<figure><img src="../images/kotlin2017/04.jpg" alt="" loading="lazy"></figure>
+
+<h2 id="compilation-to-js-kotlin-native-and-multiplatform-in-general">Compilation to JS, Kotlin Native and multiplatform in general</h2>
+<p><strong>JUG.ru: In an <a href="https://habr.com/ru/companies/jugru/articles/318842/">episode</a> of “Without Slides”, JetBrains CEO Maxim Shafirov named the ability to use the same code on the server and on the client as an important advantage of Node.js. And the arrival of compilation to JavaScript in Kotlin 1.1 is meant to give Kotlin the same advantage. Anton, tell us: does this really matter to you as a developer? Since everyone at your company is full stack, does JS compilation make Kotlin dramatically more attractive to you?</strong></p>
+<p><strong>Anton:</strong> I can't say the attractiveness rises dramatically. JS support was promised long ago, I even tested it a little, but I'm not yet entirely sure that using the same code on the client and the server is all that useful. When Node.js appeared, people said “that's it, this solves all problems, full stack in one language”, but in fact it didn't solve any problems, because client and server code are completely different and very little can be reused.</p>
+<p>So we'll see; it needs a lot more experimenting. What interests me more is Kotlin Native, also a very interesting project, or idea; I don't know what stage it's at now.</p>
+<p><strong>Andrey:</strong> Let me tell you. First, a couple of words about JS and its fate: we've now released the release version of the Kotlin-to-JS compiler, plus a standard library shared by the two platforms. That's the first step towards being able to write multiplatform projects where you really can conveniently reuse code and compile to different platforms. Special tooling in the IDE and so on will appear for this over time.</p>
+<p>And it's a fairly broad story, because if you include native in the same line-up, we get three classes of platforms: Java virtual machines, JS virtual machines, and all the native platforms Kotlin Native can run on (practically everything LLVM supports). For us, that's a chance to cover, roughly speaking, every more or less conceivable use case. Our ultimate goal is tooling where you can write code in Kotlin and compile it to all three platforms without changes. And, accordingly, add platform-specific modules to it, making applications that reuse part of their code across platforms.</p>
+<p>As for Kotlin Native, we started very recently, at the beginning of autumn, and we're now working on the first implementation. It has its own full runtime: it doesn't use any ready-made virtual machine, only LLVM as compilation infrastructure. At the moment it supports a fairly large part of the language's features. There's a first implementation of memory management, and we can already interoperate with native calls. We can, for example, write an echo server on Unix sockets or something like that, so you can already write meaningful code that uses the C standard library and the Kotlin standard library as a wrapper over it. There's still loads of work to do; it's nowhere near a release. The initial phase of the project is doing the common work for all possible native platforms, the basic things: compilation, memory management, linking with everything needed, and interop with native APIs. After that we'll have to choose one platform to support first, really properly, and we'll see what it will be: iOS, small embedded systems, or something else.</p>
+<p><strong>Anton:</strong> And this JS and Native support will probably strongly influence new language features? For example, some feature that's easier to do on the JVM than on JS, you'd decide not to do in Kotlin at all?</p>
+<p><strong>Andrey:</strong> I don't see such tendencies yet; if anything, the opposite: they push us to do some features that are hard to do on the JVM. For example, native badly needs value types, so we'll have to do at least something of our own for interop with value types on the JVM. Naturally, not as nice as what Valhalla will have; in principle nothing crazy, they've designed it all quite reasonably there. We haven't yet had a case where the existence of another platform outright blocked some serious feature.</p>
+<p>Except that there's always the temptation to support something fancy on a particular platform, something specific to just that platform. Native has the most of that: the ability to write to ports and so on. So far we've managed pretty well to stuff all of that into the library and not drag such crazy things into the language. The dynamic type is an example of a feature we support only on JS, because it's simply a specific trait of the platform. Whether we'll ever support the dynamic type in native and on the JVM isn't clear yet: on the JVM there are still some use cases, for native we haven't come up with any. And, really, no use cases means no need to support anything.</p>
+<p>That is, we have no formal requirement to port 100% of Kotlin code across all platforms. We try to approach the question pragmatically: we have a common vision of the language, in a sense a “core language”, and we compile it as closely as possible to the different platforms. We have a very small common library, and everything else each platform can do a bit in its own way. The JVM has platform types, and all sorts of JVM specifics are taken into account there. JS has nothing related to threads, and has the dynamic type instead. Native has its own specifics related to value types, and that's fine, because our goal isn't to make a language in a vacuum but to make something you can write real programs for real platforms in. And if you need to write portable code, the modules that must be portable will impose some restrictions that a given platform might not have.</p>
+<p><strong>JUG.ru: JavaScript's shortcomings have become proverbial. What's JS like when you deal with it not as an ordinary developer but while compiling Kotlin to JavaScript?</strong></p>
+<p><strong>Andrey:</strong> It's not all that terrible. Of course it has its own peculiarities, but I wouldn't say it's catastrophically worse than Java. The JVM imposes far more restrictions, while JS doesn't have such a direct mapping: some Kotlin constructs simply don't exist in JS. Interfaces, for example, simply don't exist there in any sense. On the other hand, on the JVM there are lots of things you fundamentally can't do, while in JS the restrictions are softer.</p>
+<p>In terms of language interop it's a very sprawling story, but ideologically it's the same as with Java. It's just that Java has platform types, which in a sense erase nullability, while in JS, since there's only one type, we simply have this new dynamic type in Kotlin that behaves just like a JS type: nothing is known about it, it can hold anything, and you can call anything on it. And in principle it covers much of the need for such direct interop: if there's a library in raw JS, you can interact with it. But naturally it's inconvenient for the tooling: first, no types can be checked because there simply aren't any, and second, there's nowhere to get information for code completion and things like that.</p>
+<p>So we rely on typed headers written in TypeScript, which is now the de facto standard for typing JS. There's a large repository of such headers, <a href="https://definitelytyped.org">Definitely Typed</a>, and we let users convert them to Kotlin. Converting raises lots of creative questions about how to map all this onto Kotlin, because it's a different type system with its own peculiarities: while Java's is simply strictly weaker than Kotlin's, TypeScript's is just different. Fortunately, that doesn't really concern compilation; it's more a question of “how do we describe the type information in this TypeScript in Kotlin terms”. I think we're doing quite well, but again, the community will tell us if something isn't right.</p>
+<figure><img src="../images/kotlin2017/05.jpg" alt="" loading="lazy"></figure>
+
+<h2 id="imperfections">Imperfections</h2>
+<p><strong>JUG.ru: It all sounds so good from every side that we want to find a catch somewhere. For example, last year Anton said that compilation speed was a drawback for him. How is it now?</strong></p>
+<p><strong>Anton:</strong> I haven't measured, but it feels better. The compiler running as a daemon probably helps, and on the codebases I've worked with, compilation isn't a problem now. But I haven't yet tried it on a really big codebase with maybe hundreds of thousands of classes or something like that.</p>
+<p><strong>Andrey:</strong> Tell me, do you use incremental compilation?</p>
+<p><strong>Anton:</strong> Yes, of course. At least in the IDE. I think the problem is precisely without incremental compilation.</p>
+<p><strong>Andrey:</strong> Right, we've put quite a lot of effort into making incremental compilation fast and making it work not only in the IDE but also in Gradle, and I think the results there are very good. I don't have complaints about compile time either when I program in Kotlin. Still, we're by no means done with compiler performance; loads more is planned. For us it's also closely tied to performance in the IDE, because the compiler in the IDE reuses a lot of code. And in the next release cycle, 1.2, we plan to devote a lot of time to improving performance.</p>
+<p>JUG.ru: There's another imperfection. Among Kotlin's main selling points are null safety and convenient interop with Java. But these two advantages turn out to be mutually exclusive: in interop with Java you lose null safety, and an unexpected null can fly in from Java.</p>
+<p>And in theory, a developer might see the words “Avoid entire classes of errors such as null pointer exceptions” on the website and get excited, but since nobody moves a large project to Kotlin all at once and they'll have to constantly interact with Java, in the end they'll only be disappointed.</p>
+<p>The question: in practice, does this scare people away from the language?</p>
+<p><strong>Anton:</strong> It hardly scares anyone away. I'd even say it was a very wise decision, shortly before version 1.0, to make platform types not all nullable. Otherwise writing in the language using the standard Java libraries would have been pure hell. So it was a trade-off, and in my view a good one. Of course, you need a bit of experience to understand that in Kotlin, when using some Java classes, you sometimes need to explicitly declare the type when you know what should come from there, nullable or non-nullable, so that the compiler doesn't have to guess later. Otherwise, just as in Java, you'll get an exception at runtime. But on the whole, the way it's done now is done well.</p>
+<p><strong>Andrey:</strong> Indeed, the question of nullability in Java interop ate up a huge amount of our time before the 1.0 release. I think in total it delayed the release by about a year, because we tried several different interop schemes for nullability, three or four I think. And the first n were inconvenient; code was simply hard to write: either the code came out bad, or the configuration was too complicated and something was always not working. We arrived at the current option, and I agree with Anton that it has proven itself very well.</p>
+<p>I don't remember complaints like “how could you, you promised null safety, and here I have a Java library and there's no null safety with it”. People don't expect a miracle from us; obviously, if it's Java, then sorry… Although actually there are exceptions even to this rule. It requires extra work from the author of a Java library, but you can annotate it right in the code so that Kotlin understands what's going on with nulls there and does everything correctly. In IDEA, most of our code is annotated, and everything there is just great, because Kotlin simply knows where Java has null and where it doesn't, and the Java side of IDEA knows too and complains in Java. If someone really wants to protect themselves from such problems even at the boundary between Kotlin and Java, the possibility is there, but it takes work.</p>
+<p><strong>Anton:</strong> Andrey, have you seen Uncle Bob's very interesting <a href="https://blog.cleancoder.com/uncle-bob/2017/01/11/TheDarkPath.html">post</a> on precisely Kotlin and nullability?</p>
+<p><strong>Andrey:</strong> I have, I have.</p>
+<p><strong>Anton:</strong> He really laid into this nullability; I'd be interested in your comment.</p>
+<p><strong>Andrey:</strong> After a lot of people drew attention to it, I read… He wrote three posts in total (at least when I last looked). And the message is roughly this: once there were languages without types, then languages with types, then languages without types became popular again; a pendulum swings back and forth, and now the pendulum has swung towards types and gone past the point of balance. We have more types than we need.</p>
+<p>First, this assumes that Uncle Bob knows where the point of balance is. Fine, he knows, but I think I know too, and I have a different opinion. At this point we can simply exchange opinions.</p>
+<p>Second, there are some concrete arguments like “if I, for example, made some type in my program nullable, I now have to change the whole rest of the program for it to compile”. This point I don't understand, because yes, of course you need to change something; it's meaningful. If some type became nullable, then the code that uses this type must take that into account, otherwise it will work incorrectly! And of course that code needs to be changed. Well, you can run it, get an exception and change it later, or you can just change it right away. In Kotlin, you have to do it right away.</p>
+<p>There are some other arguments too, analogies with const in C++ and something else; that analogy isn't quite correct, in my opinion.</p>
+<p><strong>Anton:</strong> With all due respect to Uncle Bob, it also seems to me that he simply used the opportunity to say once again “you still have to write tests for your code, and the compiler won't save you”. In which he is basically right, but I personally really like this nullability feature in Kotlin; maybe for me it's even one of the main features I want to write in Kotlin for. On the other hand, there are times when Kotlin doesn't let me easily describe what I want, and the compiler says I have to put either ? or !! somewhere. Lately, as I gain more experience with the language, I have to fight the compiler less and less, but such cases exist. There's also the lateinit keyword for this, which sometimes helps. So there are pros and cons, but I think the balance has tipped the right way, and it brings more benefit than inconvenience.</p>
+<p><strong>Andrey:</strong> Of course, I agree there are downsides, but everything has a price. If we want the compiler to guarantee something, some amount of work is required on our side. It's just a question of what's more justified. I think the experience of both ourselves and everyone else with Kotlin shows that introducing nullable types is fully justified; it turned out well.</p>
+<p><strong>Anton:</strong> And from my side, I see that as a rule I first declare all types non-nullable, and changing non-nullable to nullable is almost always very easy. The other way round is harder, of course.</p>
+<p><strong>JUG.ru: Now that Kotlin is taking off, a silver bullet effect may arise: many will take it for a panacea that solves every possible problem. So here's a question: a lot has already been said about what you can expect from Kotlin, but what shouldn't you expect from it?</strong></p>
+<p><strong>Anton:</strong> You shouldn't expect any programming language to fix the design of your own code. Almost all the problems I see in programming are related not to the language but to how the program is structured. And in that sense, neither Kotlin nor any other language will help. It can give you some tools to make it more convenient; for example, delegation is very easy in Kotlin. But you need to know how to design your code regardless of the language.</p>
+<p><strong>Andrey:</strong> I agree with Anton; I'll just put it in other words. We tried to make Kotlin a convenient language, and as a convenient language it removes unnecessary complexity that, in terms of meaning, isn't in the programmer's head. But the complexity that corresponds to the program, the meaning put into the program, no programming language will remove. That complexity has to be structured and organised in any case.</p>
+<p>And don't expect other miracles either. A JVM program in Kotlin won't be ten times faster than a program in Java, or even twice as fast. Because we're as fast as Java, and being faster is very hard. There are no miracles like that. But it's a convenient tool, and you can expect the effects of a convenient tool.</p>
+<p><strong>Anton:</strong> The most important thing, I think… Andrey, I don't know if you'll like this definition, but essentially, at the moment Kotlin is a “better Java”, and that means the equivalent amount of code can usually be written much shorter in Kotlin. And since code is read many times more often than it's written, that gives a very big productivity boost when you need to read less to figure out where a bug or problem is.</p>
+<p><strong>Andrey:</strong> Well, I quite like the definition of Kotlin as a “better Java”. It's one of the language's use cases, and we really did want Kotlin, among other things, to be a “better Java” too.</p>
+<figure><img src="../images/kotlin2017/06.jpg" alt="" loading="lazy"></figure>
+
+<h2 id="puzzlers">Puzzlers</h2>
+<p><strong>JUG.ru: A year ago, at a <a href="https://www.youtube.com/watch?v=YOmdOTlhZa8">JUG.ru meetup</a>, when Andrey and Dmitry Jemerov were asked about Kotlin puzzlers (counterintuitive quirks), they answered “the community will probably find them over time”. And now, a year later, Anton is going to give a talk called “Kotlin Puzzlers” at JPoint. Have the expectations been fully met?</strong></p>
+<p><strong>Anton:</strong> Yes, Andrey said that if someone found them, there would be puzzlers, and that may have motivated me to collect them. The folks from JetBrains said in their talks that many Java puzzlers are fixed in Kotlin, but every language has, and will have, puzzlers of its own. I started collecting them when I knew the language less well and kept stumbling on nuances that weren't obvious at first glance. Gradually the idea came up that I could make a talk about it in the familiar puzzlers format: it's above all fun, and maybe it's a way to show off the language.</p>
+<p>Not everyone knows Kotlin, so in my talk there's first an introductory set that's not strictly puzzlers but rather for Java developers: to introduce them to some features of the language so they try to guess how Kotlin will behave in a given case. And the second half is real puzzlers, where even an experienced Kotlin programmer can run into non-obvious nuances.</p>
+<p><strong>Andrey:</strong> First, I fully agree that every language has puzzlers, and that's normal. And it was my idea, a long time ago, to take the Java puzzlers, try writing them in Kotlin and see how many fall away. But of course it was never a real driver of the language design or any serious guideline; at some point I just took them and looked at what happened. Because of certain design decisions in the language, some Java puzzlers really are simply impossible. At the same time, naturally, others of its own are possible. I'd never take on making a substantial, production-useful language with fewer puzzlers than Java, or with no puzzlers; those are far too steep demands. And there'll be talks about them; the idea is cool, and people are ready to do such things with any language. We all know the super-popular <a href="https://www.destroyallsoftware.com/talks/wat">“WAT”</a> video about JavaScript and other dynamic languages, which is actually also about puzzlers. So it's a kind of tradition, and Kotlin can't possibly stay out of it.</p>
+<p><strong>JUG.ru: And when a puzzler is discovered, can it affect the further development of the language?</strong></p>
+<p><strong>Andrey:</strong> It can, of course. Well, the question is what you call a puzzler. There are bugs where some code that shouldn't compile at all compiles and runs, but in a completely unexpected way. That's simply a bug; we go and fix it.</p>
+<p>There are cases where we see that many users have come with the same problem: they wrote unintuitive code. That may mean, for example, that something in our library API isn't very well designed; then we can deprecate that API and offer one that reads less ambiguously. It may mean that the language has some combination of features that leads to this. If we understand that the combination is strictly harmful, we can issue a warning in the IDE or the compiler, saying “you're doing something here that you probably don't want”. That's not always possible: sometimes the same combinations of features that lead to a puzzler also lead to useful things. That's simply an unavoidable evil; nothing can be done about it.</p>
+<p>And of course some puzzlers come to light at the design stage. We're working on new features, there's a prototype, we start writing code on it, and if we run into puzzlers there, we look at them carefully and try to see whether we can rework things so they don't arise. In short, we try to do what we can, but we're aware that we'll never avoid all puzzlers.</p>
+<p><strong>Anton:</strong> I can also add that some of the puzzlers people sent me were real bugs in the compiler, and some still are. I usually file those in the JetBrains tracker, and I hope puzzlers of that kind will gradually go away. I don't even really want to use them in the talk.</p>
+<p><strong>Andrey:</strong> Well, if you report some harmless bug with a note that it's a puzzler and you really need it because it entertains the audience, we can leave it unfixed for a while, if you like!</p>
+<p><strong>Anton:</strong> Well, it's no problem to use an older version of Kotlin in the talk if necessary, so there's no need to do that!</p>
+<figure><img src="../images/kotlin2017/07.jpg" alt="" loading="lazy"></figure>
+
+<h2 id="expectations-and-ambitions">Expectations and ambitions</h2>
+<p><strong>JUG.ru: Andrey, since you're preparing the talk “The Future of Kotlin: Strategy and Tactics”, we'd like to ask about the future to finish. The past year was a breakthrough for Kotlin. What forecast can you make for the year ahead?</strong></p>
+<p><strong>Andrey:</strong> Well, I'll say straight away that reading tea leaves is a tricky business… I can talk about what I hope for, and there are also things I can't talk about because they're tied to things not yet announced by other market players. But in terms of the general trend, I can say two things.</p>
+<p>First, unless some global cataclysm happens, adoption will grow, and most likely it will snowball. And not only in the number of users, but also in the number of large infrastructure projects. If right now the big tools we interact with are, say, Gradle, Spring and Vert.x, then over the coming year, I think, that number will grow quite a lot. And accordingly the number of users will grow in proportion to adoption among popular projects.</p>
+<p>And second, we roughly know our plans for the year: if all goes well, Kotlin Native will come out in some form (most likely a beta preview), and with it our expansion into the market of some native platform, I don't know which yet: iOS, Arduino, or something else. We expect that this year we'll manage at least to start building a community around full stack scenarios in Kotlin. We firmly believe that writing full stack in a typed language is great.</p>
+<p>As our internal users who already write full stack applications in Kotlin show, compared with JS there's a huge gain precisely because it's typed: the tools help, and some errors are simply ruled out by the type system. I have a personal love: type-safe web, in the sense that web applications really let you catch some silly errors at compile time, like path mismatches, how paths are represented on the client and the server, all sorts of serialisation things and so on, so that all of this is out of the programmer's way, because a compiler can do such silly things.</p>
+<p>Well, we'll see how much of this we can pull off, but that's the plan; we have a lot of strength and enthusiasm here.</p>
+<p><strong>JUG.ru: The last question is no longer about next year, but about the global perspective. Maxim Shafirov <a href="https://habr.com/ru/companies/jugru/articles/318842/">said</a> about Kotlin that creating a language is a hugely ambitious task from the start: there's no point in making a “small” one, so if you take this on, you aim straight for a large share of the market. Andrey, how far do your own ambitions reach? Roughly speaking, do you want to get into the top 5 of the TIOBE index?</strong></p>
+<p><strong>Andrey:</strong> There are different things here: there are ambitions, and there are expectations.</p>
+<p>I certainly want to make the coolest language in the world. I'm doing absolutely everything, and a little more, for Kotlin to be the coolest language in the world and, accordingly, one of the most in-demand, and so on.</p>
+<p>At the same time, I try not to go crazy and to be aware that getting into the top 5 most in-demand languages (and probably, for all the inadequacy of the TIOBE index, its top 5 is adequate) is a very long road. On which, besides what I can control, there are quite a lot of factors I don't control.</p>
+<p>JetBrains is a relatively small company and isn't the maker of any platform. If Apple told all its developers “you now write in Swift, which we break every six months”, then those developers write in Swift and fix their code every six months. We have no way to compete realistically with Swift on iOS. And that's not the goal, because it's obviously impossible. There's a vendor, the vendor isn't crazy, it made a very decent language for its platform, and that's it: programmers will do what the vendor said. Full stop. You can't change anything.</p>
+<p>And I always remember one wonderful remark. A professor in Estonia once told me: “We can probably claim that today we write more web applications in Java than in COBOL. But that's all we can claim about Java and COBOL.” Jokes aside, the amount of COBOL in the world is staggering. On the one hand, of course, it isn't at the top of any TIOBE index, and on the other, you have to understand that inertia is an absolutely enormous thing. In that sense, competing with C, for example, is a completely out-of-this-world endeavour. And with Java too, in many ways. We'll see a huge amount of Java in the world for many years to come, simply because all of programming humanity has built up enormous inertia on this very language and won't lose it for a very long time.</p>
+<p>And in that sense, naturally, I want to be number one, and at the same time I understand that if I end up not in the top 1 but in the top 20, that's very cool, and I've done a great job.</p>
+<figure><img src="../images/kotlin2017/08.jpg" alt="" loading="lazy"></figure>
+
+<p>Since the language interests both “server-side Java people” and Android developers, <strong>Anton Keks</strong> was preparing “Kotlin Puzzlers” for two JUG Ru Group conferences at once: the Java conference <a href="https://jpoint.ru/">JPoint</a> and the mobile development conference <a href="https://mobiusconf.com/">Mobius</a>. And <strong>Andrey Breslav</strong> was preparing a talk for JPoint on how JetBrains sees the future of Kotlin as a language and an ecosystem, and on how far an agile approach can be applied to developing a programming language.</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Other tracks">
+    <span></span>
+    <span class="pos">Side B · Track 1 of 4</span>
+    <a class="next" href="../software2020-en/">B2 · Everything in Software Is Amazing and Nobody&#x27;s Happy →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
