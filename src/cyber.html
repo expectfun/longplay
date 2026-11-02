@@ -20,23 +20,31 @@
     border: 1px solid var(--line); border-radius: 10px; background: none; cursor: pointer; text-align: center;
     font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); transition: border-color .25s, box-shadow .25s;
   }
-  a.pill { text-decoration: none; }
+  a.pill, :root[data-cyber] article a.pill:hover { color: var(--muted); text-decoration: none; text-shadow: none; }   /* not styled as a link in the text */
   .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .pill b { font-size: 16px; color: var(--ink); }
+  /* as in the film: a solid, glossy gel capsule, a little translucent, lit from above; not a two-tone pharmacy one */
   .capsule {
-    position: relative; width: 70px; height: 28px; margin-bottom: 8px; border-radius: 14px;
-    background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
-    box-shadow: 0 6px 14px -6px var(--c1), inset 0 -4px 6px rgba(0, 0, 0, .25);
+    position: relative; width: 62px; height: 24px; margin-bottom: 8px; border-radius: 12px;
+    background:
+      radial-gradient(ellipse 55% 35% at 38% 28%, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 70%),
+      radial-gradient(ellipse 100% 90% at 50% 75%, var(--c2), var(--c1) 62%, var(--c3) 100%);
+    box-shadow: inset 0 -4px 7px rgba(0, 0, 0, .4), inset 0 1px 2px rgba(255, 255, 255, .35),
+      0 0 16px -2px var(--glow), 0 8px 16px -8px var(--c1);
     transform: rotate(-12deg); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), opacity .3s, box-shadow .3s;
   }
-  .capsule::after {   /* the shine */
-    content: ""; position: absolute; left: 9px; right: 9px; top: 4px; height: 6px; border-radius: 3px;
-    background: rgba(255, 255, 255, .55);
+  .capsule::after {   /* the highlight streak */
+    content: ""; position: absolute; left: 14px; right: 26px; top: 5px; height: 3px; border-radius: 2px;
+    background: rgba(255, 255, 255, .75); filter: blur(.4px);
   }
-  .pill-blue { --c1: #1d5bd8; --c2: #5d8ff0; --glow: rgba(60, 120, 255, .55); }
-  .pill-red { --c1: #c8102e; --c2: #f0566b; --glow: rgba(255, 40, 70, .6); }
+  .pill-blue { --c1: #1240c4; --c2: #5a98ff; --c3: #06185a; --glow: rgba(60, 120, 255, .55); }
+  .pill-red { --c1: #c10a22; --c2: #ff4a5c; --c3: #4d0009; --glow: rgba(255, 40, 70, .6); }
   .pill:hover { border-color: var(--c2); box-shadow: 0 0 22px -8px var(--glow); }
-  .pill:hover .capsule { transform: rotate(-4deg) translateY(-3px) scale(1.06); box-shadow: 0 10px 22px -6px var(--glow), inset 0 -4px 6px rgba(0, 0, 0, .25); }
+  .pill:hover .capsule {
+    transform: rotate(-4deg) translateY(-3px) scale(1.06);
+    box-shadow: inset 0 -4px 7px rgba(0, 0, 0, .4), inset 0 1px 2px rgba(255, 255, 255, .35),
+      0 0 22px 0 var(--glow), 0 12px 20px -8px var(--c1);
+  }
   .pill .taken { display: none; }
   /* taken: only the outline of the pill is left */
   .pill[aria-pressed="true"] { border-style: dashed; }
