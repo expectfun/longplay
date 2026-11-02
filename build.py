@@ -35,8 +35,8 @@ UI = {
                   'blue': 'Синяя таблетка', 'blue_note': 'проснуться на обычном сайте',
                   'red': 'Красная таблетка', 'red_note': 'узнать, насколько глубока кроличья нора',
                   'city_url': 'https://expectfun.github.io/city/',
-                  # typed over the City a few seconds after the reader arrives there
-                  'city_hint': 'Тук-тук. Найди кабинку для прослушивания.',
+                  # typed over the City a few seconds after the reader arrives there, one message after another (|)
+                  'city_hint': 'Тук-тук.|Найди кабинку для прослушивания.',
                   'taken': 'принята. Нажмите, чтобы выплюнуть и вернуться в кибер',
                   'stay': 'Или не берите никакую: листайте дальше и останетесь здесь.'},
     },
@@ -56,7 +56,7 @@ UI = {
                   'blue': 'Blue pill', 'blue_note': 'wake up on the ordinary site',
                   'red': 'Red pill', 'red_note': 'see how deep the rabbit hole goes',
                   'city_url': 'https://expectfun.github.io/city/',   # the City's English version is on its way
-                  'city_hint': 'Knock, knock. Find the listening booth.',
+                  'city_hint': 'Knock, knock.|Find the listening booth.',
                   'taken': 'taken. Click to spit it out and go back to cyber',
                   'stay': 'Or take neither: keep scrolling and you stay right here.'},
     },
