@@ -22,6 +22,10 @@ A lot has already been written about cyberpunk, including [by me](../cyberpunk20
 
 But what does it sound like? What can be called "cyberpunk music"? I think it's an interesting question with no single "right answer". So I picked eight different answers and described them all.
 
+*[Placeholder: a few words of mine about how to read on. No pill: this cyber look (the theme knob switches it too). Blue: the ordinary site. Red: the cyberpunk City, where you have to find the post yourself, in the library.]*
+
+{{pills}}
+
 ---
 
 ## Answer 1: Soundtracks

@@ -151,69 +151,54 @@
   }
 </style><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <script>
-  // the cyber switch's choice, before anything is drawn: cyber or overdrive; off = chose the normal page;
-  // nothing saved = not asked yet, so the question under the title shows
+  // the post's mode, before anything is drawn: off = the blue pill, or the theme knob turned past cyber,
+  // the normal page; anything else, nothing saved included, is cyber, the post's own look
   try {
-    const c = localStorage.getItem('lp-cyber');
-    if (c === 'cyber' || c === 'overdrive') document.documentElement.dataset.cyber = c;
-    else if (c !== 'off') document.documentElement.classList.add('asking');
-  } catch (e) { document.documentElement.classList.add('asking'); }
+    if (localStorage.getItem('lp-cyber') !== 'off') document.documentElement.dataset.cyber = 'on';
+  } catch (e) { document.documentElement.dataset.cyber = 'on'; }
 </script>
 <style>
-  /* ---------- the switch: a three-position slide switch, like the mode switch on an effect pedal ---------- */
-  .cswitch {
-    display: block; width: 44px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
-    background: none; color: var(--ink); cursor: pointer;
+  /* ---------- the pills, after the intro: blue wakes you up on the normal page, red leaves for the City ----------
+     Taking neither and reading on stays in cyber. The taken blue pill is gone from its spot; a click puts it back.
+     The red one is a link out: the City's main page (expectfun.github.io/city), where the reader finds the post
+     in the listening booth, which links back here. */
+  .pills { display: flex; justify-content: center; gap: 18px; margin: 2.2em 0 .4em; flex-wrap: wrap; }
+  .pill {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; width: 230px; padding: 16px 14px 14px;
+    border: 1px solid var(--line); border-radius: 10px; background: none; cursor: pointer; text-align: center;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); transition: border-color .25s, box-shadow .25s;
   }
-  .cswitch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .cswitch:focus-visible + .knob-label { opacity: 1; }
-  .cswitch svg { display: block; width: 100%; height: 100%; overflow: visible; }
-  .cswitch .thumb {
-    transform: translateX(var(--x, 0px)); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  a.pill { text-decoration: none; }
+  .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pill b { font-size: 16px; color: var(--ink); }
+  .capsule {
+    position: relative; width: 70px; height: 28px; margin-bottom: 8px; border-radius: 14px;
+    background: linear-gradient(90deg, var(--c1) 50%, var(--c2) 50%);
+    box-shadow: 0 6px 14px -6px var(--c1), inset 0 -4px 6px rgba(0, 0, 0, .25);
+    transform: rotate(-12deg); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), opacity .3s, box-shadow .3s;
   }
-  .cswitch[data-mode="cyber"] { --x: 9px; }
-  .cswitch[data-mode="overdrive"] { --x: 18px; }
-  .cswitch .mark { opacity: .4; transition: opacity .25s, color .25s; }
-  .cswitch[data-mode="off"] .mark-off { color: var(--accent); opacity: 1; }
-  .cswitch[data-mode="cyber"] .mark-cyber { color: #00eaff; opacity: 1; filter: drop-shadow(0 0 2px #00eaff); }
-  .cswitch[data-mode="overdrive"] .mark-overdrive { color: #ff2e88; opacity: 1; filter: drop-shadow(0 0 2px #ff2e88); }
+  .capsule::after {   /* the shine */
+    content: ""; position: absolute; left: 9px; right: 9px; top: 4px; height: 6px; border-radius: 3px;
+    background: rgba(255, 255, 255, .55);
+  }
+  .pill-blue { --c1: #1d5bd8; --c2: #5d8ff0; --glow: rgba(60, 120, 255, .55); }
+  .pill-red { --c1: #c8102e; --c2: #f0566b; --glow: rgba(255, 40, 70, .6); }
+  .pill:hover { border-color: var(--c2); box-shadow: 0 0 22px -8px var(--glow); }
+  .pill:hover .capsule { transform: rotate(-4deg) translateY(-3px) scale(1.06); box-shadow: 0 10px 22px -6px var(--glow), inset 0 -4px 6px rgba(0, 0, 0, .25); }
+  .pill .taken { display: none; }
+  /* taken: only the outline of the pill is left */
+  .pill[aria-pressed="true"] { border-style: dashed; }
+  .pill[aria-pressed="true"] .capsule { background: none; box-shadow: none; outline: 1.5px dashed var(--c2); outline-offset: -1.5px; transform: rotate(-12deg); }
+  .pill[aria-pressed="true"] .capsule::after { display: none; }
+  .pill[aria-pressed="true"] .note { display: none; }
+  .pill[aria-pressed="true"] .taken { display: block; }
+  .pills-stay { width: 100%; margin: 4px 0 0; text-align: center; font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); }
+  :root[data-cyber] .pills-stay { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
 
-  /* ---------- the question on a first visit: how to read this post ---------- */
-  .cyber-ask { display: none; }
-  html.asking .cyber-ask {
-    display: block; max-width: var(--col); margin: 28px auto 0; padding: 0 20px; overflow: hidden;
-    font: 15px/1.45 system-ui, -apple-system, sans-serif;
-  }
-  .ca-box { border: 1px solid var(--line); border-radius: 8px; padding: 16px 16px 12px; }
-  .ca-q { margin: 0 0 12px; font-weight: 600; text-align: center; }
-  .ca-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .ca-opts button {
-    display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 6px; cursor: pointer;
-    text-align: left; font: inherit; font-size: 14px; color: var(--muted); background: var(--bg);
-    border: 1px solid var(--line); transition: transform .15s, box-shadow .2s;
-  }
-  .ca-opts button:hover { transform: translateY(-1px); }
-  .ca-opts button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .ca-opts b { font-size: 16px; color: var(--ink); }
-  .ca-opts b::first-letter { text-transform: uppercase; }   /* the switch's names, as headings */
-  /* the two cyber buttons are small samples of what they switch on */
-  .ca-opts [data-mode="cyber"], .ca-opts [data-mode="overdrive"] {
-    background: #07070d; color: #8a90b6; font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 12.5px;
-  }
-  .ca-opts [data-mode="cyber"] { border-color: rgba(0, 234, 255, .45); }
-  .ca-opts [data-mode="cyber"] b { color: #00eaff; font: 500 15px Unbounded, system-ui, sans-serif; }
-  .ca-opts [data-mode="overdrive"] {
-    border-color: #ff2e88; box-shadow: 0 0 16px -4px rgba(255, 46, 136, .6);
-    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px), #07070d;
-  }
-  .ca-opts [data-mode="overdrive"] b {
-    color: #fff; font: 700 15px Unbounded, system-ui, sans-serif;
-    text-shadow: -1.5px 0 rgba(0, 234, 255, .8), 1.5px 0 rgba(255, 46, 136, .8);
-  }
-  .ca-opts [data-mode="overdrive"]:hover { box-shadow: 0 0 22px -2px rgba(255, 46, 136, .8); }
-  .ca-later { margin: 10px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+  /* the theme knob's fourth position, cyber (src/knob.html): its mark, a bolt, in the neon's own pink */
+  :root[data-cyber] .knob .mark-cyber { color: #ff2e88; filter: drop-shadow(0 0 2px #ff2e88); }
 
-  /* ---------- cyber: neon on near-black, scanlines; nothing moves ---------- */
+  /* ---------- cyber: neon on near-black, scanlines ---------- */
   /* after the light and dark rules, which it overrides whatever the knob says (side B's teal included) */
   :root[data-cyber] {
     --bg: #07070d; --ink: #dde4f4; --muted: #8a90b6; --line: rgba(0, 234, 255, .2);
@@ -264,7 +249,7 @@
   }
   :root[data-cyber] nav.tracks .pos { text-shadow: 0 0 10px rgba(255, 46, 136, .6); }
 
-  /* ---------- overdrive: the same look, moving — always away from the words themselves ---------- */
+  /* ---------- and moving — always away from the words themselves; with reduced motion, still ---------- */
   /* digital rain in the margins (drawn by the script) and a slow refresh band rolling down the screen */
   .od { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
   .od canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -275,13 +260,13 @@
   }
   @keyframes band { to { transform: translateY(calc(100vh + 140px)); } }
   /* the title flickers on like a neon sign, and again now and then */
-  :root[data-cyber="overdrive"] h1.flicker { animation: neon-on 1.1s steps(1); }
+  :root[data-cyber] h1.flicker { animation: neon-on 1.1s steps(1); }
   @keyframes neon-on {
     0% { opacity: .15; } 12% { opacity: 1; } 18% { opacity: .3; } 30% { opacity: 1; }
     46% { opacity: .55; } 52%, 100% { opacity: 1; }
   }
   /* each section heading glitches once as it scrolls into view */
-  :root[data-cyber="overdrive"] article h2.glitch { animation: glitch .6s steps(1); }
+  :root[data-cyber] article h2.glitch { animation: glitch .6s steps(1); }
   @keyframes glitch {
     0% { transform: translateX(-5px) skewX(-14deg); clip-path: inset(0 0 55% 0); text-shadow: 3px 0 #ff2e88, -3px 0 #00eaff; }
     14% { transform: translateX(6px); clip-path: inset(48% 0 0 0); }
@@ -291,31 +276,46 @@
     70%, 100% { transform: none; clip-path: none; }
   }
   /* the dividers hum */
-  :root[data-cyber="overdrive"] article hr { animation: hum 3.4s ease-in-out infinite; }
+  :root[data-cyber] article hr { animation: hum 3.4s ease-in-out infinite; }
   @keyframes hum { 50% { opacity: .5; box-shadow: 0 0 12px rgba(0, 234, 255, .7); } }
-  :root[data-cyber="overdrive"] article a:hover { text-shadow: 0 0 10px rgba(0, 234, 255, .7); }
+  :root[data-cyber] article a:hover { text-shadow: 0 0 10px rgba(0, 234, 255, .7); }
 
-  /* switching into overdrive: a CRT powering on, a white line that opens into the picture */
-  .crt { display: none; position: fixed; inset: 0; z-index: 60; pointer-events: none; }
-  .crt.on { display: block; }
+  @media (prefers-reduced-motion: reduce) {
+    .capsule { transition: none; }
+    :root[data-cyber] :is(h1.flicker, article h2.glitch, article hr) { animation: none; }
+  }
+
+  /* the red pill: the page cuts to black, and an old TV powers on, a white line that opens into the picture,
+     which is static: "the color of television, tuned to a dead channel", the sky the City opens under */
+  .crt { display: none; position: fixed; inset: 0; z-index: 61; pointer-events: none; }
+  .crt.dark, .crt.on { display: block; }
   .crt i { position: absolute; left: 0; right: 0; height: 50%; background: #000; }
   .crt i:first-child { top: 0; transform-origin: top; }
   .crt i:nth-child(2) { bottom: 0; transform-origin: bottom; }
+  .crt.dark i { animation: cut .15s ease-in both; }
+  @keyframes cut { from { opacity: 0; } }
   .crt.on i { animation: crt-open .45s cubic-bezier(.6, 0, .3, 1) .28s both; }
   .crt b {
-    position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: #fff;
+    position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: #fff; opacity: 0;
     box-shadow: 0 0 18px 4px rgba(0, 234, 255, .8);
   }
   .crt.on b { animation: crt-line .75s ease-out both; }
   @keyframes crt-open { to { transform: scaleY(0); } }
   @keyframes crt-line {
-    0% { transform: scaleX(0); } 35% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1) scaleY(40); opacity: 0; }
+    0% { transform: scaleX(0); opacity: 1; } 35% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1) scaleY(40); opacity: 0; }
   }
+  .static { position: fixed; inset: 0; z-index: 60; width: 100%; height: 100%; pointer-events: none; image-rendering: pixelated; }
+
+  /* the blue pill: a blink, eyelids closing on the cyber page and opening on the normal one */
+  .crt.blink { display: block; }
+  .crt.blink i { animation: lid .8s cubic-bezier(.5, 0, .3, 1) both; }
+  .crt.blink b { display: none; }
+  @keyframes lid { 0% { transform: scaleY(0); } 38%, 52% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
+  /* into cyber: the rain breaks through the whole screen, then draws back to the margins (drawn by the script) */
+  .burst { position: fixed; inset: 0; z-index: 60; pointer-events: none; width: 100%; height: 100%; }
 
   @media (max-width: 600px) {
-    .ca-opts { grid-template-columns: 1fr; }
-    /* room for the switch in the top bar: the back link keeps its turntable, its words go to screen readers only */
-    .topbar .back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .pill { width: 100%; }
   }
 </style>
 
@@ -388,24 +388,9 @@
   }));
 })();
 </script>
-<span class="knob-wrap">
-  <button class="cswitch" id="cswitch" type="button" data-mode="off" data-text="{&quot;off&quot;: &quot;normal&quot;, &quot;cyber&quot;: &quot;cyber&quot;, &quot;overdrive&quot;: &quot;overdrive&quot;, &quot;aria&quot;: &quot;Cyberpunk mode: {mode}. Click to change.&quot;}" data-rain="">
-    <svg viewBox="0 0 36 30" aria-hidden="true">
-      <!-- positions: off (a plain circle), cyber (a prompt, >_), overdrive (a bolt) -->
-      <circle class="mark mark-off" cx="9" cy="6.5" r="2" fill="none" stroke="currentColor" stroke-width="1"/>
-      <path class="mark mark-cyber" d="M 15.9,4.6 l 1.7,1.6 l -1.7,1.6 M 18.4,8.2 h 2" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-      <path class="mark mark-overdrive" d="M 28.2,3.6 L 25.6,7 H 27.4 L 26.4,9.6 L 29.2,5.9 H 27.4 Z" fill="currentColor"/>
-      <rect x="3" y="14" width="30" height="12" rx="6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
-      <g class="thumb">
-        <rect x="4.5" y="15.5" width="9" height="9" rx="4.5" fill="#3a342e" stroke="#fff" stroke-opacity=".2" stroke-width=".6"/>
-        <path d="M 9,17.6 V 22.4" stroke="#fff" stroke-opacity=".7" stroke-width="1.2" stroke-linecap="round"/>
-      </g>
-    </svg>
-  </button>
-  <span class="knob-label" id="cswitchLabel" aria-hidden="true"></span>
-</span>
 <style>
-  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark */
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark;
+     on a cyber post a fourth, cyber, past dark (src/cyber.html) */
   .knob-wrap { position: relative; display: inline-flex; align-items: center; }
   /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
      (and never covers the language toggle to its left) */
@@ -429,17 +414,19 @@
   }
   @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
   .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
-  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark {
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark,
+  .knob[data-mode="cyber"] .mark-cyber {
     color: var(--accent); opacity: 1;
   }
+  .knob:not([data-four]) .mark-cyber { display: none; }
   /* the room lights: dim, switch, come back up */
   .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
   @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
 </style>
 <span class="knob-wrap">
-  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;}">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;auto&quot;, &quot;light&quot;: &quot;light&quot;, &quot;dark&quot;: &quot;dark&quot;, &quot;autoLong&quot;: &quot;auto, follows the system&quot;, &quot;aria&quot;: &quot;Theme: {mode}. Click to change.&quot;, &quot;cyber&quot;: &quot;cyber&quot;}">
     <svg viewBox="0 0 34 30" aria-hidden="true">
-      <!-- positions: auto (half-lit circle), light (sun), dark (moon) -->
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon), and on a cyber post cyber (a bolt) -->
       <g class="mark mark-auto">
         <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
         <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
@@ -449,6 +436,7 @@
         <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
       </g>
       <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <path class="mark mark-cyber" d="M 31.6,18.4 L 28.9,22.3 H 30.6 L 29.5,25.4 L 32.6,21.2 H 30.9 Z" fill="currentColor"/>
       <g class="dial">
         <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
         <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
@@ -463,16 +451,22 @@
 <div class="lights" id="lights" aria-hidden="true"></div>
 <script>
 (() => {
-  const MODES = ['auto', 'light', 'dark'], ANGLE = { auto: -55, light: 0, dark: 55 };
+  const ANGLE = { auto: -55, light: 0, dark: 55, cyber: 105 };
   const root = document.documentElement, knob = document.getElementById('knob');
   const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
   const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
+  // a cyber post's text names the fourth position: the knob turns past dark to cyber, and from there back to
+  // auto. Cyber is src/cyber.html's to switch; the knob says so and points wherever it's at
+  const MODES = TEXT.cyber ? ['auto', 'light', 'dark', 'cyber'] : ['auto', 'light', 'dark'];
+  if (TEXT.cyber) knob.dataset.four = '';
   const systemDark = matchMedia('(prefers-color-scheme: dark)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
   let mode = root.dataset.theme || 'auto', hideLabel;
+  const cyber = () => TEXT.cyber && 'cyber' in root.dataset;
 
   function point(m) {
+    if (cyber()) m = 'cyber';   // the theme stays saved underneath, for the normal page
     knob.style.setProperty('--a', ANGLE[m] + 'deg');
     knob.dataset.mode = m;
     label.textContent = TEXT[m];
@@ -481,23 +475,33 @@
   function apply(m) {
     if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
     try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
-    document.dispatchEvent(new Event('lp-knob'));   // heard by the cyber switch (src/cyber.html)
+  }
+  function showLabel(ms) {
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), ms);
   }
 
   point(mode);
+  document.addEventListener('lp-cyber', () => point(mode));
   knob.addEventListener('click', () => {
-    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    const next = MODES[(MODES.indexOf(cyber() ? 'cyber' : mode) + 1) % MODES.length];
+    showLabel(1400);
+    // into cyber and out of it: the cyber script switches, with its own transitions, and the knob follows
+    if (next === 'cyber') return document.dispatchEvent(new CustomEvent('lp-cyber-set', { detail: true }));
+    if (cyber()) {
+      mode = next;
+      apply(mode);   // under cyber's colours, unseen until they go
+      return document.dispatchEvent(new CustomEvent('lp-cyber-set', { detail: false }));
+    }
+    mode = next;
     point(mode);
-    label.classList.add('show');
-    clearTimeout(hideLabel);
-    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
 
     // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
     const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
     if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
     // same colours either way (say, auto → light on a light system): just remember the choice
-    // (a cyber post's switch, if on, is about to step aside, so the colours change after all)
-    if ((shown(mode) === shown(root.dataset.theme || 'auto') && !root.dataset.cyber) || reduced || !lights.animate) {
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
       apply(mode);
       if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
       return;
@@ -523,18 +527,6 @@ company I worked at back then. They run <a
 href="https://jugru.org/">conferences for developers</a>, I recommend
 them.</p>
   </header>
-<section class="cyber-ask" id="cyberAsk" aria-labelledby="cyberAskQ">
-  <div class="ca-box">
-    <p class="ca-q" id="cyberAskQ">How would you like to read this?</p>
-    <div class="ca-opts">
-      <button type="button" data-mode="off"><b>normal</b><span>like every other post here</span></button>
-      <button type="button" data-mode="cyber"><b>cyber</b><span>neon on black, nothing moves</span></button>
-      <button type="button" data-mode="overdrive"><b>overdrive</b><span>digital rain, glitches, flicker: the page moves</span></button>
-    </div>
-    <p class="ca-later">Your choice is remembered. Change it any time with the switch at the top right.</p>
-  </div>
-</section>
-
 
   <figure class="hero"><img src="../images/cyberpunk2020/cover.jpg" alt=""></figure>
 
@@ -542,6 +534,19 @@ them.</p>
 <p>This Friday, the whole world is talking about <strong>Cyberpunk 2077</strong>.</p>
 <p>The game's release has sparked a new wave of interest in the cyberpunk genre as a whole, so I wanted to reflect: what has happened to the genre over its entire existence? How is it connected to IT, and how has the development of IT affected it? Why haven't there been any big cyberpunk works for so long?</p>
 <p>I've loved cyberpunk for almost twenty years (ever since, back in school, I got my hands on an issue of the Russian gaming magazine «Навигатор игрового мира» with an article about it), and I once devoured William Gibson's books, so now I wanted to pull together everything I know and think on the subject.</p>
+<p><em>[Placeholder: a few words of mine about how to read on. No pill: this cyber look (the theme knob switches it too). Blue: the ordinary site. Red: the cyberpunk City, where you have to find the post yourself, in the library.]</em></p>
+<div class="pills" id="pills" role="group" aria-label="Blue pill or red pill">
+  <button type="button" class="pill pill-blue" aria-pressed="false">
+    <span class="capsule" aria-hidden="true"></span>
+    <b>Blue pill</b><span class="note">wake up on the ordinary site</span><span class="taken">taken. Click to spit it out and go back to cyber</span>
+  </button>
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/">
+    <span class="capsule" aria-hidden="true"></span>
+    <b>Red pill</b><span class="note">leave for the cyberpunk City and find this post there</span>
+  </a>
+  <p class="pills-stay">Or take neither: keep scrolling and you stay right here.</p>
+</div>
+
 <hr />
 <h2 id="what-is-cyberpunk">What is "cyberpunk"?</h2>
 <p>First, we need to settle the terminology. What do we even mean by the word "cyberpunk"? And here we run into a difficulty: there's no strict definition, and people have been arguing for decades about what counts and what doesn't.</p>
@@ -659,85 +664,144 @@ district of Moscow</figcaption></figure>
       box.replaceChildren(f);
     }, { once: true });
   });
-</script><div class="crt" id="crt" aria-hidden="true"><i></i><i></i><b></b></div>
+</script><div class="crt" id="crt" aria-hidden="true" data-rain=""><i></i><i></i><b></b></div>
 <script>
 (() => {
-  const MODES = ['off', 'cyber', 'overdrive'];
-  const root = document.documentElement, sw = document.getElementById('cswitch');
-  const label = document.getElementById('cswitchLabel'), ask = document.getElementById('cyberAsk');
+  const root = document.documentElement;
+  const blue = document.querySelector('#pills .pill-blue'), red = document.getElementById('pillRed');   // none if the post has no {{pills}}
   const lights = document.getElementById('lights'), crt = document.getElementById('crt');
-  const TEXT = JSON.parse(sw.dataset.text);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let mode = root.dataset.cyber || 'off', hideLabel, stopOverdrive = null;
+  let on = 'cyber' in root.dataset, stopMoving = null, pending = null;
 
-  function point(m) {
-    sw.dataset.mode = m;
-    label.textContent = TEXT[m];
-    sw.setAttribute('aria-label', TEXT.aria.replace('{mode}', TEXT[m]));
-  }
-  function store(m) { try { localStorage.setItem('lp-cyber', m); } catch (e) {} }
-  function apply(m) {
-    if (m === 'off') delete root.dataset.cyber; else root.dataset.cyber = m;
-    if (m === 'overdrive' && !stopOverdrive) stopOverdrive = overdrive();
-    if (m !== 'overdrive' && stopOverdrive) { stopOverdrive(); stopOverdrive = null; }
+  function point() { if (blue) blue.setAttribute('aria-pressed', !on); }
+  function store() { try { localStorage.setItem('lp-cyber', on ? 'on' : 'off'); } catch (e) {} }
+  function apply() {
+    if (on) root.dataset.cyber = 'on'; else delete root.dataset.cyber;
+    if (on && !stopMoving && !reduced) stopMoving = moving();   // reduced motion: the look, standing still
+    if (!on && stopMoving) { stopMoving(); stopMoving = null; }
+    document.dispatchEvent(new Event('lp-cyber'));   // heard by the theme knob, which points at cyber while we're on
   }
 
-  // into overdrive the screen powers on; between normal and cyber the room lights dim, as with the knob;
-  // cyber ↔ overdrive keeps the colours and just starts or stops the motion
-  function set(m) {
-    const from = mode;
-    mode = m;
-    point(m);
-    store(m);
-    if (m === 'overdrive' && !reduced) {
-      crt.classList.remove('on'); void crt.offsetWidth; crt.classList.add('on');
+  // How the page changes: the blue pill is a blink, waking up on the normal page; into cyber, from the spat-out
+  // pill or the knob, the rain floods the screen and draws back to the margins; out of it from the knob the room
+  // lights dim, as between the knob's light and dark.
+  function set(next, how) {
+    if (next === on) return;
+    on = next;
+    point();
+    store();
+    clearTimeout(pending);
+    if (reduced) return apply();
+    if (how === 'blue') {
+      crt.classList.remove('dark', 'on', 'blink'); void crt.offsetWidth; crt.classList.add('blink');
       clearTimeout(crt.timer);
-      crt.timer = setTimeout(() => crt.classList.remove('on'), 800);
-      return apply(m);
+      crt.timer = setTimeout(() => crt.classList.remove('blink'), 850);
+      pending = setTimeout(apply, 340);   // while the eyes are shut
+      return;
     }
-    if ((from === 'off') === (m === 'off') || reduced || !lights.animate) return apply(m);
+    if (on) {
+      burst(RAIN);
+      pending = setTimeout(apply, 450);   // under the downpour
+      return;
+    }
+    if (!lights.animate) return apply();
     lights.getAnimations().forEach(a => a.cancel());
     lights.animate([{ opacity: 0 }, { opacity: .9 }], { duration: 160, easing: 'ease-in', fill: 'forwards' })
       .onfinish = () => {
-        apply(mode);   // the latest choice, if clicks came quicker than the fade
+        apply();   // the latest choice, if clicks came quicker than the fade
         lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
       };
   }
 
-  point(mode);
-  apply(mode);
-  sw.addEventListener('click', () => {
-    set(MODES[(MODES.indexOf(mode) + 1) % MODES.length]);
-    label.classList.add('show');
-    clearTimeout(hideLabel);
-    hideLabel = setTimeout(() => label.classList.remove('show'), 1400);
-    fold();
+  point();
+  apply();
+
+  // the theme knob turned to cyber, or past it
+  document.addEventListener('lp-cyber-set', ev => set(ev.detail));
+
+  // the blue pill: take it, or spit it out and come back to cyber
+  if (blue) blue.addEventListener('click', () => set(!on, on ? 'blue' : ''));
+
+  // the red pill: black, the TV powers on to the dead channel's static, and the City; the reader finds the post
+  // again in the City's listening booth. Back from there lands in cyber, saved (and switched on) behind the screen.
+  function goCity() {
+    clearTimeout(pending);
+    on = true;
+    point();
+    store();
+    if (reduced) return location.assign(red.href);
+    // the City (same origin) picks up the static and lets it clear as its first scene comes in
+    try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
+    clearTimeout(crt.timer);
+    crt.classList.remove('on', 'blink'); void crt.offsetWidth; crt.classList.add('dark');
+    crt.timer = setTimeout(() => {   // the screen is black by now: the static goes up behind it, and the TV comes on
+      apply();
+      deadChannel();
+      crt.classList.replace('dark', 'on');
+    }, 250);
+    setTimeout(() => location.assign(red.href), 1550);
+  }
+  if (red) red.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;   // a new tab: just go
+    ev.preventDefault();
+    goCity();
   });
-  // turning the theme knob means "show me these colours", so the switch steps aside (applied either way:
-  // the knob's dim cancels a fade of ours that might still be waiting to apply)
-  document.addEventListener('lp-knob', () => {
-    if (mode !== 'off') { mode = 'off'; point('off'); store('off'); }
-    apply('off');
+  addEventListener('pageshow', ev => {   // back from the City to a page kept as it was left: the TV back on
+    if (!ev.persisted) return;
+    document.querySelectorAll('.burst, .static').forEach(c => c.remove());
+    crt.classList.remove('dark', 'on');
   });
 
-  // the question: an answer folds it away; scrolling past it counts as "normal"
-  function fold() {
-    if (!root.classList.contains('asking')) return;
-    const r = ask.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > innerHeight || reduced || !ask.animate) return root.classList.remove('asking');
-    ask.animate([{ height: r.height + 'px', opacity: 1 }, { height: 0, opacity: 0 }],
-                { duration: 350, easing: 'ease-in-out' }).onfinish = () => root.classList.remove('asking');
+  // grey snow, redrawn a few dozen times a second at a third of the screen's resolution, until the page is gone
+  function deadChannel() {
+    const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+    const w = canvas.width = Math.ceil(innerWidth / 3), h = canvas.height = Math.ceil(innerHeight / 3);
+    canvas.className = 'static';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.append(canvas);
+    const img = ctx.createImageData(w, h), px = new Uint32Array(img.data.buffer);
+    (function frame() {
+      if (!canvas.isConnected) return;
+      for (let i = 0; i < px.length; i++) { const v = Math.random() * 200 + 30 | 0; px[i] = 0xff000000 | v << 16 | v << 8 | v; }
+      ctx.putImageData(img, 0, 0);
+      requestAnimationFrame(frame);
+    })();
   }
-  ask.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    set(b.dataset.mode);
-    fold();
-    sw.focus({ preventScroll: true });
-  }));
-  if (root.classList.contains('asking')) {
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting && e.boundingClientRect.bottom < 0) { store('off'); io.disconnect(); }
-    });
-    io.observe(ask);
+
+  // the flood: for a moment the rain falls over everything, thick and fast, darkening the page behind it
+  const RAIN = { head: '#d9fbff', rain: 'rgba(0, 234, 255, .8)', odd: 'rgba(255, 46, 136, .85)' };
+  function burst(c) {
+    const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), SIZE = 18;
+    const dpr = devicePixelRatio || 1, w = innerWidth, h = innerHeight;
+    canvas.className = 'burst';
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    document.body.append(canvas);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.font = `${SIZE - 2}px "JetBrains Mono", ui-monospace, monospace`;
+    ctx.textAlign = 'center';
+    const rows = h / SIZE;   // streams start at staggered heights, the upper half already falling, so it floods at once
+    const drops = Array.from({ length: Math.ceil(w / SIZE) }, () => (Math.random() - .5) * rows);
+    const t0 = performance.now();
+    let raf;
+    (function frame(t) {
+      const k = (t - t0) / 1000;
+      if (k > 1.6) { canvas.remove(); return; }
+      raf = requestAnimationFrame(frame);
+      ctx.fillStyle = `rgba(3, 3, 6, ${k < .35 ? .35 : .18})`;
+      ctx.fillRect(0, 0, w, h);
+      drops.forEach((d, i) => {
+        const row = Math.floor(d);
+        if (row >= 0) {
+          ctx.fillStyle = c.head;   // the head of a stream, bright
+          ctx.fillText(noise(), i * SIZE + SIZE / 2, (row + 1) * SIZE);
+          ctx.fillStyle = i % 5 === 2 ? c.odd : c.rain;
+          ctx.fillText(noise(), i * SIZE + SIZE / 2, row * SIZE);
+        }
+        drops[i] = d > rows ? -Math.random() * 6 : d + 1.8 + Math.random() * 1.8;
+      });
+      canvas.style.opacity = k < .7 ? 1 : 1 - (k - .7) / .9;
+    })(t0);
   }
 
   function replay(el, cls) {
@@ -745,8 +809,14 @@ district of Moscow</figcaption></figure>
     el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
   }
 
-  // overdrive's moving parts; returns the function that stops them all
-  function overdrive() {
+  // the rain's glyphs: katakana mostly, with digits and letters from the scripts of the hidden messages
+  const KANA = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+  const NOISE = [...KANA + KANA + KANA + '0123456789$#%<>/' + 'ЖЯЮФЦДЛШРНА' + 'AHYSTBRDP' + 'שמחדסהוי'
+                 + 'سعيدلام' + '생일축하사' + '日生快乐おめで' + 'ΣΑΠΟΛΧΡ'];
+  const noise = () => NOISE[Math.random() * NOISE.length | 0];
+
+  // the moving parts; returns the function that stops them all
+  function moving() {
     const layer = document.createElement('div');
     layer.className = 'od';
     layer.setAttribute('aria-hidden', 'true');
@@ -774,12 +844,8 @@ district of Moscow</figcaption></figure>
   // The noise mixes in the same scripts, so a message's letters don't stand out either.
   function rain(canvas) {
     const ctx = canvas.getContext('2d'), SIZE = 16, FADE = 140, MESSAGE_ODDS = .05, STRAY_ODDS = .22;
-    const KANA = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
-    const NOISE = [...KANA + KANA + KANA + '0123456789$#%<>/' + 'ЖЯЮФЦДЛШРНА' + 'AHYSTBRDP' + 'שמחדסהוי'
-                   + 'سعيدلام' + '생일축하사' + '日生快乐おめで' + 'ΣΑΠΟΛΧΡ'];
-    const MESSAGES = (sw.dataset.rain || '').split('|').map(m => [...m.trim()]).filter(m => m.length);
+    const MESSAGES = (crt.dataset.rain || '').split('|').map(m => [...m.trim()]).filter(m => m.length);
     const article = document.querySelector('article');
-    const noise = () => NOISE[Math.random() * NOISE.length | 0];
     let w, h, left, right, drops, speeds, queues, raf, last = 0;
 
     function start(i, fresh) {   // a column (re)starts at the top: as noise, or carrying a message

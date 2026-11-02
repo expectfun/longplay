@@ -18,6 +18,10 @@ The game's release has sparked a new wave of interest in the cyberpunk genre as 
 
 I've loved cyberpunk for almost twenty years (ever since, back in school, I got my hands on an issue of the Russian gaming magazine «Навигатор игрового мира» with an article about it), and I once devoured William Gibson's books, so now I wanted to pull together everything I know and think on the subject.
 
+*[Placeholder: a few words of mine about how to read on. No pill: this cyber look (the theme knob switches it too). Blue: the ordinary site. Red: the cyberpunk City, where you have to find the post yourself, in the library.]*
+
+{{pills}}
+
 ---
 
 ## What is "cyberpunk"?

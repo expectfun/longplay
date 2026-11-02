@@ -29,12 +29,14 @@ UI = {
                 'Ширина дорожки зависит от времени чтения поста.',
         'knob': {'auto': 'авто', 'light': 'светлая', 'dark': 'тёмная', 'autoLong': 'авто, как в системе',
                  'aria': 'Тема: {mode}. Нажмите, чтобы переключить.'},
-        'cyber': {'off': 'обычный', 'cyber': 'кибер', 'overdrive': 'овердрайв',
-                  'aria': 'Киберпанк-режим: {mode}. Нажмите, чтобы переключить.',
-                  'q': 'Как читать этот пост?',
-                  'off_note': 'как все посты на сайте', 'cyber_note': 'неон на чёрном, ничего не движется',
-                  'overdrive_note': 'цифровой дождь, глитчи, мерцание: страница движется',
-                  'later': 'Выбор запомнится. Поменять его можно переключателем вверху справа.'},
+        # cyber posts: the knob's fourth position, and the pills after the intro
+        'cyber': {'knob': 'кибер',
+                  'pills': 'Синяя или красная таблетка',
+                  'blue': 'Синяя таблетка', 'blue_note': 'проснуться на обычном сайте',
+                  'red': 'Красная таблетка', 'red_note': 'уйти в киберпанк-город и найти этот пост там',
+                  'city_url': 'https://expectfun.github.io/city/',
+                  'taken': 'принята. Нажмите, чтобы выплюнуть и вернуться в кибер',
+                  'stay': 'Или не берите никакую: листайте дальше и останетесь здесь.'},
     },
     'en': {
         'back': 'Back to the record', 'tracks_nav': 'Other tracks',
@@ -47,12 +49,13 @@ UI = {
                 "Band width follows each post's reading time.",
         'knob': {'auto': 'auto', 'light': 'light', 'dark': 'dark', 'autoLong': 'auto, follows the system',
                  'aria': 'Theme: {mode}. Click to change.'},
-        'cyber': {'off': 'normal', 'cyber': 'cyber', 'overdrive': 'overdrive',
-                  'aria': 'Cyberpunk mode: {mode}. Click to change.',
-                  'q': 'How would you like to read this?',
-                  'off_note': 'like every other post here', 'cyber_note': 'neon on black, nothing moves',
-                  'overdrive_note': 'digital rain, glitches, flicker: the page moves',
-                  'later': 'Your choice is remembered. Change it any time with the switch at the top right.'},
+        'cyber': {'knob': 'cyber',
+                  'pills': 'Blue pill or red pill',
+                  'blue': 'Blue pill', 'blue_note': 'wake up on the ordinary site',
+                  'red': 'Red pill', 'red_note': 'leave for the cyberpunk City and find this post there',
+                  'city_url': 'https://expectfun.github.io/city/',   # the City's English version is on its way
+                  'taken': 'taken. Click to spit it out and go back to cyber',
+                  'stay': 'Or take neither: keep scrolling and you stay right here.'},
     },
 }
 
@@ -180,20 +183,20 @@ def alternates(urls):
     return ''.join(f'\n<link rel="alternate" hreflang="{code}" href="{SITE}{path}">' for code, path in urls.items())
 
 
-def knob_text(lang):
-    return html.escape(json.dumps(UI[lang]['knob'], ensure_ascii=False))
+def knob_text(lang, cyber=False):
+    """The knob's position names; a cyber post's knob has a fourth, cyber."""
+    text = {**UI[lang]['knob'], **({'cyber': UI[lang]['cyber']['knob']} if cyber else {})}
+    return html.escape(json.dumps(text, ensure_ascii=False))
 
 
 def cyber_parts(meta, lang):
-    """theme: cyber in the front matter: the cyber switch, the first-visit question and the two cyber
-    looks, all from src/cyber.html, whose parts go to {{cyber_head}}, {{cyber_switch}} and so on."""
-    names = ('head', 'switch', 'ask', 'script')
+    """theme: cyber in the front matter: the pills (where the post has a {{pills}} line, after its intro)
+    and the cyber looks, all from src/cyber.html, whose parts go to {{cyber_head}} and so on."""
+    names = ('head', 'pills', 'script')
     if meta.get('theme') != 'cyber':
         return {f'cyber_{n}': '' for n in names}
     t = UI[lang]['cyber']
-    text = {'cyber_text': html.escape(json.dumps({k: t[k] for k in ('off', 'cyber', 'overdrive', 'aria')},
-                                                 ensure_ascii=False)),
-            **{f't_{k}': html.escape(v) for k, v in t.items()},
+    text = {**{f't_{k}': html.escape(v) for k, v in t.items()},
             # rain: messages hidden in overdrive's digital rain, separated by |
             'cyber_rain': html.escape(meta.get('rain', ''))}
     return {f'cyber_{n}': fill(PARTS['cyber'][n], text) for n in names}
@@ -243,6 +246,8 @@ def build_post(meta, body, sides, pairs, posts):
                                capture_output=True, text=True, check=True).stdout
     # in-page links were written for Obsidian (#Heading%20text); point them at pandoc's heading ids
     body_html = re.sub(r'href="#([^"]+)"', lambda m: f'href="#{anchor_id(m.group(1))}"', body_html)
+    cyber = cyber_parts(meta, lang)
+    body_html = body_html.replace('<p>{{pills}}</p>', cyber['cyber_pills'])
 
     # previous and next stay in this page's language
     def nav(j, rel):
@@ -262,8 +267,8 @@ def build_post(meta, body, sides, pairs, posts):
         'lang': lang,
         'alternates': alternates(alt_urls) if len(alt_urls) > 1 else '',
         't_back': ui['back'],
-        'knob_text': knob_text(lang),
-        **cyber_parts(meta, lang),
+        'knob_text': knob_text(lang, meta.get('theme') == 'cyber'),
+        **cyber,
         'side': side,
         'body_class': 'draft' if meta['draft'] else '',
         'robots': '\n<meta name="robots" content="noindex">' if meta['draft'] else '',
