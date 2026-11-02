@@ -117,6 +117,28 @@
     font-weight: 600; font-size: .9rem; padding: 6px 14px; border-radius: 999px;
   }
   .preview .pv-read:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  /* the song playing under the needle: Apple Music's official preview, with a link to the whole song there */
+  .preview .pv-song { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 0;
+    font-size: .78rem; line-height: 1.35; color: var(--muted); text-decoration: none; }
+  /* Apple's own "Listen on Apple Music" badge, unaltered, as its guidelines ask */
+  .preview .pv-badge { display: block; flex: none; height: 32px; width: auto; }
+  .preview .pv-song[hidden] { display: none; }
+  .preview .pv-song:hover { color: var(--ink); }
+  .preview .pv-song:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  .preview .pv-song b { font-weight: 600; }
+  /* how much of the fragment has played; and once it's over, a line saying so, and the Read button pulsing:
+     the record page is for picking a track, the songs themselves are in the posts */
+  .preview .pv-progress { height: 3px; margin: 8px 0 0; border-radius: 2px; background: var(--line); overflow: hidden; }
+  .preview .pv-progress[hidden] { display: none; }
+  .preview .pv-progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .preview .pv-over { margin: 0 0 8px; color: var(--ink); font-size: .85rem; }
+  .preview .pv-over[hidden] { display: none; }
+  .preview.over .pv-read { animation: pv-beckon 1.8s ease-in-out infinite; }
+  @keyframes pv-beckon {
+    0%, 100% { transform: none; box-shadow: 0 0 0 0 transparent; }
+    50% { transform: scale(1.06); box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { .preview.over .pv-read { animation: none; transform: scale(1.06); } }
   .preview .pv-title { padding-right: 26px; }
   .pv-close {
     position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border: 0; border-radius: 50%;
@@ -397,7 +419,13 @@
         <small id="pvMeta"></small>
         <div class="pv-title" id="pvTitle"></div>
         <p id="pvTeaser"></p>
+        <p class="pv-over" id="pvOver" hidden>That was a fragment. The full song and more tracks are in the post.</p>
         <a class="pv-read" id="pvRead">Read →</a>
+        <a class="pv-song" id="pvSong" target="_blank" rel="noopener" hidden>
+          <span class="pv-song-name">♪ <b id="pvSongName"></b></span>
+          <img class="pv-badge" src="../images/badges/apple-music-en.svg" alt="Listen to the full song on Apple Music" width="112" height="32">
+        </a>
+        <div class="pv-progress" id="pvProgress" hidden><i id="pvBar"></i></div>
       </div>
       <button class="pv-close" id="pvClose" type="button" aria-label="Close">×</button>
     </div>
@@ -536,7 +564,12 @@ const SIDES = {
     "min": 7,
     "cover": "alyona/01.jpg",
     "page": "../alyona-en/",
-    "teaser": "A year ago, at your previous birthday in 2018, I played a couple of songs by the rapper Alyona Alyona, who had only just become known: at the time, she had all of two music videos."
+    "teaser": "A year ago, at your previous birthday in 2018, I played a couple of songs by the rapper Alyona Alyona, who had only just become known: at the time, she had all of two music videos.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/63/04/95/63049504-3e45-a85b-cb71-b3d42a673771/mzaf_5484210921360792112.plus.aac.p.m4a",
+     "link": "https://music.apple.com/ua/album/%D1%8F%D0%BA%D0%B1%D0%B8-%D1%8F-%D0%B1%D1%83%D0%BB%D0%B0-%D0%BD%D0%B5-%D1%8F/1802657883",
+     "song": "alyona alyona — Якби я була не я"
+    }
    },
    {
     "slug": "nf-en",
@@ -545,7 +578,12 @@ const SIDES = {
     "min": 6,
     "cover": "nf/01.jpg",
     "page": "../nf-en/",
-    "teaser": "Last year for your birthday I wrote about the Ukrainian rapper Alyona Alyona, and now it's fast hip-hop again (what else would you expect from me), but in a completely different mood: as life-affirming as Alyona is, NF is that bleak."
+    "teaser": "Last year for your birthday I wrote about the Ukrainian rapper Alyona Alyona, and now it's fast hip-hop again (what else would you expect from me), but in a completely different mood: as life-affirming as Alyona is, NF is that bleak.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0c/66/7c/0c667c19-e4a2-358e-d094-eda24172dc30/mzaf_14307299410862076800.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/the-search/1470132470",
+     "song": "NF — The Search"
+    }
    },
    {
     "slug": "lmm-en",
@@ -554,7 +592,12 @@ const SIDES = {
     "min": 12,
     "cover": "lmm/01.jpg",
     "page": "../lmm-en/",
-    "teaser": "Basically, my gift texts for your birthdays have turned into an annual column: \\\"the musician who impressed me this past year\\\" :)"
+    "teaser": "Basically, my gift texts for your birthdays have turned into an annual column: \\\"the musician who impressed me this past year\\\" :)",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/9c/57/0c9c578d-f3b9-8a83-4216-0ddab4750546/mzaf_7333458641335775347.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/my-shot/1129446206",
+     "song": "Hamilton — My Shot"
+    }
    },
    {
     "slug": "eminem-en",
@@ -563,7 +606,12 @@ const SIDES = {
     "min": 29,
     "cover": "eminem/01.jpg",
     "page": "../eminem-en/",
-    "teaser": "In 2022 there wasn't much room for new music, so this time my gift text for your birthday celebrates an anniversary: it's about an artist who turned 50 this fall."
+    "teaser": "In 2022 there wasn't much room for new music, so this time my gift text for your birthday celebrates an anniversary: it's about an artist who turned 50 this fall.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e8/b4/60/e8b460b9-aa27-c8dc-24ae-2d7a31c20f60/mzaf_1413092231078349910.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/rap-god/1440858761",
+     "song": "Eminem — Rap God"
+    }
    },
    {
     "slug": "dugri-en",
@@ -572,7 +620,12 @@ const SIDES = {
     "min": 72,
     "cover": "dugri/01.jpg",
     "page": "../dugri-en/",
-    "teaser": "A lot was written about the Israeli–Palestinian conflict this year, but I think something important is usually missed. Historical texts about how the borders changed are useful, but they don't convey the PAIN."
+    "teaser": "A lot was written about the Israeli–Palestinian conflict this year, but I think something important is usually missed. Historical texts about how the borders changed are useful, but they don't convey the PAIN.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/bd/17/8b/bd178bd7-2382-31bf-e81a-1ab05fd7fe94/mzaf_15138298237787797958.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/lets-talk-straight/1596722568",
+     "song": "DUGRI — Let's Talk Straight"
+    }
    },
    {
     "slug": "sudan-en",
@@ -581,7 +634,12 @@ const SIDES = {
     "min": 18,
     "cover": "sudan-en/01.jpg",
     "page": "../sudan-en/",
-    "teaser": "My friend enjoys the way I write about music, so every year, I write a blog post for his birthday. This time it turned out to be about more than just songs."
+    "teaser": "My friend enjoys the way I write about music, so every year, I write a blog post for his birthday. This time it turned out to be about more than just songs.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/6c/d5/8b6cd505-ec8e-c2c6-d1dd-5dda01a1877e/mzaf_13641269103537063134.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/%D9%8A%D8%A7-%D9%88%D8%B7%D9%86%D9%8A-%D9%8A%D8%A7-%D8%A8%D9%84%D8%AF-%D8%A7%D8%AD%D8%A8%D8%A7%D8%A8%D9%8A/1749857815",
+     "song": "Sayed Khalifa — Ya Watani"
+    }
    },
    {
     "slug": "adhd-en",
@@ -590,7 +648,12 @@ const SIDES = {
     "min": 20,
     "cover": "adhd/01.jpg",
     "page": "../adhd-en/",
-    "teaser": "My birthday music column is, once again, not only about music. This post is also about neurodivergence, such as attention deficit disorder."
+    "teaser": "My birthday music column is, once again, not only about music. This post is also about neurodivergence, such as attention deficit disorder.",
+    "preview": {
+     "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f9/f3/59/f9f3592c-5a34-597c-9eb8-ab79b0f667ee/mzaf_4231138975426664174.plus.aac.p.m4a",
+     "link": "https://music.apple.com/us/album/control/1114927871",
+     "song": "Tonedeff — Control"
+    }
    }
   ]
  },
@@ -862,7 +925,7 @@ async function playTrack(i, fast) {
   if (state.playing === i && state.lift === 0) return;
   sound.init();
   state.targetSpeed = PLAY;
-  if (state.lift < 1) await liftUp(fast);
+  if (state.lift < 1) await liftUp(fast);   // (and the song stops with the crackle)
   state.playing = -1; setHover(state.hover); hidePreview();
   const b = state.bands[i];
   const r = b.ro - 3;
@@ -873,6 +936,7 @@ async function playTrack(i, fast) {
   state.playing = i;
   setHover(state.hover);
   sound.crackle(true);
+  sound.song(SIDES[state.side].tracks[i].preview);
   showPreview(i);
 }
 
@@ -972,9 +1036,14 @@ deckKey('startBtn', () => request(stopPlay));
   if (state.side !== side) request(flip);
 }));
 
-// ---------- sound: needle drop thump + surface crackle, generated ----------
+// ---------- sound: needle drop thump + surface crackle, generated; then the track's song ----------
+// After the drop the crackle runs alone for a moment, then the song fades in under it (Apple Music's official
+// 30-second preview, from src/previews.json) and the crackle sinks to a hiss behind it. When the fragment is over
+// the needle runs into the run-out groove: the crackle back up, and its click once a turn. Posts without one: crackle.
+// sound.on.progress(k), .end() and .reset() tell the preview card.
 const sound = (() => {
-  let ctx, crackleNode, crackleGain, enabled = true;
+  let ctx, crackleNode, crackleGain, runout = null, enabled = true, song = null, songWanted = null, songTimer;
+  const SONG_VOL = 0.7, CRACKLE = 0.18, HISS = 0.06;
   try { enabled = localStorage.getItem('vinyl-sound') !== 'off'; } catch (e) {}
   const paint = () => {
     $('soundBtn').setAttribute('aria-pressed', enabled);
@@ -986,7 +1055,8 @@ const sound = (() => {
   deckKey('soundBtn', () => {
     enabled = !enabled; paint();
     try { localStorage.setItem('vinyl-sound', enabled ? 'on' : 'off'); } catch (e) {}
-    if (!enabled) api.crackle(false); else if (state.playing >= 0) { api.init(); api.crackle(true); }
+    if (!enabled) api.crackle(false);
+    else if (state.playing >= 0) { api.init(); api.crackle(true); api.song(SIDES[state.side].tracks[state.playing].preview); }
   });
   function noiseBuffer(seconds, fill) {
     const b = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
@@ -994,6 +1064,7 @@ const sound = (() => {
     return b;
   }
   const api = {
+    on: { progress() {}, end() {}, reset() {} },
     init() {
       if (ctx || !enabled) return;
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; }
@@ -1024,16 +1095,86 @@ const sound = (() => {
         crackleNode.loop = true;
         const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
         crackleGain = ctx.createGain(); crackleGain.gain.value = 0;
-        crackleGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.4);
+        crackleGain.gain.linearRampToValueAtTime(CRACKLE, ctx.currentTime + 0.4);
         crackleNode.connect(hp).connect(crackleGain).connect(ctx.destination);
         crackleNode.start();
       } else if (!on && crackleNode) {
         const n = crackleNode, g = crackleGain; crackleNode = null;
+        g.gain.cancelScheduledValues(ctx.currentTime);
+        g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
         g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
         n.stop(ctx.currentTime + 0.2);
       }
+      if (!on) { api.song(null); api.runout(false); }
+    },
+    // the run-out groove: a soft click and swish once a turn, 1.8 s at 33⅓
+    runout(on) {
+      if (!ctx) return;
+      if (on && !runout && crackleNode) {
+        runout = ctx.createBufferSource();
+        runout.buffer = noiseBuffer(1.8, (d, sr) => {
+          for (let i = 0; i < d.length; i++) {
+            const t = i / sr;
+            d[i] = (Math.random() * 2 - 1) * (0.5 * Math.exp(-t / 0.004) + 0.05 * Math.exp(-t / 0.12));
+          }
+        });
+        runout.loop = true;
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+        const g = ctx.createGain(); g.gain.value = 0;
+        g.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 1);
+        runout.connect(lp).connect(g).connect(ctx.destination);
+        runout.start();
+      } else if (!on && runout) {
+        runout.stop(ctx.currentTime + 0.05);
+        runout = null;
+      }
+    },
+    // p: the track's preview ({ url, link, song }), or null to stop
+    song(p) {
+      clearTimeout(songTimer);
+      if ((enabled && p ? p.url : null) !== songWanted) { api.runout(false); api.on.reset(); }   // another song, or none
+      songWanted = enabled && p ? p.url : null;
+      if (song && song.src !== songWanted) {   // the one playing fades out quickly
+        const old = song; song = null;
+        fadeTo(old, 0, 250, () => old.pause());
+      }
+      if (!songWanted || song) return;
+      songTimer = setTimeout(() => {   // a moment of crackle alone first, as on a record before the first groove
+        if (!songWanted || !crackleNode) return;
+        const el = song = new Audio(songWanted);
+        el.volume = 0;
+        (function tick() {   // the progress bar, while this one is the song
+          if (song !== el) return;
+          if (el.duration) api.on.progress(el.currentTime / el.duration);
+          requestAnimationFrame(tick);
+        })();
+        song.play().then(() => {
+          fadeTo(song, SONG_VOL, 1400);
+          const t = ctx.currentTime;
+          crackleGain.gain.cancelScheduledValues(t);
+          crackleGain.gain.setValueAtTime(crackleGain.gain.value, t);
+          crackleGain.gain.linearRampToValueAtTime(HISS, t + 1.4);
+        }).catch(() => {});
+        el.addEventListener('ended', () => {   // the fragment is over: the run-out groove, and the card says so
+          if (song !== el || !crackleNode) return;
+          const t = ctx.currentTime;
+          crackleGain.gain.setValueAtTime(crackleGain.gain.value, t);
+          crackleGain.gain.linearRampToValueAtTime(CRACKLE, t + 1);
+          api.runout(true);
+          api.on.progress(1);
+          api.on.end();
+        }, { once: true });
+      }, 1100);
     },
   };
+  function fadeTo(el, to, ms, done) {
+    const from = el.volume, t0 = performance.now();
+    (function step(t) {
+      const k = Math.min(1, (t - t0) / ms);
+      el.volume = Math.min(1, Math.max(0, from + (to - from) * k));
+      if (k < 1) requestAnimationFrame(step); else if (done) done();
+    })(t0);
+  }
   return api;
 })();
 
@@ -1059,9 +1200,17 @@ function showPreview(i) {
   $('pvTitle').textContent = t.title;
   $('pvTeaser').textContent = t.teaser;
   $('pvRead').href = t.page;
+  $('pvSong').hidden = !t.preview;
+  if (t.preview) { $('pvSong').href = t.preview.link; $('pvSongName').textContent = t.preview.song; }
   $('preview').classList.add('on');
 }
 function hidePreview() { $('preview').classList.remove('on'); }
+sound.on.progress = k => { $('pvProgress').hidden = false; $('pvBar').style.width = (k * 100).toFixed(1) + '%'; };
+sound.on.end = () => { $('pvOver').hidden = false; $('preview').classList.add('over'); };
+sound.on.reset = () => {
+  $('pvProgress').hidden = true; $('pvBar').style.width = '0';
+  $('pvOver').hidden = true; $('preview').classList.remove('over');
+};
 
 // closing the card only clears the view: the record keeps playing, and clicking the track brings the card back
 $('pvClose').addEventListener('click', ev => { ev.stopPropagation(); hidePreview(); });

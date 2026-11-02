@@ -1,0 +1,53 @@
+{
+  "adhd": {
+    "id": 1114928587,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f9/f3/59/f9f3592c-5a34-597c-9eb8-ab79b0f667ee/mzaf_4231138975426664174.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/control/1114927871",
+    "song": "Tonedeff — Control"
+  },
+  "alyona": {
+    "id": 1802657887,
+    "country": "ua",
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/63/04/95/63049504-3e45-a85b-cb71-b3d42a673771/mzaf_5484210921360792112.plus.aac.p.m4a",
+    "link": "https://music.apple.com/ua/album/%D1%8F%D0%BA%D0%B1%D0%B8-%D1%8F-%D0%B1%D1%83%D0%BB%D0%B0-%D0%BD%D0%B5-%D1%8F/1802657883",
+    "song": "alyona alyona — Якби я була не я"
+  },
+  "cybersound": {
+    "id": 73327205,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d7/87/0b/d7870b02-65de-af58-df2e-8d54fcd5330d/mzaf_12483161989392342141.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/blade-runner-main-titles/73327394",
+    "song": "Vangelis — Blade Runner (Main Titles)"
+  },
+  "dugri": {
+    "id": 1596722797,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/bd/17/8b/bd178bd7-2382-31bf-e81a-1ab05fd7fe94/mzaf_15138298237787797958.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/lets-talk-straight/1596722568",
+    "song": "DUGRI — Let's Talk Straight"
+  },
+  "eminem": {
+    "id": 1440858777,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e8/b4/60/e8b460b9-aa27-c8dc-24ae-2d7a31c20f60/mzaf_1413092231078349910.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/rap-god/1440858761",
+    "song": "Eminem — Rap God"
+  },
+  "lmm": {
+    "id": 1129446602,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/9c/57/0c9c578d-f3b9-8a83-4216-0ddab4750546/mzaf_7333458641335775347.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/my-shot/1129446206",
+    "song": "Lin-Manuel Miranda, Anthony Ramos, Daveed Diggs, Okieriete Onaodowan, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\" — My Shot",
+    "label": "Hamilton — My Shot"
+  },
+  "nf": {
+    "id": 1470132471,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0c/66/7c/0c667c19-e4a2-358e-d094-eda24172dc30/mzaf_14307299410862076800.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/the-search/1470132470",
+    "song": "NF — The Search"
+  },
+  "sudan": {
+    "id": 1749857816,
+    "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/6c/d5/8b6cd505-ec8e-c2c6-d1dd-5dda01a1877e/mzaf_13641269103537063134.plus.aac.p.m4a",
+    "link": "https://music.apple.com/us/album/%D9%8A%D8%A7-%D9%88%D8%B7%D9%86%D9%8A-%D9%8A%D8%A7-%D8%A8%D9%84%D8%AF-%D8%A7%D8%AD%D8%A8%D8%A7%D8%A8%D9%8A/1749857815",
+    "song": "سيد خليفة — يا وطني يا بلد احبابي",
+    "label": "Sayed Khalifa — Ya Watani"
+  }
+}

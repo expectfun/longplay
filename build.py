@@ -8,7 +8,7 @@ tracks: off the record, with no year, cover or track bar. slug-en is the English
 track, but isn't a track of its own. The record is built twice: in Russian at index.html and in
 English at en/index.html, each linking to the posts in its own language.
 """
-import glob, html, json, os, re, subprocess, urllib.parse
+import glob, html, json, os, re, subprocess, urllib.parse, urllib.request
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'src')
@@ -24,7 +24,8 @@ UI = {
         'draft': 'черновик', 'play': 'Включить видео', 'other_lang': 'Read in English',
         'liner': 'Вкладыш', 'liner_sub': 'о проекте',
         'side': 'Сторона', 'sides': {'A': 'год в музыке', 'B': 'другие тексты'}, 'record_side': 'Сторона пластинки',
-        'read': 'Читать →', 'close': 'Закрыть', 'min': 'мин', 'sound': 'Звук', 'stop': 'Остановить и поднять иглу',
+        'read': 'Читать →', 'listen': 'Послушать целиком в Apple Music',
+        'fragment_over': 'Это был фрагмент. Песня целиком и другие треки\u00a0— в посте.', 'close': 'Закрыть', 'min': 'мин', 'sound': 'Звук', 'stop': 'Остановить и поднять иглу',
         'note': 'Выберите название или опустите иглу на пластинку, чтобы послушать превью трека. '
                 'Ширина дорожки зависит от времени чтения поста.',
         'knob': {'auto': 'авто', 'light': 'светлая', 'dark': 'тёмная', 'autoLong': 'авто, как в системе',
@@ -47,7 +48,8 @@ UI = {
         'draft': 'draft', 'play': 'Play video', 'other_lang': 'Читать по-русски',
         'liner': 'Liner notes', 'liner_sub': 'about the project',
         'side': 'Side', 'sides': {'A': 'year in music', 'B': 'other writing'}, 'record_side': 'Record side',
-        'read': 'Read →', 'close': 'Close', 'min': 'min', 'sound': 'Sound', 'stop': 'Stop and lift the needle',
+        'read': 'Read →', 'listen': 'Listen to the full song on Apple Music',
+        'fragment_over': 'That was a fragment. The full song and more tracks are in the post.', 'close': 'Close', 'min': 'min', 'sound': 'Sound', 'stop': 'Stop and lift the needle',
         'note': "Pick a title or place the needle on the record to preview a track. "
                 "Band width follows each post's reading time.",
         'knob': {'auto': 'auto', 'light': 'light', 'dark': 'dark', 'autoLong': 'auto, follows the system',
@@ -298,7 +300,30 @@ def build_post(meta, body, sides, pairs, posts):
     open(os.path.join(ROOT, slug, 'index.html'), 'w').write(page)
 
 
-def build_index(posts, sides, pairs, lang):
+def load_previews():
+    """src/previews.json: for each track, the Apple Music song whose official 30-second preview plays under the
+    needle on the record (its iTunes id, and the storefront if it isn't in the US one). The preview's address,
+    the song's Apple Music page and its name are looked up once and kept in the same file; delete an entry's
+    url to look it up again (Apple's preview addresses can change). An entry's label, if set, is the name shown on the
+    card instead of Apple's (whose artist is sometimes a whole cast, or in a script that runs the other way)."""
+    path = os.path.join(SRC, 'previews.json')
+    if not os.path.exists(path):
+        return {}
+    previews = json.load(open(path))
+    changed = False
+    for slug, p in previews.items():
+        if p.get('url'):
+            continue
+        q = urllib.parse.urlencode({'id': p['id'], 'country': p.get('country', 'us')})
+        r = json.load(urllib.request.urlopen(f'https://itunes.apple.com/lookup?{q}', timeout=20))['results'][0]
+        p.update(url=r['previewUrl'], link=r['trackViewUrl'].split('?')[0], song=f'{r["artistName"]} — {r["trackName"]}')
+        changed = True
+    if changed:
+        open(path, 'w').write(json.dumps(previews, ensure_ascii=False, indent=2) + '\n')
+    return previews
+
+
+def build_index(posts, sides, pairs, lang, previews):
     """The record in one language: Russian at the root, English at en/, one level down."""
     ui, root = UI[lang], '../' if lang == 'en' else ''
     def track(m):
@@ -307,7 +332,10 @@ def build_index(posts, sides, pairs, lang):
         return {'slug': meta['slug'], 'title': meta['title'], 'year': m['date'][:4],
                 'min': max(1, round(words / WORDS_PER_MIN)),
                 'cover': meta['cover'].replace('../images/', ''), 'page': f'{root}{meta["slug"]}/',
-                'teaser': meta.get('teaser', m['teaser'])}
+                'teaser': meta.get('teaser', m['teaser']),
+                **({'preview': {'url': previews[m['slug']]['url'], 'link': previews[m['slug']]['link'],
+                                'song': previews[m['slug']].get('label') or previews[m['slug']]['song']}}
+                   if m['slug'] in previews else {})}
     data = {s: {'name': ui['sides'][s], 'tracks': [track(m) for m in sides[s]]} for s in 'AB'}
     page = fill(TEMPLATES['index'], {
         'sides': json.dumps(data, ensure_ascii=False, indent=1),
@@ -315,7 +343,7 @@ def build_index(posts, sides, pairs, lang):
         'alternates': alternates({'ru': '', 'en': 'en/'}),
         'lang_switch': lang_switch(lang, {'ru': '../', 'en': 'en/'}),
         'knob_text': knob_text(lang),
-        **{f't_{k}': ui[k] for k in ('side', 'record_side', 'read', 'close', 'min', 'sound', 'stop', 'note')},
+        **{f't_{k}': ui[k] for k in ('side', 'record_side', 'read', 'close', 'min', 'sound', 'stop', 'note', 'listen', 'fragment_over')},
         't_side_a': ui['sides']['A'], 't_side_b': ui['sides']['B'],
         't_liner': ui['liner'], 't_liner_sub': ui['liner_sub'],
         'liner_href': f'{root}about-en/' if lang == 'en' else 'about/',
@@ -344,7 +372,8 @@ if __name__ == '__main__':
             print(f'note: {name}/ has no post in posts/ any more')
     for meta, body in posts.values():
         build_post(meta, body, sides, pairs, posts)
-    build_index(posts, sides, pairs, 'ru')
-    build_index(posts, sides, pairs, 'en')
+    previews = load_previews()
+    build_index(posts, sides, pairs, 'ru', previews)
+    build_index(posts, sides, pairs, 'en', previews)
     print(f'built the record (ru, en) + {len(posts)} posts:',
           ', '.join(s + (' (draft)' if m['draft'] else ' (page)' if m['page'] else '') for s, (m, _) in sorted(posts.items())))

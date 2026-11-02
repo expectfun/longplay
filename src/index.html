@@ -115,6 +115,28 @@
     font-weight: 600; font-size: .9rem; padding: 6px 14px; border-radius: 999px;
   }
   .preview .pv-read:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  /* the song playing under the needle: Apple Music's official preview, with a link to the whole song there */
+  .preview .pv-song { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 0;
+    font-size: .78rem; line-height: 1.35; color: var(--muted); text-decoration: none; }
+  /* Apple's own "Listen on Apple Music" badge, unaltered, as its guidelines ask */
+  .preview .pv-badge { display: block; flex: none; height: 32px; width: auto; }
+  .preview .pv-song[hidden] { display: none; }
+  .preview .pv-song:hover { color: var(--ink); }
+  .preview .pv-song:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  .preview .pv-song b { font-weight: 600; }
+  /* how much of the fragment has played; and once it's over, a line saying so, and the Read button pulsing:
+     the record page is for picking a track, the songs themselves are in the posts */
+  .preview .pv-progress { height: 3px; margin: 8px 0 0; border-radius: 2px; background: var(--line); overflow: hidden; }
+  .preview .pv-progress[hidden] { display: none; }
+  .preview .pv-progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .preview .pv-over { margin: 0 0 8px; color: var(--ink); font-size: .85rem; }
+  .preview .pv-over[hidden] { display: none; }
+  .preview.over .pv-read { animation: pv-beckon 1.8s ease-in-out infinite; }
+  @keyframes pv-beckon {
+    0%, 100% { transform: none; box-shadow: 0 0 0 0 transparent; }
+    50% { transform: scale(1.06); box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { .preview.over .pv-read { animation: none; transform: scale(1.06); } }
   .preview .pv-title { padding-right: 26px; }
   .pv-close {
     position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border: 0; border-radius: 50%;
@@ -220,7 +242,13 @@
         <small id="pvMeta"></small>
         <div class="pv-title" id="pvTitle"></div>
         <p id="pvTeaser"></p>
+        <p class="pv-over" id="pvOver" hidden>{{t_fragment_over}}</p>
         <a class="pv-read" id="pvRead">{{t_read}}</a>
+        <a class="pv-song" id="pvSong" target="_blank" rel="noopener" hidden>
+          <span class="pv-song-name">♪ <b id="pvSongName"></b></span>
+          <img class="pv-badge" src="{{root}}images/badges/apple-music-{{lang}}.svg" alt="{{t_listen}}" width="112" height="32">
+        </a>
+        <div class="pv-progress" id="pvProgress" hidden><i id="pvBar"></i></div>
       </div>
       <button class="pv-close" id="pvClose" type="button" aria-label="{{t_close}}">×</button>
     </div>
@@ -575,7 +603,7 @@ async function playTrack(i, fast) {
   if (state.playing === i && state.lift === 0) return;
   sound.init();
   state.targetSpeed = PLAY;
-  if (state.lift < 1) await liftUp(fast);
+  if (state.lift < 1) await liftUp(fast);   // (and the song stops with the crackle)
   state.playing = -1; setHover(state.hover); hidePreview();
   const b = state.bands[i];
   const r = b.ro - 3;
@@ -586,6 +614,7 @@ async function playTrack(i, fast) {
   state.playing = i;
   setHover(state.hover);
   sound.crackle(true);
+  sound.song(SIDES[state.side].tracks[i].preview);
   showPreview(i);
 }
 
@@ -685,9 +714,14 @@ deckKey('startBtn', () => request(stopPlay));
   if (state.side !== side) request(flip);
 }));
 
-// ---------- sound: needle drop thump + surface crackle, generated ----------
+// ---------- sound: needle drop thump + surface crackle, generated; then the track's song ----------
+// After the drop the crackle runs alone for a moment, then the song fades in under it (Apple Music's official
+// 30-second preview, from src/previews.json) and the crackle sinks to a hiss behind it. When the fragment is over
+// the needle runs into the run-out groove: the crackle back up, and its click once a turn. Posts without one: crackle.
+// sound.on.progress(k), .end() and .reset() tell the preview card.
 const sound = (() => {
-  let ctx, crackleNode, crackleGain, enabled = true;
+  let ctx, crackleNode, crackleGain, runout = null, enabled = true, song = null, songWanted = null, songTimer;
+  const SONG_VOL = 0.7, CRACKLE = 0.18, HISS = 0.06;
   try { enabled = localStorage.getItem('vinyl-sound') !== 'off'; } catch (e) {}
   const paint = () => {
     $('soundBtn').setAttribute('aria-pressed', enabled);
@@ -699,7 +733,8 @@ const sound = (() => {
   deckKey('soundBtn', () => {
     enabled = !enabled; paint();
     try { localStorage.setItem('vinyl-sound', enabled ? 'on' : 'off'); } catch (e) {}
-    if (!enabled) api.crackle(false); else if (state.playing >= 0) { api.init(); api.crackle(true); }
+    if (!enabled) api.crackle(false);
+    else if (state.playing >= 0) { api.init(); api.crackle(true); api.song(SIDES[state.side].tracks[state.playing].preview); }
   });
   function noiseBuffer(seconds, fill) {
     const b = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
@@ -707,6 +742,7 @@ const sound = (() => {
     return b;
   }
   const api = {
+    on: { progress() {}, end() {}, reset() {} },
     init() {
       if (ctx || !enabled) return;
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; }
@@ -737,16 +773,86 @@ const sound = (() => {
         crackleNode.loop = true;
         const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
         crackleGain = ctx.createGain(); crackleGain.gain.value = 0;
-        crackleGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.4);
+        crackleGain.gain.linearRampToValueAtTime(CRACKLE, ctx.currentTime + 0.4);
         crackleNode.connect(hp).connect(crackleGain).connect(ctx.destination);
         crackleNode.start();
       } else if (!on && crackleNode) {
         const n = crackleNode, g = crackleGain; crackleNode = null;
+        g.gain.cancelScheduledValues(ctx.currentTime);
+        g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
         g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
         n.stop(ctx.currentTime + 0.2);
       }
+      if (!on) { api.song(null); api.runout(false); }
+    },
+    // the run-out groove: a soft click and swish once a turn, 1.8 s at 33⅓
+    runout(on) {
+      if (!ctx) return;
+      if (on && !runout && crackleNode) {
+        runout = ctx.createBufferSource();
+        runout.buffer = noiseBuffer(1.8, (d, sr) => {
+          for (let i = 0; i < d.length; i++) {
+            const t = i / sr;
+            d[i] = (Math.random() * 2 - 1) * (0.5 * Math.exp(-t / 0.004) + 0.05 * Math.exp(-t / 0.12));
+          }
+        });
+        runout.loop = true;
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+        const g = ctx.createGain(); g.gain.value = 0;
+        g.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 1);
+        runout.connect(lp).connect(g).connect(ctx.destination);
+        runout.start();
+      } else if (!on && runout) {
+        runout.stop(ctx.currentTime + 0.05);
+        runout = null;
+      }
+    },
+    // p: the track's preview ({ url, link, song }), or null to stop
+    song(p) {
+      clearTimeout(songTimer);
+      if ((enabled && p ? p.url : null) !== songWanted) { api.runout(false); api.on.reset(); }   // another song, or none
+      songWanted = enabled && p ? p.url : null;
+      if (song && song.src !== songWanted) {   // the one playing fades out quickly
+        const old = song; song = null;
+        fadeTo(old, 0, 250, () => old.pause());
+      }
+      if (!songWanted || song) return;
+      songTimer = setTimeout(() => {   // a moment of crackle alone first, as on a record before the first groove
+        if (!songWanted || !crackleNode) return;
+        const el = song = new Audio(songWanted);
+        el.volume = 0;
+        (function tick() {   // the progress bar, while this one is the song
+          if (song !== el) return;
+          if (el.duration) api.on.progress(el.currentTime / el.duration);
+          requestAnimationFrame(tick);
+        })();
+        song.play().then(() => {
+          fadeTo(song, SONG_VOL, 1400);
+          const t = ctx.currentTime;
+          crackleGain.gain.cancelScheduledValues(t);
+          crackleGain.gain.setValueAtTime(crackleGain.gain.value, t);
+          crackleGain.gain.linearRampToValueAtTime(HISS, t + 1.4);
+        }).catch(() => {});
+        el.addEventListener('ended', () => {   // the fragment is over: the run-out groove, and the card says so
+          if (song !== el || !crackleNode) return;
+          const t = ctx.currentTime;
+          crackleGain.gain.setValueAtTime(crackleGain.gain.value, t);
+          crackleGain.gain.linearRampToValueAtTime(CRACKLE, t + 1);
+          api.runout(true);
+          api.on.progress(1);
+          api.on.end();
+        }, { once: true });
+      }, 1100);
     },
   };
+  function fadeTo(el, to, ms, done) {
+    const from = el.volume, t0 = performance.now();
+    (function step(t) {
+      const k = Math.min(1, (t - t0) / ms);
+      el.volume = Math.min(1, Math.max(0, from + (to - from) * k));
+      if (k < 1) requestAnimationFrame(step); else if (done) done();
+    })(t0);
+  }
   return api;
 })();
 
@@ -772,9 +878,17 @@ function showPreview(i) {
   $('pvTitle').textContent = t.title;
   $('pvTeaser').textContent = t.teaser;
   $('pvRead').href = t.page;
+  $('pvSong').hidden = !t.preview;
+  if (t.preview) { $('pvSong').href = t.preview.link; $('pvSongName').textContent = t.preview.song; }
   $('preview').classList.add('on');
 }
 function hidePreview() { $('preview').classList.remove('on'); }
+sound.on.progress = k => { $('pvProgress').hidden = false; $('pvBar').style.width = (k * 100).toFixed(1) + '%'; };
+sound.on.end = () => { $('pvOver').hidden = false; $('preview').classList.add('over'); };
+sound.on.reset = () => {
+  $('pvProgress').hidden = true; $('pvBar').style.width = '0';
+  $('pvOver').hidden = true; $('preview').classList.remove('over');
+};
 
 // closing the card only clears the view: the record keeps playing, and clicking the track brings the card back
 $('pvClose').addEventListener('click', ev => { ev.stopPropagation(); hidePreview(); });
