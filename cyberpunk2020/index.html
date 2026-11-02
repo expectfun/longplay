@@ -538,9 +538,9 @@
     <span class="capsule" aria-hidden="true"></span>
     <b>Синяя таблетка</b><span class="note">проснуться на обычном сайте</span><span class="taken">принята. Нажмите, чтобы выплюнуть и вернуться в кибер</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/">
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Тук-тук. Найди кабинку для прослушивания.">
     <span class="capsule" aria-hidden="true"></span>
-    <b>Красная таблетка</b><span class="note">уйти в киберпанк-город и найти этот пост там</span>
+    <b>Красная таблетка</b><span class="note">узнать, насколько глубока кроличья нора</span>
   </a>
   <p class="pills-stay">Или не берите никакую: листайте дальше и останетесь здесь.</p>
 </div>
@@ -726,8 +726,10 @@
     on = true;
     point();
     store();
+    // the City (same origin) types the hint over its first scene, in this page's language
+    try { sessionStorage.setItem('city-hint', red.dataset.hint); } catch (e) {}
     if (reduced) return location.assign(red.href);
-    // the City (same origin) picks up the static and lets it clear as its first scene comes in
+    // and picks up the static, letting it clear as its first scene comes in
     try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
     clearTimeout(crt.timer);
     crt.classList.remove('on', 'blink'); void crt.offsetWidth; crt.classList.add('dark');

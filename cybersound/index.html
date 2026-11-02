@@ -533,15 +533,15 @@
 <p>А реальность тем временем становится чем-то вроде «киберпанка, который мы заслужили». Искусственный интеллект, могущество корпораций, взломы, дипфейки, данные, роботы — и общее ощущение «high tech, low life».</p>
 <p>Про киберпанк уже написано многое, в том числе и <a href="../cyberpunk2020/">мной</a>. Но обычно этот жанр ассоциируют с чем-то визуальным: фильмами, аниме, видеоиграми. Понятно, «как он выглядит», и фото выше многие назовут «киберпанковским» (если не обращать внимания на название станции «Шелепиха»).</p>
 <p>А вот как он звучит? Что можно назвать «киберпанк-музыкой»? Думаю, что это интересный вопрос, на который нет одного «правильного ответа». Поэтому выбрал восемь разных вариантов и описал их все.</p>
-<p><em>[Заглушка: пара моих слов о том, как читать дальше. Без таблеток — этот кибер-вид (ручкой темы его можно переключить). Синяя — обычный сайт. Красная — киберпанк-город, где пост придётся найти самому, в библиотеке.]</em></p>
+<p><em>Если в оформлении текста мешают анимации или отсутствие светлой темы, можно принять синюю таблетку и получить скучное стандартное оформление. Но если хочется, наоборот, максимум атмосферности, можно открыть сайт на компьютере в полноэкранном режиме и принять красную. Или можно просто продолжать читать как есть.</em></p>
 <div class="pills" id="pills" role="group" aria-label="Синяя или красная таблетка">
   <button type="button" class="pill pill-blue" aria-pressed="false">
     <span class="capsule" aria-hidden="true"></span>
     <b>Синяя таблетка</b><span class="note">проснуться на обычном сайте</span><span class="taken">принята. Нажмите, чтобы выплюнуть и вернуться в кибер</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/">
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Тук-тук. Найди кабинку для прослушивания.">
     <span class="capsule" aria-hidden="true"></span>
-    <b>Красная таблетка</b><span class="note">уйти в киберпанк-город и найти этот пост там</span>
+    <b>Красная таблетка</b><span class="note">узнать, насколько глубока кроличья нора</span>
   </a>
   <p class="pills-stay">Или не берите никакую: листайте дальше и останетесь здесь.</p>
 </div>
@@ -809,8 +809,10 @@
     on = true;
     point();
     store();
+    // the City (same origin) types the hint over its first scene, in this page's language
+    try { sessionStorage.setItem('city-hint', red.dataset.hint); } catch (e) {}
     if (reduced) return location.assign(red.href);
-    // the City (same origin) picks up the static and lets it clear as its first scene comes in
+    // and picks up the static, letting it clear as its first scene comes in
     try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
     clearTimeout(crt.timer);
     crt.classList.remove('on', 'blink'); void crt.offsetWidth; crt.classList.add('dark');

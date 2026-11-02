@@ -540,9 +540,9 @@ them.</p>
     <span class="capsule" aria-hidden="true"></span>
     <b>Blue pill</b><span class="note">wake up on the ordinary site</span><span class="taken">taken. Click to spit it out and go back to cyber</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/">
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Knock, knock. Find the listening booth.">
     <span class="capsule" aria-hidden="true"></span>
-    <b>Red pill</b><span class="note">leave for the cyberpunk City and find this post there</span>
+    <b>Red pill</b><span class="note">see how deep the rabbit hole goes</span>
   </a>
   <p class="pills-stay">Or take neither: keep scrolling and you stay right here.</p>
 </div>
@@ -729,8 +729,10 @@ district of Moscow</figcaption></figure>
     on = true;
     point();
     store();
+    // the City (same origin) types the hint over its first scene, in this page's language
+    try { sessionStorage.setItem('city-hint', red.dataset.hint); } catch (e) {}
     if (reduced) return location.assign(red.href);
-    // the City (same origin) picks up the static and lets it clear as its first scene comes in
+    // and picks up the static, letting it clear as its first scene comes in
     try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
     clearTimeout(crt.timer);
     crt.classList.remove('on', 'blink'); void crt.offsetWidth; crt.classList.add('dark');

@@ -533,15 +533,15 @@
 <p>Meanwhile, reality is becoming something like "the cyberpunk we deserve" (as a Russian internet joke puts it). Artificial intelligence, the power of corporations, hacks, deepfakes, data, robots, and an overall feeling of "high tech, low life".</p>
 <p>A lot has already been written about cyberpunk, including <a href="../cyberpunk2020-en/">by me</a>. But the genre is usually associated with something visual: films, anime, video games. It's clear "what it looks like", and many would call the photo above "cyberpunk" (if you ignore the station's name, «Шелепиха», Shelepikha).</p>
 <p>But what does it sound like? What can be called "cyberpunk music"? I think it's an interesting question with no single "right answer". So I picked eight different answers and described them all.</p>
-<p><em>[Placeholder: a few words of mine about how to read on. No pill: this cyber look (the theme knob switches it too). Blue: the ordinary site. Red: the cyberpunk City, where you have to find the post yourself, in the library.]</em></p>
+<p><em>If the animations or the lack of a light theme get in the way of reading, you can take the blue pill and get the boring standard look. But if you'd rather have the full atmosphere, open the site on a computer in full screen and take the red one. Or just keep reading as it is.</em></p>
 <div class="pills" id="pills" role="group" aria-label="Blue pill or red pill">
   <button type="button" class="pill pill-blue" aria-pressed="false">
     <span class="capsule" aria-hidden="true"></span>
     <b>Blue pill</b><span class="note">wake up on the ordinary site</span><span class="taken">taken. Click to spit it out and go back to cyber</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/">
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Knock, knock. Find the listening booth.">
     <span class="capsule" aria-hidden="true"></span>
-    <b>Red pill</b><span class="note">leave for the cyberpunk City and find this post there</span>
+    <b>Red pill</b><span class="note">see how deep the rabbit hole goes</span>
   </a>
   <p class="pills-stay">Or take neither: keep scrolling and you stay right here.</p>
 </div>
@@ -809,8 +809,10 @@
     on = true;
     point();
     store();
+    // the City (same origin) types the hint over its first scene, in this page's language
+    try { sessionStorage.setItem('city-hint', red.dataset.hint); } catch (e) {}
     if (reduced) return location.assign(red.href);
-    // the City (same origin) picks up the static and lets it clear as its first scene comes in
+    // and picks up the static, letting it clear as its first scene comes in
     try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
     clearTimeout(crt.timer);
     crt.classList.remove('on', 'blink'); void crt.offsetWidth; crt.classList.add('dark');
