@@ -10,4 +10,4 @@ Side A is my yearly writing "about music and more". For my friend Sasha's birthd
 
 Side B is writing on other topics. Unlike the first side, there's no single concept here, just separate pieces that for one reason or another I wanted to keep.
 
-For feedback: Telegram @expectfun
+For feedback: Telegram [@expectfun](https://t.me/expectfun)
