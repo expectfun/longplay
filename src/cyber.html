@@ -176,7 +176,7 @@
     <span class="capsule" aria-hidden="true"></span>
     <b>{{t_blue}}</b><span class="note">{{t_blue_note}}</span><span class="taken">{{t_taken}}</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="{{t_city_url}}" data-hint="{{t_city_hint}}">
+  <a class="pill pill-red" id="pillRed" href="{{t_city_url}}" data-hint="{{t_city_hint}}" data-hint-head="{{t_city_hint_head}}">
     <span class="capsule" aria-hidden="true"></span>
     <b>{{t_red}}</b><span class="note">{{t_red_note}}</span>
   </a>
@@ -249,7 +249,10 @@
     point();
     store();
     // the City (same origin) types the hint over its first scene, in this page's language
-    try { sessionStorage.setItem('city-hint', red.dataset.hint); } catch (e) {}
+    try {
+      sessionStorage.setItem('city-hint', red.dataset.hint);
+      sessionStorage.setItem('city-hint-head', red.dataset.hintHead);
+    } catch (e) {}
     if (reduced) return location.assign(red.href);
     // and picks up the static, letting it clear as its first scene comes in
     try { sessionStorage.setItem('city-arrive', 'static'); } catch (e) {}
