@@ -38,7 +38,7 @@ UI = {
                   'city_url': 'https://expectfun.github.io/city/',
                   # a message on the City's HUD a few seconds after the reader arrives there, typed line by line (|)
                   'city_hint_head': 'Входящее · отправитель неизвестен',
-                  'city_hint': 'Тук-тук.|Твой пост ждёт в кабинке для прослушивания.',
+                  'city_hint': 'Тук-тук.|Пост ждёт.|Следуй за белым кроликом.',
                   'taken': 'принята. Нажмите, чтобы выплюнуть и вернуться в кибер',
                   'stay': 'Или не берите никакую: листайте дальше и останетесь здесь.'},
     },
@@ -60,7 +60,7 @@ UI = {
                   'red': 'Red pill', 'red_note': 'see how deep the rabbit hole goes',
                   'city_url': 'https://expectfun.github.io/city/',   # the City's English version is on its way
                   'city_hint_head': 'Incoming · sender unknown',
-                  'city_hint': 'Knock, knock.|Your post is waiting in the listening booth.',
+                  'city_hint': 'Knock, knock.|The post is waiting.|Follow the white rabbit.',
                   'taken': 'taken. Click to spit it out and go back to cyber',
                   'stay': 'Or take neither: keep scrolling and you stay right here.'},
     },
