@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>История языка Tact: от идеи до релиза — Longplay</title>
+<link rel="alternate" hreflang="ru" href="https://expectfun.github.io/longplay/tact/">
+<link rel="alternate" hreflang="en" href="https://expectfun.github.io/longplay/tact-en/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script>
+  // the theme knob's choice, before anything is drawn; none saved = follow the system
+  try { const t = localStorage.getItem('lp-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  // came here through a fade-out on another page: start dark and fade up
+  try { if (sessionStorage.getItem('lp-arrive')) { sessionStorage.removeItem('lp-arrive'); document.documentElement.classList.add('arrive'); } } catch (e) {}
+</script>
+<style>
+  /* fade through the page colour between pages: dark in dark mode, paper in light */
+  .curtain {
+    position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .curtain.on { opacity: 1; }
+  html.arrive body::after {
+    content: ""; position: fixed; inset: 0; z-index: 50; background: var(--curtain); pointer-events: none;
+    animation: lights-up .6s ease .05s forwards;
+  }
+  @keyframes lights-up { to { opacity: 0; } }
+
+  :root {
+    --col: 790px;   /* text column: ~70 characters per line at 19px Literata, plus 2 × 20px padding */
+    --bg: #faf7f2; --ink: #1f1b17; --muted: #6f665c; --line: rgba(31, 27, 23, .12);
+    --accent: #c4472a; --code: rgba(31, 27, 23, .05);
+    --curtain: #faf7f2; color-scheme: light;
+  }
+  /* dark: when the system is dark and the knob isn't set to light, or when the knob is set to dark */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+      --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+    }
+    :root:not([data-theme="light"]) body[data-side="B"] { --accent: #3fb8a8; }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14110f; --ink: #ece5da; --muted: #a0968a; --line: rgba(236, 229, 218, .13);
+    --accent: #e0643f; --code: rgba(236, 229, 218, .06); --curtain: #0b0a09; color-scheme: dark;
+  }
+  body[data-side="B"] { --accent: #23897c; }
+  :root[data-theme="dark"] body[data-side="B"] { --accent: #3fb8a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 19px/1.68 Literata, Georgia, serif;
+    font-optical-sizing: auto;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    max-width: 1100px; margin: 0 auto; padding: 18px 20px;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--ink); }
+  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
+  .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
+  .back .platter { transform-origin: 13px 15px; }
+  .back:hover .platter { animation: spin 1.8s linear infinite; }
+  .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
+  .back:hover .arm { transform: rotate(14deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
+  .hero { max-width: var(--col); margin: 32px auto 0; padding: 0 20px; }
+  .hero img {
+    display: block; width: 100%; height: auto; border-radius: 6px;
+  }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0; font-weight: 600; text-wrap: balance; }
+  .year { font: 15px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 10px 0 0; letter-spacing: .02em; }
+  /* translation: machine in the front matter; goes away once the translation is reviewed */
+  .notice { font: italic 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted); margin: 6px 0 0; }
+
+  article { max-width: var(--col); margin: 1.8em auto 0; padding: 0 20px; }
+  article p { margin: 0 0 1.1em; }
+  article a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: .18em; }
+  article h2 { font-size: 1.45em; line-height: 1.25; margin: 2.2em 0 .7em; text-wrap: balance; }
+  article h3 { font-size: 1.15em; margin: 1.8em 0 .6em; }
+  article ul, article ol { padding-left: 1.3em; margin: 0 0 1.1em; }
+  article li { margin: .3em 0; }
+  article blockquote {
+    margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+    color: var(--muted); font-style: italic;
+  }
+  article blockquote p { margin: 0 0 .7em; }
+  article hr {
+    border: 0; height: 22px; margin: 2.6em auto; width: 22px; border-radius: 50%;
+    background: radial-gradient(circle, var(--bg) 0 3px, var(--ink) 3.5px 6px, var(--line) 6.5px);
+    opacity: .5;
+  }
+  figure { margin: 1.8em 0; }
+  /* capped at a 3:2 photo's height, so square covers don't tower over the text */
+  figure img, article > p > img {
+    display: block; width: auto; max-width: 100%; max-height: 500px; height: auto; margin: 0 auto; border-radius: 6px;
+  }
+  figcaption { font: 14px/1.5 system-ui, -apple-system, sans-serif; color: var(--muted); margin-top: .6em; text-align: center; }
+
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; margin: 1.8em 0; border-radius: 6px; overflow: hidden;
+    background: #000;
+  }
+  .yt img, .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+  .yt img { opacity: .85; transition: opacity .2s; }
+  .yt button {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px; border: 0; border-radius: 50%;
+    background: rgba(0, 0, 0, .65); cursor: pointer;
+  }
+  .yt button::after {
+    content: ""; position: absolute; left: 29px; top: 23px;
+    border-left: 22px solid #fff; border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+  .yt:hover img { opacity: 1; }
+  .yt.vimeo span { position: absolute; left: 16px; top: 12px; color: #fff; opacity: .7; font: 14px system-ui, sans-serif; }
+  .yt button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* track bar: where this post sits on the record, with its neighbours on either side */
+  nav.tracks {
+    max-width: var(--col); margin: 56px auto 0; padding: 22px 20px 64px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: baseline;
+    font: 15px/1.4 system-ui, -apple-system, sans-serif;
+  }
+  nav.tracks a { color: var(--muted); text-decoration: none; }
+  nav.tracks a:hover { color: var(--ink); }
+  nav.tracks .next { text-align: right; }
+  body.draft nav.tracks .pos { color: var(--muted); }
+  nav.tracks .pos {
+    font: 600 12px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back:hover .platter { animation: none; }
+    html.arrive body::after { display: none; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 18px; }
+    article { margin-top: 36px; }
+    nav.tracks { grid-template-columns: 1fr; gap: 14px; text-align: center; }
+    nav.tracks .next { text-align: center; }
+    nav.tracks .pos { order: -1; }
+  }
+</style>
+</head>
+<body data-side="B" class="">
+  <div class="topbar">
+    <a class="back" href="../#B4">
+      <svg viewBox="0 0 34 30" aria-hidden="true">
+        <rect x=".75" y=".75" width="32.5" height="28.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"/>
+        <g class="platter">
+          <circle cx="13" cy="15" r="10.5" fill="#141210" stroke="currentColor" stroke-opacity=".45" stroke-width=".8"/>
+          <circle cx="13" cy="15" r="7.8" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="6" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+          <circle cx="13" cy="15" r="3.6" fill="var(--accent)"/>
+          <circle cx="13" cy="12.6" r=".8" fill="#fff" fill-opacity=".85"/>
+          <circle cx="13" cy="15" r=".9" fill="#141210"/>
+        </g>
+        <g class="arm" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none">
+          <circle cx="29" cy="4.5" r="1.6" fill="currentColor" stroke="none"/>
+          <path d="M 29,4.5 L 28,19 L 23,23.5"/>
+        </g>
+      </svg>
+      <span>Назад к пластинке</span>
+    </a>
+    <span class="right"><a class="flip" data-lang="ru" href="../tact-en/" hreflang="en" title="Read in English" aria-label="Read in English"><span class="flip-l" lang="ru">RU</span><svg viewBox="0 0 24 26" aria-hidden="true"><rect x="2.5" y="14" width="19" height="10" rx="2.5" fill="#141210" stroke="currentColor" stroke-opacity=".6"/><g class="lever"><path d="M 12,18 V 5.5" stroke="currentColor" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4.6" r="1.1" fill="var(--accent)"/></g><circle cx="12" cy="18" r="3.3" fill="#24201c" stroke="#fff" stroke-opacity=".18" stroke-width=".6"/></svg><span class="flip-l" lang="en">EN</span></a><style>
+  /* language toggle: a two-position lever switch, like an amp's MONO / STEREO, with RU and EN on either side */
+  .flip {
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: var(--muted);
+    font: 13px/1 system-ui, -apple-system, sans-serif; letter-spacing: .12em; border-radius: 6px;
+  }
+  .flip:hover { color: var(--ink); }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .flip .flip-l { transition: color .25s; }
+  .flip[data-lang="ru"] .flip-l[lang="ru"], .flip[data-lang="en"] .flip-l[lang="en"] { color: var(--accent); font-weight: 600; }
+  .flip svg { display: block; width: 26px; height: 28px; color: var(--ink); }
+  header .flip svg { width: 32px; height: 34px; }   /* a size up on the record, like the knob */
+  .flip .lever {
+    transform-origin: 12px 18px; transform: rotate(calc(var(--a) + var(--nudge, 0deg)));
+    transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .flip[data-lang="ru"] { --a: -32deg; }
+  .flip[data-lang="en"] { --a: 32deg; }
+  /* on hover the lever leans toward the other language, inviting the flip */
+  @media (hover: hover) {
+    .flip[data-lang="ru"]:hover { --nudge: 9deg; }
+    .flip[data-lang="en"]:hover { --nudge: -9deg; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flip .lever { transition: none; } }
+</style>
+<script>
+(() => {
+  // flip the lever to the other side, fade out, then open the other language
+  // (the href is read at the last moment: the record adds the track the needle is on)
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const flips = document.querySelectorAll('.flip');
+  flips.forEach(a => { a.dataset.here = a.dataset.lang; });
+  // back via the browser's back button restores the page as it was left: put the lever back
+  addEventListener('pageshow', e => { if (e.persisted) flips.forEach(a => { a.dataset.lang = a.dataset.here; }); });
+  flips.forEach(a => a.addEventListener('click', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    a.dataset.lang = a.dataset.lang === 'ru' ? 'en' : 'ru';
+    if (reduced) { location.href = a.getAttribute('href'); return; }
+    setTimeout(() => {
+      try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+      const c = document.getElementById('curtain');
+      if (c) c.classList.add('on');
+      setTimeout(() => { location.href = a.getAttribute('href'); }, 300);
+    }, 260);
+  }));
+})();
+</script>
+<style>
+  /* theme knob: a three-position selector, like an amp's input knob — auto (follow the system), light, dark;
+     on a cyber post a fourth, cyber, past dark (src/cyber.html) */
+  .knob-wrap { position: relative; display: inline-flex; align-items: center; }
+  /* the position's name floats below the knob, out of the layout so it never pushes the top bar around
+     (and never covers the language toggle to its left) */
+  .knob-label {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; padding: 2px 6px;
+    white-space: nowrap; pointer-events: none;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif; color: var(--muted);
+    opacity: 0; transition: opacity .25s;
+  }
+  .knob-wrap:hover .knob-label, .knob:focus-visible + .knob-label, .knob-label.show { opacity: 1; }
+  .knob {
+    display: block; width: 42px; height: 37px; padding: 0; margin: 0; border: 0; border-radius: 6px;
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .knob:hover { background: none; }
+  .knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knob svg { display: block; width: 100%; height: 100%; }
+  .knob .dial {
+    transform-origin: 17px 19px; transform: rotate(calc(var(--a, -55deg) + var(--nudge, 0deg)));
+    transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  @media (hover: hover) { .knob:hover .dial { --nudge: 8deg; } }
+  .knob .mark { color: currentColor; opacity: .4; transition: opacity .25s, color .25s; }
+  .knob[data-mode="auto"] .mark-auto, .knob[data-mode="light"] .mark-light, .knob[data-mode="dark"] .mark-dark,
+  .knob[data-mode="cyber"] .mark-cyber {
+    color: var(--accent); opacity: 1;
+  }
+  .knob:not([data-four]) .mark-cyber { display: none; }
+  /* the room lights: dim, switch, come back up */
+  .lights { position: fixed; inset: 0; z-index: 60; background: #0b0a09; opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .knob .dial { transition: none; } }
+</style>
+<span class="knob-wrap">
+  <button class="knob" id="knob" type="button" data-mode="auto" data-text="{&quot;auto&quot;: &quot;авто&quot;, &quot;light&quot;: &quot;светлая&quot;, &quot;dark&quot;: &quot;тёмная&quot;, &quot;autoLong&quot;: &quot;авто, как в системе&quot;, &quot;aria&quot;: &quot;Тема: {mode}. Нажмите, чтобы переключить.&quot;}">
+    <svg viewBox="0 0 34 30" aria-hidden="true">
+      <!-- positions: auto (half-lit circle), light (sun), dark (moon), and on a cyber post cyber (a bolt) -->
+      <g class="mark mark-auto">
+        <circle cx="5.6" cy="11.3" r="2.3" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M 5.6,9 A 2.3,2.3 0 0 1 5.6,13.6 Z" fill="currentColor"/>
+      </g>
+      <g class="mark mark-light" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+        <circle cx="17" cy="4.6" r="1.7" fill="currentColor" stroke="none"/>
+        <path d="M 17,1 v .9 M 17,7.3 v .9 M 13.4,4.6 h .9 M 19.7,4.6 h .9 M 14.5,2.1 l .6,.6 M 18.9,6.5 l .6,.6 M 14.5,7.1 l .6,-.6 M 18.9,2.7 l .6,-.6"/>
+      </g>
+      <path class="mark mark-dark" d="M 27.7,8.9 A 2.5,2.5 0 1 0 29.6,13.4 A 2,2 0 1 1 27.7,8.9 Z" fill="currentColor"/>
+      <path class="mark mark-cyber" d="M 31.6,18.4 L 28.9,22.3 H 30.6 L 29.5,25.4 L 32.6,21.2 H 30.9 Z" fill="currentColor"/>
+      <g class="dial">
+        <circle cx="17" cy="19" r="9.6" fill="#141210" stroke="currentColor" stroke-opacity=".6" stroke-width="1"/>
+        <circle cx="17" cy="19" r="8.4" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.3" stroke-dasharray="1 1.2"/>
+        <circle cx="17" cy="19" r="5.8" fill="#24201c" stroke="#fff" stroke-opacity=".12" stroke-width=".5"/>
+        <path d="M 17,17.4 V 12" stroke="#fff" stroke-opacity=".92" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="17" cy="11.1" r="1" fill="var(--accent)"/>
+      </g>
+    </svg>
+  </button>
+  <span class="knob-label" id="knobLabel" aria-hidden="true"></span>
+</span>
+<div class="lights" id="lights" aria-hidden="true"></div>
+<script>
+(() => {
+  const ANGLE = { auto: -55, light: 0, dark: 55, cyber: 105 };
+  const root = document.documentElement, knob = document.getElementById('knob');
+  const label = document.getElementById('knobLabel'), lights = document.getElementById('lights');
+  const TEXT = JSON.parse(knob.dataset.text);   // position names and the label, in the page's language
+  // a cyber post's text names the fourth position: the knob turns past dark to cyber, and from there back to
+  // auto. Cyber is src/cyber.html's to switch; the knob says so and points wherever it's at
+  const MODES = TEXT.cyber ? ['auto', 'light', 'dark', 'cyber'] : ['auto', 'light', 'dark'];
+  if (TEXT.cyber) knob.dataset.four = '';
+  const systemDark = matchMedia('(prefers-color-scheme: dark)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown = m => (m === 'auto' ? (systemDark.matches ? 'dark' : 'light') : m);
+  let mode = root.dataset.theme || 'auto', hideLabel;
+  const cyber = () => TEXT.cyber && 'cyber' in root.dataset;
+
+  function point(m) {
+    if (cyber()) m = 'cyber';   // the theme stays saved underneath, for the normal page
+    knob.style.setProperty('--a', ANGLE[m] + 'deg');
+    knob.dataset.mode = m;
+    label.textContent = TEXT[m];
+    knob.setAttribute('aria-label', TEXT.aria.replace('{mode}', m === 'auto' ? TEXT.autoLong : TEXT[m]));
+  }
+  function apply(m) {
+    if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+    try { if (m === 'auto') localStorage.removeItem('lp-theme'); else localStorage.setItem('lp-theme', m); } catch (e) {}
+  }
+  function showLabel(ms) {
+    label.classList.add('show');
+    clearTimeout(hideLabel);
+    hideLabel = setTimeout(() => label.classList.remove('show'), ms);
+  }
+
+  point(mode);
+  document.addEventListener('lp-cyber', () => point(mode));
+  knob.addEventListener('click', () => {
+    const next = MODES[(MODES.indexOf(cyber() ? 'cyber' : mode) + 1) % MODES.length];
+    showLabel(1400);
+    // into cyber and out of it: the cyber script switches, with its own transitions, and the knob follows
+    if (next === 'cyber') return document.dispatchEvent(new CustomEvent('lp-cyber-set', { detail: true }));
+    if (cyber()) {
+      mode = next;
+      apply(mode);   // under cyber's colours, unseen until they go
+      return document.dispatchEvent(new CustomEvent('lp-cyber-set', { detail: false }));
+    }
+    mode = next;
+    point(mode);
+
+    // a click mid-fade takes over from wherever the lights are, and its switch replaces the pending one
+    const dim = lights.animate ? +getComputedStyle(lights).opacity : 0;
+    if (lights.getAnimations) lights.getAnimations().forEach(a => a.cancel());
+    // same colours either way (say, auto → light on a light system): just remember the choice
+    if (shown(mode) === shown(root.dataset.theme || 'auto') || reduced || !lights.animate) {
+      apply(mode);
+      if (dim > 0) lights.animate([{ opacity: dim }, { opacity: 0 }], { duration: 250, easing: 'ease-out', fill: 'forwards' });
+      return;
+    }
+    const target = mode;
+    lights.animate([{ opacity: dim }, { opacity: .9 }], { duration: 160 * (1 - dim / .9), easing: 'ease-in', fill: 'forwards' })
+      .onfinish = () => {
+        apply(target);
+        lights.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
+      };
+  });
+})();
+</script>
+</span>
+  </div>
+
+  <header class="post-head">
+    <h1>История языка Tact: от идеи до релиза</h1>
+    <p class="year">2023</p>
+    <p class="notice">Машинный перевод с английского, автор его ещё не вычитал. Оригинал написан на английском: <a href="../tact-en/" lang="en" hreflang="en">читать оригинал</a>.</p>
+  </header>
+
+  <figure class="hero"><img src="../images/tact/cover.png" alt=""></figure>
+
+  <article>
+<p>В экосистеме TON недавно произошло несколько важных событий, связанных с языком <a href="https://tact-lang.org">Tact</a>:</p>
+<ul>
+<li><p>Вышел Tact 1.0: компилятор получил базовый набор возможностей, при котором на Tact можно полагаться как на полноценный язык. Стоит отметить, что компилятор всё ещё проходит ревью и аудиты безопасности.</p></li>
+<li><p>Появился Tact Software Foundation. Это сообщество не входит в TON Foundation, но TON Foundation его поддерживает и направляет. Tact Software Foundation управляют четыре основателя, очень активных в сообществе TON: <strong>Олег Андреев</strong>, <strong>Стив Коршаков</strong>, <strong>Таль Коль</strong> и <strong>Кирилл Емельяненко</strong>. Есть и два советника: <strong>Кирилл Малев</strong> и <strong>Любовь Шомбина</strong>.</p></li>
+<li><p>Возникли новые проекты в экосистеме, например сайт <a href="https://tact-by-example.org">Tact by Example</a>, который сделал Таль Коль.</p></li>
+</ul>
+<p>Так что Tact вышел на новый уровень зрелости, и многим разработчикам в экосистеме TON пора к нему присмотреться.</p>
+<p>Но зачем TON понадобился ещё один язык, если есть FunC и Fift? С чего всё началось? И как дошло до нынешнего состояния? Чтобы ответить на это, я обратился к нескольким ключевым людям, причастным к Tact, и они рассказали, как это видели они.</p>
+<h2 id="олег-андреев">Олег Андреев</h2>
+<p><em>В сообществе TON Олег известен прежде всего работой над Tonkeeper, но занимается не только им: среди прочего, он первым возглавил разработку Tact.</em></p>
+<figure><img src="../images/tact/01.jpg" alt="Олег Андреев" loading="lazy"></figure>
+
+<p>Когда я только пришёл в экосистему TON, я начал писать на FunC, и иногда мне казалось, что он не очень подходит для задачи. Мне не хватало каких-то возможностей и абстракций. Я обратился к Кириллу Емельяненко из core-команды TON. Он сказал, что новый язык в помощь разработчикам может быть хорошей идеей. И даже сказал, что называться он должен Tact.</p>
+<p>Название Tact означает «TON Actors», то есть модель акторов, на которой построен TON. Эта асинхронная модель немного хаотична, в ней могут возникать вещи вроде состояний гонки, так что работая с ней, нужно очень хорошо всё проектировать. TON — мощная технология, но чтобы использовать всю эту мощь, разработчику нужны абстракции поверх TON. Так что идея Tact (как и некоторых других вещей, например TON API) была в том, чтобы высвободить эту мощь TON и сделать её полезнее для людей.</p>
+<p>Я начал работать над этим с двумя другими разработчиками, опытными в дизайне языков программирования: Cxmog и Дмитрием Полуниным. На первом этапе у нас были идеи, но не было цельного видения Tact. Так что это был итеративный R&amp;D-процесс. Мы пробовали разное, изучали, как работает TVM, особенности TON и что стоит спрятать от разработчиков. Мы сделали сайт, показывающий возможности Tact, и многие говорили, что такой инструмент нужен.</p>
+<p>Нам понадобилось несколько месяцев, чтобы понять кое-что о том, как вообще надо писать смарт-контракты на TON. В начале TON их в основном писали классическим способом, как в Ethereum. Но уникальность TON в том, что он толком не даёт разработчику работать с массивами. Все языки программирования и компьютеры устроены так, чтобы эффективно перебирать данные — лежат ли они в словарях, массивах, базах данных или векторах. А TON говорит: «Эй, не используйте массивы». Циклы есть, но они толком не масштабируются. Создание базы данных открывает вектор для DoS-атаки.</p>
+<p>Так как с этим быть и создавать сложные системы, которым нужны списки? Например, если есть DAO и в нём много участников, как их хранить? Я думаю, что вместо списков в контрактах нужно делать по контракту на каждого участника. И вот тут с FunC становится сложно. Здесь-то Tact и должен облегчить разработчику жизнь и сделать создание таких сложных систем удобным.</p>
+<p>У нас была эта идея, и мы начали её исследовать. Но цельного видения Tact у нас всё ещё не было: оставались другие вопросы и нерешённые проблемы. И в какой-то момент проект поставили на паузу, пока мы не поймём лучше, что с ними делать.</p>
+<p>Тут на сцену выходит Стив Коршаков. В конце 2022 года он ушёл из TON Whales, так что у него было достаточно свободного времени, и он хотел что-то сделать с Tact. Мы поговорили, я объяснил своё видение Tact, и он взялся за работу.</p>
+<p>Он переписал язык почти с нуля, так что сегодняшний Tact сильно отличается от того, над которым работал я. Но прогресс очевиден. И даже в некоторых случаях, когда я сначала был не согласен со Стивом, после подробных технических обсуждений я приходил к выводу, что его видение оригинально и разумно и решает проблему. Я по-прежнему участвую в Tact в роли своего рода советника: руками я больше не работаю, но обсуждаю со Стивом развитие языка и могу что-то предложить. Так что я вполне доволен тем, как всё сложилось.</p>
+<h2 id="стив-коршаков">Стив Коршаков</h2>
+<p><em>Стив стал известен в сообществе TON как сооснователь TON Whales, а сейчас он разрабатывает Tact.</em></p>
+<figure><img src="../images/tact/02.jpg" alt="Стив Коршаков" loading="lazy"></figure>
+
+<p>В экосистему TON я пришёл сначала как сооснователь TON Whales. И я часто слышал о Tact как о «том языке, который решит наши сегодняшние проблемы». Разрабатывая на TON в Whales, я сам столкнулся со множеством проблем. Обновлять контракт, на котором лежат миллионы, было страшно. Приходилось выделять полдня, чтобы убедиться, что я ничего не сломаю и не заблокирую все эти деньги. И я надеялся, что Tact всё это упростит, но он всё никак не выходил.</p>
+<p>В конце 2022 года я продал свою долю в Whales и стал думать, чем заняться дальше. Раньше я делал стартапы, но у меня всегда был бизнес-сооснователь, а тут я действовал один. Что может сделать инженер-одиночка? Написать что-то полезное. Я заметил, что разработка Tact тогда не шла активно, и подумал, что было бы здорово этим заняться.</p>
+<p>Я связался с Олегом, и мы обсудили, как мне действовать. Я узнал видение Олега и увидел, что успела сделать его команда. Но моё видение несколько отличается и опирается на то, что я понял, работая с TON в Whales.</p>
+<p>В основном я вижу Tact прагматичным языком. Те, кто создаёт новые языки программирования, иногда строят «воздушные замки». У них большое видение, куча идей, и языки могут получиться красивыми, но редко используются для настоящей работы. Tact, наоборот, весь про реальные нужды разработчиков.</p>
+<p>Этот подход похож на язык Kotlin от JetBrains. Это отличный язык, но прежде всего это язык, чтобы делать настоящие вещи в реальном мире; он не просто хорош ради того, чтобы быть хорошим. В нём нет культа вроде «мы занимаемся только чистым функциональным программированием» или «мы используем только табы». Я раньше работал в JetBrains — не над самим Kotlin, но имел дело с его компилятором в TS. Мне нравится их подход с Kotlin, и я стараюсь сделать что-то похожее для экосистемы TON.</p>
+<p>Поэтому многое в Tact сделано очень просто и прямолинейно. Иногда люди смотрят на код компилятора Tact и говорят мне: «О, он выглядит гораздо проще, чем я ожидал». Но в этом и смысл: я не хочу, чтобы он был слишком сложным. Он нужен, чтобы писать смарт-контракты, а они сравнительно простые: строк кода в них гораздо меньше, чем, скажем, в мессенджере вроде Telegram. Так что язык для смарт-контрактов может быть гораздо проще языка для вещей вроде мессенджеров.</p>
+<p>И поэтому же Tact вышел так быстро после того, как я за него взялся, за считанные месяцы. Над ним легко было бы работать годами. Но если выпустить рано и потом итерировать, язык может помогать людям решать их проблемы сегодня, а не когда-нибудь в будущем.</p>
+<p>Сейчас над самим языком я работаю в основном один, но другие люди помогают с другими вещами в экосистеме. Например, Таль Коль, который сделал <a href="https://tact-by-example.org">Tact by Example</a>: он отчасти вдохновлён «Solidity by Example», но и добавляет многое сверх того. Этот сайт меня очень впечатляет, я бы так хорошо не сделал.</p>
+<h2 id="таль-коль">Таль Коль</h2>
+<p><em>Таль делает для сообщества TON массу всего: сайты, туториалы, посты в блогах и многое другое. Неудивительно, что он создал целый сайт, помогающий изучать Tact. Вопрос только в том, когда он спит?</em></p>
+<figure><img src="../images/tact/03.jpg" alt="Таль Коль" loading="lazy"></figure>
+
+<p>Когда Олег начал работать над Tact, я услышал об этом и о его видении модели акторов. И должен сказать, что поначалу я не очень понял.</p>
+<p>Я думал, что проблему FunC можно решить более сильной стандартной библиотекой. FunC — очень низкоуровневый язык: например, разбирая сообщения, нужно знать, какой бит отвечает за bounce (или за что-то ещё). И я думал, что можно сделать библиотеку, которая абстрагирует внутренности и даёт разработчикам на FunC API более высокого уровня. И я не был уверен, что создание нового языка стоит всех этих усилий.</p>
+<p>Пока Олег и его команда работали над Tact, я на него особо не смотрел, потому что у них не было публичной версии, готовой для всех. Я начал вникать в Tact, только когда за него взялся Стив. И должен сказать, как только я увидел кое-что из того, что там происходит, я убедился, что такой язык нам нужен.</p>
+<p>Думаю, лучший пример того, чем Tact важен для меня, — контракт мультиподписи. Мультиподпись очень важна, потому что если у вас есть казна, лучше, чтобы ею владел не один человек. Такой контракт реализован на FunC, но он довольно сложный. И когда я обсуждал с TON Foundation перевод выплат грантов на мультиподпись, из-за этой сложности мы двигались очень медленно.</p>
+<p>Когда я посмотрел, как Стив <a href="https://github.com/tact-lang/tact/blob/main/examples/multisig.tact">реализовал</a> контракт мультиподписи на Tact, я увидел, что это красиво. Коротко, просто, и при этом он делает очень сложные вещи вроде того, что контракт деплоит другой контракт, так что каждая транзакция мультиподписи — это субконтракт. И всё равно очень элегантно.</p>
+<p>Это меня и убедило. Потому что когда ты контролируешь язык, ты контролируешь гораздо больше, чем просто стандартную библиотеку. Думаю, библиотекой мы могли бы улучшить FunC на 50%. Но мы никогда не смогли бы упростить взаимодействие контракт–контракт или контракт–пользователь до уровня, когда разработчик вообще о нём не думает: всё делается под капотом самим языком. Так я уверовал в Tact.</p>
+<p>Теперь я один из основателей Tact Software Foundation, и думаю, что мой вклад особенно важен в трёх областях.</p>
+<p>Во-первых, я пришёл из Web3, последние пять лет работал с Ethereum, и децентрализация для меня очень важна. Когда кто-то говорит «это недостаточно децентрализовано», обычно это я. И Tact даёт мне для этого много возможностей, например поддержкой ABI. Добавить ABI придумал Стив, и я считаю, что это очень-очень важно для децентрализации. ABI позволяет обращаться к контрактам без клиента. Это уменьшает зависимость от разработчиков клиентов, и даже если клиенты закроют, у пользователей останется доступ к их деньгам.</p>
+<p>Вторая область — снижение порога входа для новичков. Мы задумываем TON как блокчейн для массового использования. Для этого нужно и массовое пришествие разработчиков. А сейчас TON очень сложный. Если подумать о людях, которые придумали TON, например о духовном отце Николае Дурове, — он очень-очень умный человек, но ему, наверное, трудно смотреть на мир глазами обычных людей. И то, что он создал, потрясающе, но не очень доступно. Сделать TON доступным — большая задача. И в неё я вкладываю много времени и очень ею увлечён, с вещами вроде <a href="https://tact-by-example.org/">tact-by-example.org</a>.</p>
+<p>И третье, что я привношу, — улаживание конфликтов и умение заставить всех работать вместе. Многие, кто работает над TON, давно знают друг друга. И их совместная работа не всегда шла гладко. Если посмотреть на историю, споров было много. А когда конфликты обостряются, это подрывает доверие сообщества: «Если эти люди ссорятся, что будет с инструментами, которые нам нужны?» Так что я считаю очень важным создать что-то стабильное, на что люди смогут опираться долго. И в это я вкладываю много сил. И мне кажется, я привношу что-то, что помогает людям ладить и понимать, что в конечном счёте у всех нас одна цель — успех TON.</p>
+<p>Главное, чего Tact сейчас не хватает, чтобы считаться готовым к продакшену, — тщательного аудита безопасности. Не думаю, что это очень опасно, но есть гипотетическая возможность уязвимостей, ведущих к бэкдорам в смарт-контрактах. Так что его нужно тщательно проверить и одобрить, и я думаю, мы к этому придём, но это займёт несколько месяцев, не завтра. Поэтому сейчас я советую разработчикам реалистично оценить, сколькими деньгами будет управлять ваш контракт. Если больше 10 000 долларов (например, вы делаете DEX), я бы сказал, пока пишите на FunC. Но если вы представляете, что сумма будет меньше 10 000 долларов (например, проект для хакатона или небольшая игра), на Tact можно писать уже сейчас.</p>
+<p>Если вы сегодня пишете контракт, на котором будет больше 10 000 долларов, и очень хотите использовать Tact, — можно, но проводите аудит сгенерированного кода на FunC, а не исходного кода на Tact. Компилятор Tact выдаёт код на FunC. Этот FunC вполне читаемый, и его можно проаудировать. Аудит FunC позволит не ждать полного аудита компилятора Tact.</p>
+<p>Если вы разработчик и хотите помочь Tact развиваться, есть два способа. Для тех, кто хочет «потрогать ядро» и повозиться с самим языком: в репозитории есть <a href="https://github.com/tact-lang/tact/issues">issues</a>, и некоторые помечены как «good first issue». Мы оставили их открытыми специально для вас, чтобы вы могли внести в Tact что-то значимое, но не слишком сложное.</p>
+<p>А для тех, кто не хочет трогать ядро Tact: больше всего помогли бы видео, где вы что-то строите и объясняете, что делаете. Можно сделать простой проект вроде игры в крестики-нолики на двух игроков, где каждый отправляет по одной монете TON, а победитель забирает обе. На мой взгляд, учить других реализовывать что-то на Tact и думать на нём — самое важное для нашей экосистемы. Я написал много материала на tact-by-example.org — помогать с его переводом тоже приглашаю.</p>
+<h2 id="кирилл-емельяненко">Кирилл Емельяненко</h2>
+<p><em>Кирилл в core-команде TON, и именно он когда-то предложил Олегу идею Tact.</em></p>
+<p>FunC — очень мощный язык для экспериментов: он достаточно выразителен, чтобы писать на нём сложные системы, и позволяет спуститься до уровня TVM и делать совершенно новые вещи.</p>
+<p>Так что он совершенно незаменим при рождении экосистемы, когда непонятно, как должны работать контракты и какие возможности и паттерны использовать. И он важен до сих пор, потому что многие возможности TVM ещё не исследованы (никто не задействовал всю мощь Merkle-доказательств и хранения кода на стеке).</p>
+<p>Однако у возможности контролировать все мелкие детали есть обратная сторона: разработчикам приходится прописывать все эти детали и проверять их на возможные ошибки. А теперь, когда паттерны программирования смарт-контрактов для TON сложились, кажется хорошей идеей спрятать детали «под капот» в типичных случаях, чтобы разработчикам не приходилось с ними возиться.</p>
+<p>Так и возникла идея Tact. В начале 2022 года я написал несколько примеров того, как мог бы выглядеть язык, мы обсудили это с Олегом, и он, найдя хороших разработчиков, взялся это реализовать. То, что должно быть «спрятано под капот», я сформулировал так:</p>
+<p><strong>Что нам нужно?</strong></p>
+<p>Нам нужен язык, знакомый разработчикам, привыкшим к другим языкам, таким как JS, Python и Solidity.</p>
+<p>Нам нужен язык, ориентированный на лучшие практики и безопасность, а не на эксперименты.</p>
+<p>Нам нужен язык, дающий безопасные высокоуровневые абстракции над сложным устройством блокчейна TON.</p>
+<p>Нам нужен язык, не требующий шаблонного кода для типичных паттернов.</p>
+<p><strong>Почему FunC недостаточно?</strong></p>
+<p>У FunC есть ряд ограничений, которые мы надеемся решить в новом языке:</p>
+<ol type="1">
+<li>Отсутствие нативных типов структур данных.</li>
+<li>Неудобная работа с хранилищем: изменение его структуры требует от разработчика просмотреть и обновить весь код контракта.</li>
+<li>Нет механизма, гарантирующего безопасность расхода газа и его пределов.</li>
+<li>Неудобное взаимодействие между контрактами из-за отсутствия строго типизированных интерфейсов и требований к расходу газа.</li>
+</ol>
+<hr />
+<p>В этом списке первые два пункта самые простые, третий сложнее, а четвёртый самый сложный, но и самый важный.</p>
+<p>Команда Олега решила, что начинать с самого простого — плохая идея, потому что потом не получится реализовать хорошие интерфейсы и сделать взаимодействие между контрактами удобным. Поэтому, чтобы решить главную проблему, они решили создать мощную систему типов, проходящую через весь язык и позволяющую выразить что угодно (включая интерфейсы).</p>
+<p>Мы с Анатолием Макосовым поддержали эту затею и обеспечили финансирование. К сожалению, после полугода разработки стало ясно, что мощная система типов появилась, а взаимодействия между контрактами не видно. Более того, язык начал выглядеть в чём-то академично — повышая порог входа вместо того, чтобы его снижать. Увы, стало ясно, что это тупик.</p>
+<p>Разработку остановили. Позже, осенью 2022 года, Стив заинтересовался и решил действовать практично: сделать то, что можно сделать, а сложности оставить на потом. Так Tact и пришёл к нынешнему состоянию: языку, в котором меньше шаблонного кода и который привычнее разработчикам, пишущим на популярных языках.</p>
+<p>Но некоторые проблемы ещё предстоит решить: безопасность газа и безопасное взаимодействие между контрактами через интерфейсы — огромные вызовы. Какие-то шаги в эту сторону, например ABI, сделаны, но впереди долгий путь.</p>
+<p>Свою нынешнюю роль в Tact я вижу как роль советника, который помогает в двух вещах:</p>
+<ol type="1">
+<li><p>Техническая экспертиза (у нас в TON Foundation её больше, чем у кого-либо, хотя мы вкладываем много сил в документацию и объяснения).</p></li>
+<li><p>Фокус на самом важном. Легко создать красивый и простой язык, сильно ограничив его пользователей. Но чтобы экосистема была успешной, нужно сделать из смарт-контрактов «Лего». Чтобы любая деталь (смарт-контракт) подходила к другим. Нужно реализовать сценарии, где один жетон можно обменять на другой, чтобы сразу совершить действие в игре, получить в результате NFT, проголосовать этим NFT, обновить состояние следующего контракта, выпустить новые жетоны и положить их в протокол кредитования. Такое «Лего» создаёт сетевой эффект не только на уровне пользователей (когда ценность сети пропорциональна n^2, где n — число пользователей), но и на уровне контрактов (когда ценность пропорциональна n^2*m^2, где m — число контрактов).</p></li>
+</ol>
+<h2 id="кирилл-малев">Кирилл Малев</h2>
+<p><em>Кирилл работает в First Stage Labs, компании, которая инвестирует в стартапы экосистемы TON. Так что вот от него «взгляд венчурного капитала».</em></p>
+<figure><img src="../images/tact/04.jpg" alt="Кирилл Малев" loading="lazy"></figure>
+
+<p>Я мыслю категориями способных и опытных команд, выбирающих TON основным блокчейном для своих проектов. Допустим, 100 команд впервые пробуют разрабатывать на TON. Сколько из них решат остаться в экосистеме? И как сделать это число больше?</p>
+<p>Я обсуждал эти вопросы с людьми вроде Антона Циварева (сейчас он отвечает за developer relations в TON Foundation). И оказалось, что одна из важных вещей — более дружелюбный к новичкам и современно выглядящий язык программирования. Язык, который снижает порог входа и делает кривую обучения менее крутой, может привести больше разработчиков, привыкших к Swift, Rust или JavaScript.</p>
+<p>Смысл был не в том, чтобы уменьшить число людей, пишущих на FunC. FunC — хороший надёжный язык для создания быстрых и эффективных смарт-контрактов и децентрализованных приложений на блокчейне TON. Смысл был в том, чтобы дать людям с бэкграундом, отличным от C или C++, выбор: начать строить на TON с чего-то более привычного. У FunC есть преимущества, но лучше всего он подходит C-разработчикам, которые любят копать глубоко. А многие разработчики другие. Они привыкли к языкам вроде JavaScript и Swift. Хардкорные низкоуровневые оптимизации им не очень интересны. Так что нужен язык, который дал бы им привычный синтаксис, спрятал бы кое-что из нижележащего и позволил бы удобно создавать сложные системы.</p>
+<p>С того момента, как я услышал о таком языке, я был в деле. Когда разработку Tact возглавлял Олег Андреев, я участвовал во внутренних обсуждениях: например, что считать «Definition of Done», оценивая зрелость языка? Мы решили, что это будет, когда на новом языке появится dApp, которым неделю подряд будут пользоваться 1000 активных пользователей в день. Этот день ещё не настал, но теперь, с релизом 1.0, он ближе.</p>
+<p>Ещё мы поняли, что недостаточно просто создать язык, то есть написать компилятор и выложить его на GitHub. Чтобы создать язык, которым люди действительно будут пользоваться, нужно сделать гораздо больше: подсветку синтаксиса в популярных редакторах кода, курсы, статьи, документацию… Чтобы стать успешным, Tact должен был получить все эти элементы экосистемы. Одним из них стал сайт tact-lang.org, показывающий новый язык. Он имел успех, и сообщество его оценило.</p>
+<p>Но потом разработка остановилась, и для меня это был облом: я рассчитывал, что Tact приведёт в экосистему новых разработчиков. Поэтому когда появилась возможность, что Стив продолжит работу, я снова подключился, чтобы этому помочь. Я составил документ с видением Tact у разных заинтересованных сторон и помог согласовать видение Олега, Стива и всех заинтересованных лиц, о которых мы смогли вспомнить. Кроме самого языка, нужно было поработать и над организационной структурой: кто за что отвечает и как всё это устроено? Так появился Tact Software Foundation, где я советник.</p>
+<p>У разработки языков свои сложности. Если вы хотите сделать что-то вроде мобильного приложения, легко найти много опытных разработчиков. Но людей, создавших свои языки программирования, в мире гораздо меньше, так что знания в этой области куда реже. Так что если вы один из таких людей, мы бы хотели с вами связаться. Возможно, мы оба сможем рассказать друг другу что-то интересное.</p>
+<p>Для меня участие в работе над Tact было и остаётся огромным удовольствием.</p>
+
+  </article>
+
+  <nav class="tracks" aria-label="Другие треки">
+    <a class="prev" href="../cyberpunk2020/">← B3 · Киберпанк 2020: как развивался жанр с появления до наших дней</a>
+    <span class="pos">Сторона B · трек 4 из 5</span>
+    <a class="next" href="../jagged-intelligence/">B5 · Зубчатый интеллект →</a>
+  </nav>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+  // back to the record and to neighbouring tracks: fade through dark
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.back, nav.tracks a').forEach(a => a.addEventListener('click', ev => {
+    if (reduced || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button > 0) return;
+    ev.preventDefault();
+    try { sessionStorage.setItem('lp-arrive', '1'); } catch (e) {}
+    document.getElementById('curtain').classList.add('on');
+    setTimeout(() => { location.href = a.href; }, 300);
+  }));
+  addEventListener('pageshow', e => {
+    if (e.persisted) document.getElementById('curtain').classList.remove('on');
+  });
+
+  // click-to-load YouTube and Vimeo: thumbnails until asked, then a privacy-friendly embed
+  document.querySelectorAll('.yt').forEach(box => {
+    box.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = box.dataset.vimeo
+        ? `https://player.vimeo.com/video/${box.dataset.vimeo}?autoplay=1`
+        : `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = 'YouTube video';
+      box.replaceChildren(f);
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
