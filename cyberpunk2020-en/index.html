@@ -548,7 +548,7 @@ them.</p>
     <span class="capsule" aria-hidden="true"></span>
     <b>Blue pill</b><span class="note">wake up on the ordinary site</span><span class="taken">taken. Click to spit it out and go back to cyber</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Knock, knock.|The post is waiting.|Follow the white rabbit." data-hint-head="Incoming · sender unknown">
+  <a class="pill pill-red" id="pillRed" href="https://expectfun.github.io/city/" data-hint="Knock, knock.|The post is waiting.|Follow the white rabbit." data-hint-head="Incoming · sender unknown" data-hint-to="terminal">
     <span class="capsule" aria-hidden="true"></span>
     <b>Red pill</b><span class="note">see how deep the rabbit hole goes</span>
   </a>
@@ -731,7 +731,8 @@ district of Moscow</figcaption></figure>
   if (blue) blue.addEventListener('click', () => set(!on, on ? 'blue' : ''));
 
   // the red pill: black, the TV powers on to the dead channel's static, and the City; the reader finds the post
-  // again in the City's listening booth. Back from there lands in cyber, saved (and switched on) behind the screen.
+  // again where it waits there (data-hint-to: the listening booth, or the library terminal), the white rabbit leading.
+  // Back from there lands in cyber, saved (and switched on) behind the screen.
   function goCity() {
     clearTimeout(pending);
     on = true;
@@ -741,6 +742,7 @@ district of Moscow</figcaption></figure>
     try {
       sessionStorage.setItem('city-hint', red.dataset.hint);
       sessionStorage.setItem('city-hint-head', red.dataset.hintHead);
+      sessionStorage.setItem('city-hint-to', red.dataset.hintTo || 'booth');
     } catch (e) {}
     if (reduced) return location.assign(red.href);
     // and picks up the static, letting it clear as its first scene comes in

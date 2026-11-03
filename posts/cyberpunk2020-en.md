@@ -3,6 +3,7 @@ title: "Cyberpunk 2020: How the Genre Evolved from Its Origins to the Present Da
 date: 2020-12-11
 series: other
 theme: cyber
+city: terminal
 author: Eugene Trifonov
 cover: ../images/cyberpunk2020/cover.jpg
 teaser: "Cyberpunk 2077 has sparked a new wave of interest in the genre as a whole. What has happened to it over its entire existence, how is it connected to IT, and why haven't there been any big cyberpunk works for so long?"

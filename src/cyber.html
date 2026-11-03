@@ -184,7 +184,7 @@
     <span class="capsule" aria-hidden="true"></span>
     <b>{{t_blue}}</b><span class="note">{{t_blue_note}}</span><span class="taken">{{t_taken}}</span>
   </button>
-  <a class="pill pill-red" id="pillRed" href="{{t_city_url}}" data-hint="{{t_city_hint}}" data-hint-head="{{t_city_hint_head}}">
+  <a class="pill pill-red" id="pillRed" href="{{t_city_url}}" data-hint="{{t_city_hint}}" data-hint-head="{{t_city_hint_head}}" data-hint-to="{{cyber_city_to}}">
     <span class="capsule" aria-hidden="true"></span>
     <b>{{t_red}}</b><span class="note">{{t_red_note}}</span>
   </a>
@@ -250,7 +250,8 @@
   if (blue) blue.addEventListener('click', () => set(!on, on ? 'blue' : ''));
 
   // the red pill: black, the TV powers on to the dead channel's static, and the City; the reader finds the post
-  // again in the City's listening booth. Back from there lands in cyber, saved (and switched on) behind the screen.
+  // again where it waits there (data-hint-to: the listening booth, or the library terminal), the white rabbit leading.
+  // Back from there lands in cyber, saved (and switched on) behind the screen.
   function goCity() {
     clearTimeout(pending);
     on = true;
@@ -260,6 +261,7 @@
     try {
       sessionStorage.setItem('city-hint', red.dataset.hint);
       sessionStorage.setItem('city-hint-head', red.dataset.hintHead);
+      sessionStorage.setItem('city-hint-to', red.dataset.hintTo || 'booth');
     } catch (e) {}
     if (reduced) return location.assign(red.href);
     // and picks up the static, letting it clear as its first scene comes in

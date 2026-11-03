@@ -205,7 +205,9 @@ def cyber_parts(meta, lang):
     t = UI[lang]['cyber']
     text = {**{f't_{k}': html.escape(v) for k, v in t.items()},
             # rain: messages hidden in overdrive's digital rain, separated by |
-            'cyber_rain': html.escape(meta.get('rain', ''))}
+            'cyber_rain': html.escape(meta.get('rain', '')),
+            # city: where the post waits in the City, so the white rabbit leads there (booth by default, or terminal)
+            'cyber_city_to': html.escape(meta.get('city', 'booth'))}
     return {f'cyber_{n}': fill(PARTS['cyber'][n], text) for n in names}
 
 
