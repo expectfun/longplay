@@ -63,13 +63,18 @@
   }
   .topbar a { color: var(--muted); text-decoration: none; }
   .topbar a:hover { color: var(--ink); }
-  .back { display: inline-flex; align-items: center; gap: 10px; }
+  .back { display: inline-flex; align-items: center; }
   .topbar .right { display: inline-flex; align-items: center; gap: 18px; }
   .back svg { width: 42px; height: 37px; flex: none; color: var(--ink); }
   .back .platter { transform-origin: 13px 15px; }
   .back:hover .platter { animation: spin 1.8s linear infinite; }
   .back .arm { transform-origin: 29px 4px; transition: transform .35s ease; }
   .back:hover .arm { transform: rotate(14deg); }
+  /* the words show only on hover (or keyboard focus); hidden, they don't catch the pointer, so only the icon does */
+  .back { pointer-events: none; }
+  .back svg { pointer-events: auto; }
+  .back span { padding-left: 10px; opacity: 0; transform: translateX(-6px); transition: opacity .2s ease, transform .2s ease; }
+  .back:hover span, .back:focus-visible span { opacity: 1; transform: none; pointer-events: auto; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   header.post-head { max-width: var(--col); margin: 40px auto 0; padding: 0 20px; text-align: center; }
@@ -141,6 +146,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .back:hover .platter { animation: none; }
+    .back span { transition: none; transform: none; }
     html.arrive body::after { display: none; }
   }
   @media (max-width: 600px) {
